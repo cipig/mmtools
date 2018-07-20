@@ -4,18 +4,20 @@ use warnings;
 use LWP::UserAgent;
 use JSON;
 use File::Slurp qw( read_file );
+use File::Basename;
 
 my $userpass =  $ENV{'userpass'};
 my $base = $ARGV[0];
 my $api = $ARGV[1];
-my $marginsconf = decode_json( read_file("margins.conf") );
+my $cwd = dirname($0);
+my $marginsconf = decode_json( read_file("$cwd/margins.conf") );
 
 
 sub apicmcpaid {
     my $baseurl = "https://beta-pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?";
     my $ids = "id=";
     my $rel = "&convert=$_[0]";
-    my $apikey = "&CMC_PRO_API_KEY=xxxxx-xxxxxx";
+    my $apikey = "&CMC_PRO_API_KEY=x";
 
     foreach my $coin ( keys %{$marginsconf} ) {
         my $cmcid = $marginsconf->{$coin}{'cmcid'};
