@@ -1,0 +1,125 @@
+#!/usr/bin/perl
+
+use warnings;
+use LWP::UserAgent;
+use JSON;
+use File::Slurp qw( read_file );
+
+my $userpass =  $ENV{'userpass'};
+my $base = $ARGV[0];
+my $api = $ARGV[1];
+my $marginsconf = decode_json( read_file("margins.conf") );
+
+
+sub apicmcpaid {
+    my $baseurl = "https://beta-pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?";
+    my $ids = "id=";
+    my $rel = "&convert=$_[0]";
+    my $apikey = "&CMC_PRO_API_KEY=xxxxx-xxxxxx";
+
+    foreach my $coin ( keys %{$marginsconf} ) {
+        my $cmcid = $marginsconf->{$coin}{'cmcid'};
+        $ids .= $cmcid.",";
+    }
+    chop($ids);
+    my $url = $baseurl.$ids.$rel.$apikey;
+    my $ua = LWP::UserAgent->new;
+    $ua->agent("Mozilla");
+    $ua->timeout(15);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "\nHTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+        }
+}
+
+
+sub apicmcv2 {
+    my $baseurl = "https://api.coinmarketcap.com/v2/ticker/";
+    my $id = "$_[1]";
+    my $rel = "/?convert=$_[0]";
+    my $url = $baseurl.$id.$rel;
+    my $ua = LWP::UserAgent->new;
+    $ua->agent("Mozilla");
+    $ua->timeout(15);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "\nHTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+        }
+}
+
+
+sub setprice {
+    my $price = $_[2];
+    my $bid = undef;
+    my $ask = undef;
+    my $command = undef;
+
+    if ( defined $marginsconf->{$_[1]}{'askmargin'} ) {
+        $ask = sprintf("%.8f", $price + $price * $marginsconf->{$_[1]}{'askmargin'});
+    }
+    if ( defined $marginsconf->{$_[1]}{'bidmargin'} ) {
+        $bid = sprintf("%.8f", 1 / ($price - $price * $marginsconf->{$_[1]}{'bidmargin'}));
+    }
+
+    my $ua = LWP::UserAgent->new;
+    my $req = HTTP::Request->new(
+        POST => 'http://127.0.0.1:7783');
+    $req->content_type('application/x-www-form-urlencoded');
+
+    if ( defined $ask ) {
+        $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[1].'","rel":"'.$_[0].'","price":'.$ask.'}';
+        $req->content($command);
+        my $resp = $ua->request($req);
+        print "$_[1]/$_[0] $ask ".$resp->content;
+    }
+
+    if ( defined $bid ) {
+        $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.'}';
+        $req->content($command);
+        $resp = $ua->request($req);
+        print "$_[0]/$_[1] $bid ".$resp->content;
+    }
+}
+
+
+if ( !defined $base || !defined $api ) {
+    print "Please specifiy base coin and API: eg ./setprices KMD cmcpaid\n";
+    exit 1;
+}
+
+if ( $api eq "cmcpaid" ) {
+    my $prices = apicmcpaid($base);
+    if ( defined $prices ) {
+        foreach my $coin ( keys %{$marginsconf} ) {
+            my $cmcid = $marginsconf->{$coin}{'cmcid'};
+            my $price = from_json($prices)->{'data'}{$cmcid}{'quote'}{$base}{'price'};
+            if ( $base ne $coin ) {
+                setprice($base,$coin,$price);
+            }
+        }
+    }
+} elsif ( $api eq "cmcv2" ) {
+    foreach my $coin ( keys %{$marginsconf} ) {
+        my $cmcid = $marginsconf->{$coin}{'cmcid'};
+        my $coinprice = apicmcv2($base,$cmcid);
+        my $price = from_json($coinprice)->{'data'}{'quotes'}{$base}{'price'};
+        if ( $base ne $coin ) {
+            setprice($base,$coin,$price);
+        }
+    }
+} else {
+    print "API not found\n";
+    exit 1;
+}
