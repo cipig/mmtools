@@ -2,6 +2,7 @@
 
 use warnings;
 use LWP::UserAgent;
+#use LWP::Protocol::socks;
 use JSON;
 use File::Slurp qw( read_file );
 use File::Basename;
@@ -49,6 +50,7 @@ sub apicmcv2 {
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
     $ua->timeout(15);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -120,6 +122,7 @@ if ( $api eq "cmcpaid" ) {
         if ( $base ne $coin ) {
             setprice($base,$coin,$price);
         }
+        sleep 2;
     }
 } else {
     print "API not found\n";
