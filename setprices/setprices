@@ -117,6 +117,28 @@ sub setprice {
 }
 
 
+sub deleteprice {
+    my $command = undef;
+    my $ask = 0;
+    my $bid = 0;
+
+    my $ua = LWP::UserAgent->new;
+    my $req = HTTP::Request->new(
+        POST => 'http://127.0.0.1:7783');
+    $req->content_type('application/x-www-form-urlencoded');
+
+    $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[1].'","rel":"'.$_[0].'","price":'.$ask.'}';
+    $req->content($command);
+    my $resp = $ua->request($req);
+    print "$_[1]/$_[0] $ask ".$resp->content;
+
+    $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.'}';
+    $req->content($command);
+    $resp = $ua->request($req);
+    print "$_[0]/$_[1] $bid ".$resp->content;
+}
+
+
 if ( !defined $base || !defined $api ) {
     print "Please specifiy base coin and API: eg ./setprices KMD cmcpaid\n";
     exit 1;
@@ -138,7 +160,7 @@ if ( $api eq "cmcpaid" ) {
                 } elsif ( ($erc20 eq "1") && ($gasprice < $maxgasprice) ) {
                     setprice($base,$coin,$price);
                 } else {
-                    print "gasPrice too high: $gasprice\n";
+                    deleteprice($base,$coin);
                 } 
             }
         }
@@ -156,7 +178,7 @@ if ( $api eq "cmcpaid" ) {
             } elsif ( ($erc20 eq "1") && ($gasprice < $maxgasprice) ) {
                 setprice($base,$coin,$price);
             } else {
-                print "gasPrice too high: $gasprice\n";
+                deleteprice($base,$coin);
             }
         }
         sleep 2;
