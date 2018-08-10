@@ -10,8 +10,27 @@ use File::Basename;
 my $userpass =  $ENV{'userpass'};
 my $base = $ARGV[0];
 my $api = $ARGV[1];
+my $maxgasprice = 10;
 my $cwd = dirname($0);
 my $marginsconf = decode_json( read_file("$cwd/margins.conf") );
+
+
+sub getgasprice {
+    my $url = "https://www.etherchain.org/api/gasPriceOracle";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent("Mozilla");
+    $ua->timeout(15);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "\nHTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+        }
+}
 
 
 sub apicmcpaid {
@@ -103,24 +122,42 @@ if ( !defined $base || !defined $api ) {
     exit 1;
 }
 
+my $gasprice = from_json(getgasprice())->{'standard'};
+
 if ( $api eq "cmcpaid" ) {
     my $prices = apicmcpaid($base);
     if ( defined $prices ) {
         foreach my $coin ( keys %{$marginsconf} ) {
             my $cmcid = $marginsconf->{$coin}{'cmcid'};
+            my $erc20 = $marginsconf->{$coin}{'erc20'};
+            if ( !defined $erc20 ) { $erc20 = "0"; }
             my $price = from_json($prices)->{'data'}{$cmcid}{'quote'}{$base}{'price'};
             if ( $base ne $coin ) {
-                setprice($base,$coin,$price);
+                if ( $erc20 eq "0" ) {
+                    setprice($base,$coin,$price);
+                } elsif ( ($erc20 eq "1") && ($gasprice < $maxgasprice) ) {
+                    setprice($base,$coin,$price);
+                } else {
+                    print "gasPrice too high: $gasprice\n";
+                } 
             }
         }
     }
 } elsif ( $api eq "cmcv2" ) {
     foreach my $coin ( keys %{$marginsconf} ) {
         my $cmcid = $marginsconf->{$coin}{'cmcid'};
+        my $erc20 = $marginsconf->{$coin}{'erc20'};
+        if ( !defined $erc20 ) { $erc20 = "0"; }
         my $coinprice = apicmcv2($base,$cmcid);
         my $price = from_json($coinprice)->{'data'}{'quotes'}{$base}{'price'};
         if ( $base ne $coin ) {
-            setprice($base,$coin,$price);
+            if ( $erc20 eq "0" ) {
+                setprice($base,$coin,$price);
+            } elsif ( ($erc20 eq "1") && ($gasprice < $maxgasprice) ) {
+                setprice($base,$coin,$price);
+            } else {
+                print "gasPrice too high: $gasprice\n";
+            }
         }
         sleep 2;
     }
