@@ -34,7 +34,7 @@ sub getgasprice {
 
 
 sub apicmcpaid {
-    my $baseurl = "https://beta-pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?";
+    my $baseurl = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?";
     my $ids = "id=";
     my $rel = "&convert=$_[0]";
     my $apikey = "&CMC_PRO_API_KEY=x";
