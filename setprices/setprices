@@ -12,7 +12,8 @@ my $base = $ARGV[0];
 my $api = $ARGV[1];
 my $maxgasprice = 10;
 my $cwd = dirname($0);
-my $marginsconf = decode_json( read_file("$cwd/margins.conf") );
+my $json = read_file("$cwd/margins.conf");
+my $marginsconf = decode_json($json);
 
 
 sub getgasprice {
