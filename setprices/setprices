@@ -34,18 +34,8 @@ sub getgasprice {
 }
 
 
-sub apicmcpaid {
-    my $baseurl = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?";
-    my $ids = "id=";
-    my $rel = "&convert=$_[0]";
-    my $apikey = "&CMC_PRO_API_KEY=x";
-
-    foreach my $coin ( keys %{$marginsconf} ) {
-        my $cmcid = $marginsconf->{$coin}{'cmcid'};
-        $ids .= $cmcid.",";
-    }
-    chop($ids);
-    my $url = $baseurl.$ids.$rel.$apikey;
+sub apipaprika {
+    my $url = "https://api.coinpaprika.com/v1/price-converter?base_currency_id=".$_[1]."&quote_currency_id=".$_[0]."&amount=1";
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
     $ua->timeout(15);
@@ -62,15 +52,21 @@ sub apicmcpaid {
 }
 
 
-sub apicmcv2 {
-    my $baseurl = "https://api.coinmarketcap.com/v2/ticker/";
-    my $id = "$_[1]";
-    my $rel = "/?convert=$_[0]";
-    my $url = $baseurl.$id.$rel;
+sub apicmcpaid {
+    my $baseurl = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?";
+    my $ids = "id=";
+    my $rel = "&convert=$_[0]";
+    my $apikey = "&CMC_PRO_API_KEY=x";
+
+    foreach my $coin ( keys %{$marginsconf} ) {
+        my $cmcid = $marginsconf->{$coin}{'cmcid'};
+        $ids .= $cmcid.",";
+    }
+    chop($ids);
+    my $url = $baseurl.$ids.$rel.$apikey;
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
     $ua->timeout(15);
-    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -166,13 +162,14 @@ if ( $api eq "cmcpaid" ) {
             }
         }
     }
-} elsif ( $api eq "cmcv2" ) {
+} elsif ( $api eq "coinpaprika" ) {
+    my $basepapid = $marginsconf->{$base}{'papid'};
     foreach my $coin ( keys %{$marginsconf} ) {
-        my $cmcid = $marginsconf->{$coin}{'cmcid'};
+        my $papid = $marginsconf->{$coin}{'papid'};
         my $erc20 = $marginsconf->{$coin}{'erc20'};
         if ( !defined $erc20 ) { $erc20 = "0"; }
-        my $coinprice = apicmcv2($base,$cmcid);
-        my $price = from_json($coinprice)->{'data'}{'quotes'}{$base}{'price'};
+        my $coinprice = apipaprika($basepapid,$papid);
+        my $price = from_json($coinprice)->{'price'};
         if ( $base ne $coin ) {
             if ( $erc20 eq "0" ) {
                 setprice($base,$coin,$price);
@@ -182,7 +179,7 @@ if ( $api eq "cmcpaid" ) {
                 deleteprice($base,$coin);
             }
         }
-        sleep 2;
+        sleep 1;
     }
 } else {
     print "API not found\n";
