@@ -1,8 +1,8 @@
 ## setprices
 
-`./setprices KMD cmcpaid` sets prices for all coins from margins.conf and uses CMC paid API ($apikey must be configured)  
+`./setprices KMD cmcpaid` sets prices for all coins from margins.conf and uses CMC paid API ($apikey must be configured) or coinpaprika free API  
 
-`margins.conf` must contain cmcid for every coin, taken from https://api.coinmarketcap.com/v2/listings/  
+cmcid/papid in `margins.conf` are taken from https://api.coinmarketcap.com/v2/listings/ and  https://api.coinpaprika.com/v1/coins  
 If `bidmargin` or `askmargin` is not set, bid/ask will not be set  
 
 script to set prices with CMC paid API:
