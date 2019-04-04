@@ -102,14 +102,14 @@ sub setprice {
         $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[1].'","rel":"'.$_[0].'","price":'.$ask.'}';
         $req->content($command);
         my $resp = $ua->request($req);
-        print "$_[1]/$_[0] $ask ".$resp->content;
+        print "$_[1]/$_[0] $ask ".$resp->content."\n";
     }
 
     if ( defined $bid ) {
         $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.'}';
         $req->content($command);
         $resp = $ua->request($req);
-        print "$_[0]/$_[1] $bid ".$resp->content;
+        print "$_[0]/$_[1] $bid ".$resp->content."\n";
     }
 }
 
@@ -127,12 +127,12 @@ sub deleteprice {
     $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[1].'","rel":"'.$_[0].'","price":'.$ask.'}';
     $req->content($command);
     my $resp = $ua->request($req);
-    print "$_[1]/$_[0] $ask ".$resp->content;
+    print "$_[1]/$_[0] $ask ".$resp->content."\n";
 
     $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.'}';
     $req->content($command);
     $resp = $ua->request($req);
-    print "$_[0]/$_[1] $bid ".$resp->content;
+    print "$_[0]/$_[1] $bid ".$resp->content."\n";
 }
 
 
