@@ -165,15 +165,16 @@ if ( $api eq "cmcpaid" ) {
 } elsif ( $api eq "coinpaprika" ) {
     my $basepapid = $marginsconf->{$base}{'papid'};
     foreach my $coin ( keys %{$marginsconf} ) {
+        my $price = undef;
         my $papid = $marginsconf->{$coin}{'papid'};
         my $erc20 = $marginsconf->{$coin}{'erc20'};
         if ( !defined $erc20 ) { $erc20 = "0"; }
         my $coinprice = apipaprika($basepapid,$papid);
-        my $price = from_json($coinprice)->{'price'};
+        if ( $coinprice ne "1" ) { $price = from_json($coinprice)->{'price'}; }
         if ( $base ne $coin ) {
-            if ( $erc20 eq "0" ) {
+            if ( ($erc20 eq "0") && (defined $price) ) {
                 setprice($base,$coin,$price);
-            } elsif ( ($erc20 eq "1") && ($gasprice < $maxgasprice) ) {
+            } elsif ( ($erc20 eq "1") && ($gasprice < $maxgasprice) && (defined $price) ) {
                 setprice($base,$coin,$price);
             } else {
                 deleteprice($base,$coin);
