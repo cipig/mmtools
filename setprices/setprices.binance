@@ -73,7 +73,7 @@ sub setprice {
     $req->header('X-MBX-APIKEY' => $apikey);
 
     if ( defined $ask ) {
-	$command = "symbol=".$coin.$base."&side=SELL&type=LIMIT&timeInForce=GTC&quantity=".$quantity."&price=".$ask."&newClientOrderId=mysellid&timestamp=".time()*1000;
+	$command = "symbol=".$coin.$base."&side=SELL&type=LIMIT_MAKER&newOrderRespType=FULL&quantity=".$quantity."&price=".$ask."&newClientOrderId=mysellid&timestamp=".time()*1000;
 	$signature = hmac_sha256_hex($command, $seckey);
         $body = $command."&signature=".$signature;
         $req->content($body);
@@ -82,7 +82,7 @@ sub setprice {
     }
 
     if ( defined $bid ) {
-        $command = "symbol=".$coin.$base."&side=BUY&type=LIMIT&timeInForce=GTC&quantity=".$quantity."&price=".$bid."&newClientOrderId=mybuyid&timestamp=".time()*1000;
+        $command = "symbol=".$coin.$base."&side=BUY&type=LIMIT_MAKER&newOrderRespType=FULL&quantity=".$quantity."&price=".$bid."&newClientOrderId=mybuyid&timestamp=".time()*1000;
         $signature = hmac_sha256_hex($command, $seckey);
         $body = $command."&signature=".$signature;
         $req->content($body);
