@@ -1,0 +1,7 @@
+#!/bin/bash
+source userpass
+while true; do
+  date
+  ~/mmtools/setprices/setprices.binance KMD
+  sleep 120
+done

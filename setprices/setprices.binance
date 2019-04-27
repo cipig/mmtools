@@ -11,10 +11,10 @@ my $apikey = "";
 my $seckey = "";
 my $coin = $ARGV[0];
 my $base = "BTC";
-my $quantity = $ARGV[1];
 my $cwd = dirname($0);
 my $json = read_file("$cwd/margins.conf");
 my $marginsconf = decode_json($json);
+my $quantity = $marginsconf->{$coin}{'quantity'};
 
 
 sub latest_price {
@@ -93,10 +93,7 @@ sub setprice {
 
 
 if ( !defined $coin ) {
-    print "Please specify coin: eg ./setprices KMD 50\n";
-    exit 1;
-} elsif ( !defined $quantity ) {
-    print "Please specify quantity: eg ./setprices KMD 50\n";
+    print "Please specify coin: eg ./setprices KMD\n";
     exit 1;
 }
 
