@@ -289,10 +289,13 @@ if ( $api eq "cmcpaid" ) {
 
 $base = "KMD";
 my $coin = "BTC";
+my $minmargin = 0.0015;
 my $cex_price = decode_json(cex_latest_price($base,$coin))->{'price'};
 my $cex_depth = decode_json(cex_depth($base,$coin));
 my $cex_bid_price = undef;
 my $cex_ask_price = undef;
+my $maxbidprice = $cex_price - $cex_price * $minmargin;
+my $minaskprice = $cex_price + $cex_price * $minmargin;
 
 foreach (@{$cex_depth->{'bids'}}) {
     my @array = $_;
@@ -314,8 +317,8 @@ foreach (@{$cex_depth->{'asks'}}) {
     }
 }
 
-if ( !defined $cex_bid_price ) { $cex_bid_price = sprintf("%.7f", ($cex_price - $cex_price * $marginsconf->{$base}{'bidmargin'})); }
-if ( !defined $cex_ask_price ) { $cex_ask_price = sprintf("%.7f", ($cex_price + $cex_price * $marginsconf->{$base}{'askmargin'})); }
+if ( ( !defined $cex_bid_price ) || ( $cex_bid_price > $maxbidprice ) ) { $cex_bid_price = sprintf("%.7f", ($cex_price - $cex_price * $marginsconf->{$base}{'bidmargin'})); }
+if ( ( !defined $cex_ask_price ) || ( $cex_ask_price < $minaskprice ) ) { $cex_ask_price = sprintf("%.7f", ($cex_price + $cex_price * $marginsconf->{$base}{'askmargin'})); }
 
 #cex_setprice($base,$coin,$cex_price);
 cex_setprice($base,$coin,$cex_bid_price,$cex_ask_price);
