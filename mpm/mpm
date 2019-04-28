@@ -6,6 +6,7 @@ use JSON;
 use File::Slurp qw( read_file );
 use File::Basename;
 use Digest::SHA qw(hmac_sha256_hex);
+#use Data::Dumper;
 
 
 my $maxgasprice = 10;
@@ -104,18 +105,46 @@ sub cex_latest_price {
 }
 
 
+sub cex_depth {
+    my $base = $_[0];
+    my $coin = $_[1];
+    my $url = "https://api.binance.com/api/v1/depth?symbol=".$base.$coin."&limit=20";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent("Mozilla");
+    $ua->timeout(15);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+        }
+}
+
+
 sub cex_setprice {
     my $base = $_[0];
     my $coin = $_[1];
-    my $price = $_[2];
-    my $bid = undef;
-    my $ask = undef;
     my $command = undef;
     my $signature = undef;
     my $body = undef;
     my $ua = LWP::UserAgent->new;
     my $req = undef;
     my $resp = undef;
+
+    my $bid = sprintf("%.7f",$_[2]);
+    my $ask = sprintf("%.7f",$_[3]);
+
+#    my $price = $_[2];
+#    if ( defined $marginsconf->{$_[1]}{'askmargin'} ) {
+#        $ask = sprintf("%.7f", $price + $price * $marginsconf->{$_[1]}{'askmargin'});
+#    }
+#    if ( defined $marginsconf->{$_[1]}{'bidmargin'} ) {
+#        $bid = sprintf("%.7f", ($price - $price * $marginsconf->{$_[1]}{'bidmargin'}));
+#    }
 
     $req = HTTP::Request->new(DELETE => 'https://api.binance.com/api/v3/order');
     $req->header('X-MBX-APIKEY' => $cex_apikey);
@@ -133,18 +162,12 @@ sub cex_setprice {
     $resp = $ua->request($req);
     print $resp->content."\n";
 
-    if ( defined $marginsconf->{$_[1]}{'askmargin'} ) {
-        $ask = sprintf("%.7f", $price + $price * $marginsconf->{$_[1]}{'askmargin'});
-    }
-    if ( defined $marginsconf->{$_[1]}{'bidmargin'} ) {
-        $bid = sprintf("%.7f", ($price - $price * $marginsconf->{$_[1]}{'bidmargin'}));
-    }
-
     $req = HTTP::Request->new(POST => 'https://api.binance.com/api/v3/order');
     $req->header('X-MBX-APIKEY' => $cex_apikey);
 
     if ( defined $ask ) {
 	$command = "symbol=".$base.$coin."&side=SELL&type=LIMIT_MAKER&newOrderRespType=RESULT&quantity=".$quantity."&price=".$ask."&newClientOrderId=mysellid&timestamp=".time()*1000;
+        #print "$command\n";
 	$signature = hmac_sha256_hex($command, $cex_seckey);
         $body = $command."&signature=".$signature;
         $req->content($body);
@@ -154,6 +177,7 @@ sub cex_setprice {
 
     if ( defined $bid ) {
         $command = "symbol=".$base.$coin."&side=BUY&type=LIMIT_MAKER&newOrderRespType=RESULT&quantity=".$quantity."&price=".$bid."&newClientOrderId=mybuyid&timestamp=".time()*1000;
+        #print "$command\n";
         $signature = hmac_sha256_hex($command, $cex_seckey);
         $body = $command."&signature=".$signature;
         $req->content($body);
@@ -266,5 +290,32 @@ if ( $api eq "cmcpaid" ) {
 $base = "KMD";
 my $coin = "BTC";
 my $cex_price = decode_json(cex_latest_price($base,$coin))->{'price'};
-cex_setprice($base,$coin,$cex_price);
+my $cex_depth = decode_json(cex_depth($base,$coin));
+my $cex_bid_price = undef;
+my $cex_ask_price = undef;
 
+foreach (@{$cex_depth->{'bids'}}) {
+    my @array = $_;
+    my $price = $array[0][0];
+    my $volume = $array[0][1];
+    if ( $volume > $quantity ) {
+        $cex_bid_price = $price + 0.00000010;
+        last;
+    }
+}
+
+foreach (@{$cex_depth->{'asks'}}) {
+    my @array = $_;
+    my $price = $array[0][0];
+    my $volume = $array[0][1];
+    if ( $volume > $quantity ) {
+        $cex_ask_price = $price - 0.00000010;
+        last;
+    }
+}
+
+if ( !defined $cex_bid_price ) { $cex_bid_price = sprintf("%.7f", ($cex_price - $cex_price * $marginsconf->{$base}{'bidmargin'})); }
+if ( !defined $cex_ask_price ) { $cex_ask_price = sprintf("%.7f", ($cex_price + $cex_price * $marginsconf->{$base}{'askmargin'})); }
+
+#cex_setprice($base,$coin,$cex_price);
+cex_setprice($base,$coin,$cex_bid_price,$cex_ask_price);
