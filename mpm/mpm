@@ -31,7 +31,7 @@ sub getgasprice {
         if ($resp->is_success) {
             return $resp->content;
         } else {
-            print "\nHTTP GET url: ", $url, "\n";
+            print "HTTP GET url: ", $url, "\n";
             print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
         }
@@ -49,7 +49,7 @@ sub apipaprika {
         if ($resp->is_success) {
             return $resp->content;
         } else {
-            print "\nHTTP GET url: ", $url, "\n";
+            print "HTTP GET url: ", $url, "\n";
             print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
         }
@@ -77,7 +77,7 @@ sub apicmcpaid {
         if ($resp->is_success) {
             return $resp->content;
         } else {
-            print "\nHTTP GET url: ", $url, "\n";
+            print "HTTP GET url: ", $url, "\n";
             print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
         }
@@ -95,7 +95,7 @@ sub cex_latest_price {
         if ($resp->is_success) {
             return $resp->content;
         } else {
-            print "\nHTTP GET url: ", $url, "\n";
+            print "HTTP GET url: ", $url, "\n";
             print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
         }
