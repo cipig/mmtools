@@ -1,20 +1,10 @@
-## setprices
+## mpm
 
-`./setprices KMD cmcpaid` sets prices for all coins from margins.conf and uses CMC paid API ($apikey must be configured) or coinpaprika free API  
+`./mpm coinpaprika` sets prices for all coins from mpm.conf and uses coinpaprika for DEX price calculation  
 
-cmcid/papid in `margins.conf` are taken from https://api.coinmarketcap.com/v2/listings/ and  https://api.coinpaprika.com/v1/coins  
+cmcid/papid in `mpm.conf` are taken from https://api.coinmarketcap.com/v2/listings/ and  https://api.coinpaprika.com/v1/coins  
 If `bidmargin` or `askmargin` is not set, bid/ask will not be set  
 
-script to set prices with CMC paid API:
-```
-#!/bin/bash
-source userpass
-
-while true; do
-  ~/mmtools/setprices/setprices KMD cmcpaid
-  sleep 600
-done
-```
-
-can be started with `nohup ./autoprice_kmd > ~/setprices.log &` in the background  
-config file `~/mmtools/setprices/margins.conf` can be edited and prices will be updated without the need to restart  
+can be started with `stdbuf -oL nohup ~/mmtools/mpm/mpm.sh > /tmp/mpm.log &` in the background  
+`tail -f /tmp/mpm.log` to watch mpm TV
+config file `~/mmtools/mpm/mpm.conf` can be edited and prices will be updated without the need to restart  

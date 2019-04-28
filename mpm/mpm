@@ -2,18 +2,22 @@
 
 use warnings;
 use LWP::UserAgent;
-#use LWP::Protocol::socks;
 use JSON;
 use File::Slurp qw( read_file );
 use File::Basename;
+use Digest::SHA qw(hmac_sha256_hex);
 
 my $userpass =  $ENV{'userpass'};
-my $base = $ARGV[0];
-my $api = $ARGV[1];
+my $api = $ARGV[0];
 my $maxgasprice = 10;
+my $cex_apikey = "";
+my $cex_seckey = "";
+my $coin = "KMD";
+my $base = "BTC";
 my $cwd = dirname($0);
-my $json = read_file("$cwd/margins.conf");
+my $json = read_file("$cwd/mpm.conf");
 my $marginsconf = decode_json($json);
+my $quantity = $marginsconf->{$coin}{'quantity'};
 
 
 sub getgasprice {
@@ -56,14 +60,14 @@ sub apicmcpaid {
     my $baseurl = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?";
     my $ids = "id=";
     my $rel = "&convert=$_[0]";
-    my $apikey = "&CMC_PRO_API_KEY=x";
+    my $cmc_apikey = "&CMC_PRO_API_KEY=x";
 
     foreach my $coin ( keys %{$marginsconf} ) {
         my $cmcid = $marginsconf->{$coin}{'cmcid'};
         $ids .= $cmcid.",";
     }
     chop($ids);
-    my $url = $baseurl.$ids.$rel.$apikey;
+    my $url = $baseurl.$ids.$rel.$cmc_apikey;
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
     $ua->timeout(15);
@@ -80,7 +84,82 @@ sub apicmcpaid {
 }
 
 
-sub setprice {
+sub cex_latest_price {
+    my $url = "https://api.binance.com/api/v3/ticker/price?symbol=".$coin.$base;
+    my $ua = LWP::UserAgent->new;
+    $ua->agent("Mozilla");
+    $ua->timeout(15);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "\nHTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+        }
+}
+
+
+sub cex_setprice {
+    my $price = $_[2];
+    my $bid = undef;
+    my $ask = undef;
+    my $command = undef;
+    my $signature = undef;
+    my $body = undef;
+    my $ua = LWP::UserAgent->new;
+    my $req = undef;
+    my $resp = undef;
+
+    $req = HTTP::Request->new(DELETE => 'https://api.binance.com/api/v3/order');
+    $req->header('X-MBX-APIKEY' => $cex_apikey);
+    $command = "symbol=".$coin.$base."&origClientOrderId=mysellid&timestamp=".time()*1000;
+    $signature = hmac_sha256_hex($command, $cex_seckey);
+    $body = $command."&signature=".$signature;
+    $req->content($body);
+    $resp = $ua->request($req);
+    print $resp->content."\n";
+
+    $command = "symbol=".$coin.$base."&origClientOrderId=mybuyid&timestamp=".time()*1000;
+    $signature = hmac_sha256_hex($command, $cex_seckey);
+    $body = $command."&signature=".$signature;
+    $req->content($body);
+    $resp = $ua->request($req);
+    print $resp->content."\n";
+
+    if ( defined $marginsconf->{$_[1]}{'askmargin'} ) {
+        $ask = sprintf("%.7f", $price + $price * $marginsconf->{$_[1]}{'askmargin'});
+    }
+    if ( defined $marginsconf->{$_[1]}{'bidmargin'} ) {
+        $bid = sprintf("%.7f", ($price - $price * $marginsconf->{$_[1]}{'bidmargin'}));
+    }
+
+    $req = HTTP::Request->new(POST => 'https://api.binance.com/api/v3/order');
+    $req->header('X-MBX-APIKEY' => $cex_apikey);
+
+    if ( defined $ask ) {
+	$command = "symbol=".$coin.$base."&side=SELL&type=LIMIT_MAKER&newOrderRespType=FULL&quantity=".$quantity."&price=".$ask."&newClientOrderId=mysellid&timestamp=".time()*1000;
+	$signature = hmac_sha256_hex($command, $cex_seckey);
+        $body = $command."&signature=".$signature;
+        $req->content($body);
+        my $resp = $ua->request($req);
+        print $resp->content."\n";
+    }
+
+    if ( defined $bid ) {
+        $command = "symbol=".$coin.$base."&side=BUY&type=LIMIT_MAKER&newOrderRespType=FULL&quantity=".$quantity."&price=".$bid."&newClientOrderId=mybuyid&timestamp=".time()*1000;
+        $signature = hmac_sha256_hex($command, $cex_seckey);
+        $body = $command."&signature=".$signature;
+        $req->content($body);
+        $resp = $ua->request($req);
+        print $resp->content."\n";
+    }
+}
+
+
+sub dex_setprice {
     my $price = $_[2];
     my $bid = undef;
     my $ask = undef;
@@ -94,8 +173,7 @@ sub setprice {
     }
 
     my $ua = LWP::UserAgent->new;
-    my $req = HTTP::Request->new(
-        POST => 'http://127.0.0.1:7783');
+    my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
     $req->content_type('application/x-www-form-urlencoded');
 
     if ( defined $ask ) {
@@ -114,14 +192,13 @@ sub setprice {
 }
 
 
-sub deleteprice {
+sub dex_deleteprice {
     my $command = undef;
     my $ask = 0;
     my $bid = 0;
 
     my $ua = LWP::UserAgent->new;
-    my $req = HTTP::Request->new(
-        POST => 'http://127.0.0.1:7783');
+    my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
     $req->content_type('application/x-www-form-urlencoded');
 
     $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[1].'","rel":"'.$_[0].'","price":'.$ask.'}';
@@ -136,11 +213,6 @@ sub deleteprice {
 }
 
 
-if ( !defined $base || !defined $api ) {
-    print "Please specifiy base coin and API: eg ./setprices KMD cmcpaid\n";
-    exit 1;
-}
-
 my $gasprice = from_json(getgasprice())->{'standard'};
 
 if ( $api eq "cmcpaid" ) {
@@ -153,12 +225,12 @@ if ( $api eq "cmcpaid" ) {
             my $price = from_json($prices)->{'data'}{$cmcid}{'quote'}{$base}{'price'};
             if ( $base ne $coin ) {
                 if ( $erc20 eq "0" ) {
-                    setprice($base,$coin,$price);
+                    dex_setprice($base,$coin,$price);
                 } elsif ( ($erc20 eq "1") && ($gasprice < $maxgasprice) ) {
-                    setprice($base,$coin,$price);
+                    dex_setprice($base,$coin,$price);
                 } else {
-                    deleteprice($base,$coin);
-                } 
+                    dex_deleteprice($base,$coin);
+                }
             }
         }
     }
@@ -173,11 +245,11 @@ if ( $api eq "cmcpaid" ) {
         if ( $coinprice ne "1" ) { $price = from_json($coinprice)->{'price'}; }
         if ( $base ne $coin ) {
             if ( ($erc20 eq "0") && (defined $price) ) {
-                setprice($base,$coin,$price);
+                dex_setprice($base,$coin,$price);
             } elsif ( ($erc20 eq "1") && ($gasprice < $maxgasprice) && (defined $price) ) {
-                setprice($base,$coin,$price);
+                dex_setprice($base,$coin,$price);
             } else {
-                deleteprice($base,$coin);
+                dex_deleteprice($base,$coin);
             }
         }
         sleep 1;
@@ -186,3 +258,7 @@ if ( $api eq "cmcpaid" ) {
     print "API not found\n";
     exit 1;
 }
+
+my $cex_price = decode_json(cex_latest_price)->{'price'};
+cex_setprice($base,$coin,$cex_price);
+
