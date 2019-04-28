@@ -1,6 +1,15 @@
 ## mpm
 
-`./mpm coinpaprika` sets prices for all coins from mpm.conf and uses coinpaprika for DEX price calculation  
+```
+sudo apt-get install libjson-perl libfile-slurp-perl
+cd && git clone https://github.com/cipig/mmtools
+cd ~/mmtools/mpm
+vi mpm
+my $cex_apikey = "Binance API Key";
+my $cex_seckey = "Binance API secret";
+```
+
+`~/mmtools/mpm/mpm coinpaprika` sets prices for all coins from mpm.conf and uses coinpaprika for DEX price calculation  
 
 cmcid/papid in `mpm.conf` are taken from https://api.coinmarketcap.com/v2/listings/ and  https://api.coinpaprika.com/v1/coins  
 If `bidmargin` or `askmargin` is not set, bid/ask will not be set  
