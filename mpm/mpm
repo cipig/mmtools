@@ -7,13 +7,13 @@ use File::Slurp qw( read_file );
 use File::Basename;
 use Digest::SHA qw(hmac_sha256_hex);
 
-my $userpass =  $ENV{'userpass'};
-my $api = $ARGV[0];
+
 my $maxgasprice = 10;
 my $cex_apikey = "";
 my $cex_seckey = "";
-my $coin = "BTC";
 my $base = "KMD";
+my $userpass =  $ENV{'userpass'};
+my $api = $ARGV[0];
 my $cwd = dirname($0);
 my $json = read_file("$cwd/mpm.conf");
 my $marginsconf = decode_json($json);
@@ -85,6 +85,8 @@ sub apicmcpaid {
 
 
 sub cex_latest_price {
+    my $base = $_[0];
+    my $coin = $_[1];
     my $url = "https://api.binance.com/api/v3/ticker/price?symbol=".$base.$coin;
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
@@ -103,6 +105,8 @@ sub cex_latest_price {
 
 
 sub cex_setprice {
+    my $base = $_[0];
+    my $coin = $_[1];
     my $price = $_[2];
     my $bid = undef;
     my $ask = undef;
@@ -258,6 +262,9 @@ if ( $api eq "cmcpaid" ) {
     exit 1;
 }
 
-my $cex_price = decode_json(cex_latest_price)->{'price'};
-cex_setprice($coin,$base,$cex_price);
+
+$base = "KMD";
+my $coin = "BTC";
+my $cex_price = decode_json(cex_latest_price($base,$coin))->{'price'};
+cex_setprice($base,$coin,$cex_price);
 
