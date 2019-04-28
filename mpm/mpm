@@ -12,12 +12,12 @@ my $api = $ARGV[0];
 my $maxgasprice = 10;
 my $cex_apikey = "";
 my $cex_seckey = "";
-my $coin = "KMD";
-my $base = "BTC";
+my $coin = "BTC";
+my $base = "KMD";
 my $cwd = dirname($0);
 my $json = read_file("$cwd/mpm.conf");
 my $marginsconf = decode_json($json);
-my $quantity = $marginsconf->{$coin}{'quantity'};
+my $quantity = $marginsconf->{$base}{'quantity'};
 
 
 sub getgasprice {
@@ -85,7 +85,7 @@ sub apicmcpaid {
 
 
 sub cex_latest_price {
-    my $url = "https://api.binance.com/api/v3/ticker/price?symbol=".$coin.$base;
+    my $url = "https://api.binance.com/api/v3/ticker/price?symbol=".$base.$coin;
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
     $ua->timeout(15);
@@ -115,14 +115,14 @@ sub cex_setprice {
 
     $req = HTTP::Request->new(DELETE => 'https://api.binance.com/api/v3/order');
     $req->header('X-MBX-APIKEY' => $cex_apikey);
-    $command = "symbol=".$coin.$base."&origClientOrderId=mysellid&timestamp=".time()*1000;
+    $command = "symbol=".$base.$coin."&origClientOrderId=mysellid&timestamp=".time()*1000;
     $signature = hmac_sha256_hex($command, $cex_seckey);
     $body = $command."&signature=".$signature;
     $req->content($body);
     $resp = $ua->request($req);
     print $resp->content."\n";
 
-    $command = "symbol=".$coin.$base."&origClientOrderId=mybuyid&timestamp=".time()*1000;
+    $command = "symbol=".$base.$coin."&origClientOrderId=mybuyid&timestamp=".time()*1000;
     $signature = hmac_sha256_hex($command, $cex_seckey);
     $body = $command."&signature=".$signature;
     $req->content($body);
@@ -140,7 +140,7 @@ sub cex_setprice {
     $req->header('X-MBX-APIKEY' => $cex_apikey);
 
     if ( defined $ask ) {
-	$command = "symbol=".$coin.$base."&side=SELL&type=LIMIT_MAKER&newOrderRespType=FULL&quantity=".$quantity."&price=".$ask."&newClientOrderId=mysellid&timestamp=".time()*1000;
+	$command = "symbol=".$base.$coin."&side=SELL&type=LIMIT_MAKER&newOrderRespType=FULL&quantity=".$quantity."&price=".$ask."&newClientOrderId=mysellid&timestamp=".time()*1000;
 	$signature = hmac_sha256_hex($command, $cex_seckey);
         $body = $command."&signature=".$signature;
         $req->content($body);
@@ -149,7 +149,7 @@ sub cex_setprice {
     }
 
     if ( defined $bid ) {
-        $command = "symbol=".$coin.$base."&side=BUY&type=LIMIT_MAKER&newOrderRespType=FULL&quantity=".$quantity."&price=".$bid."&newClientOrderId=mybuyid&timestamp=".time()*1000;
+        $command = "symbol=".$base.$coin."&side=BUY&type=LIMIT_MAKER&newOrderRespType=FULL&quantity=".$quantity."&price=".$bid."&newClientOrderId=mybuyid&timestamp=".time()*1000;
         $signature = hmac_sha256_hex($command, $cex_seckey);
         $body = $command."&signature=".$signature;
         $req->content($body);
@@ -252,7 +252,6 @@ if ( $api eq "cmcpaid" ) {
                 dex_deleteprice($base,$coin);
             }
         }
-        sleep 1;
     }
 } else {
     print "API not found\n";
@@ -260,5 +259,5 @@ if ( $api eq "cmcpaid" ) {
 }
 
 my $cex_price = decode_json(cex_latest_price)->{'price'};
-cex_setprice($base,$coin,$cex_price);
+cex_setprice($coin,$base,$cex_price);
 
