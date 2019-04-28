@@ -282,7 +282,7 @@ if ( $api eq "cmcpaid" ) {
 
 $base = "KMD";
 my $coin = "BTC";
-my $minmargin = 0.0015;
+my $minmargin = 0.002;
 my $cex_price = decode_json(cex_latest_price($base,$coin))->{'price'};
 my $cex_depth = decode_json(cex_depth($base,$coin));
 my $cex_bid_price = undef;
