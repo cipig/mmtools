@@ -108,7 +108,7 @@ sub cex_latest_price {
 sub cex_depth {
     my $base = $_[0];
     my $coin = $_[1];
-    my $url = "https://api.binance.com/api/v1/depth?symbol=".$base.$coin."&limit=20";
+    my $url = "https://api.binance.com/api/v1/depth?symbol=".$base.$coin."&limit=50";
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
     $ua->timeout(15);
@@ -284,11 +284,13 @@ $base = "KMD";
 my $coin = "BTC";
 my $minmargin = 0.002;
 my $cex_price = decode_json(cex_latest_price($base,$coin))->{'price'};
+#print "lastprice: $cex_price\n";
 my $cex_depth = decode_json(cex_depth($base,$coin));
+#print Dumper($cex_depth);
 my $cex_bid_price = undef;
 my $cex_ask_price = undef;
-my $maxbidprice = $cex_price - $cex_price * $minmargin;
-my $minaskprice = $cex_price + $cex_price * $minmargin;
+my $maxbidprice = sprintf("%.7f", ($cex_price - $cex_price * $minmargin));
+my $minaskprice = sprintf("%.7f", ($cex_price + $cex_price * $minmargin));
 
 foreach (@{$cex_depth->{'bids'}}) {
     my @array = $_;
@@ -310,8 +312,15 @@ foreach (@{$cex_depth->{'asks'}}) {
     }
 }
 
+#print "cexbid: $cex_bid_price\n";
+#print "maxbid: $maxbidprice\n";
 if ( ( !defined $cex_bid_price ) || ( $cex_bid_price > $maxbidprice ) ) { $cex_bid_price = sprintf("%.7f", ($cex_price - $cex_price * $marginsconf->{$base}{'bidmargin'})); }
+#print "bid: $cex_bid_price\n";
+
+#print "cexask: $cex_ask_price\n";
+#print "minask: $minaskprice\n";
 if ( ( !defined $cex_ask_price ) || ( $cex_ask_price < $minaskprice ) ) { $cex_ask_price = sprintf("%.7f", ($cex_price + $cex_price * $marginsconf->{$base}{'askmargin'})); }
+#print "ask: $cex_ask_price\n";
 
 cex_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity);
 
@@ -335,7 +344,15 @@ foreach (@{$cex_depth->{'asks'}}) {
     }
 }
 
+#print "cexbid: $cex_bid_price\n";
+#print "maxbid: $maxbidprice\n";
 if ( ( !defined $cex_bid_price ) || ( $cex_bid_price > $maxbidprice ) ) { $cex_bid_price = sprintf("%.7f", ($cex_price - $cex_price * $marginsconf->{$base}{'bidmargin'})); }
+#print "bid: $cex_bid_price\n";
+
+#print "cexask: $cex_ask_price\n";
+#print "minask: $minaskprice\n";
 if ( ( !defined $cex_ask_price ) || ( $cex_ask_price < $minaskprice ) ) { $cex_ask_price = sprintf("%.7f", ($cex_price + $cex_price * $marginsconf->{$base}{'askmargin'})); }
+#print "ask: $cex_ask_price\n";
 
 cex_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity/2);
+
