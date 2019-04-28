@@ -252,7 +252,6 @@ if ( $api eq "cmcpaid" ) {
                 dex_deleteprice($base,$coin);
             }
         }
-        sleep 1;
     }
 } else {
     print "API not found\n";
