@@ -125,12 +125,10 @@ sub cex_depth {
 }
 
 
-sub cex_setprice {
+sub cex_deleteprice {
     my $base = $_[0];
     my $coin = $_[1];
-    my $bid = sprintf("%.7f",$_[2]);
-    my $ask = sprintf("%.7f",$_[3]);
-    my $quantity = $_[4];
+    my $quantity = $_[2];
     my $command = undef;
     my $signature = undef;
     my $body = undef;
@@ -138,9 +136,9 @@ sub cex_setprice {
     my $req = undef;
     my $resp = undef;
 
-
     $req = HTTP::Request->new(DELETE => 'https://api.binance.com/api/v3/order');
     $req->header('X-MBX-APIKEY' => $cex_apikey);
+
     $command = "symbol=".$base.$coin."&origClientOrderId=mysellid".$quantity."&timestamp=".time()*1000;
     $signature = hmac_sha256_hex($command, $cex_seckey);
     $body = $command."&signature=".$signature;
@@ -154,6 +152,21 @@ sub cex_setprice {
     $req->content($body);
     $resp = $ua->request($req);
     #print $resp->content."\n";
+}
+
+
+sub cex_setprice {
+    my $base = $_[0];
+    my $coin = $_[1];
+    my $bid = sprintf("%.7f",$_[2]);
+    my $ask = sprintf("%.7f",$_[3]);
+    my $quantity = $_[4];
+    my $command = undef;
+    my $signature = undef;
+    my $body = undef;
+    my $ua = LWP::UserAgent->new;
+    my $req = undef;
+    my $resp = undef;
 
     $req = HTTP::Request->new(POST => 'https://api.binance.com/api/v3/order');
     $req->header('X-MBX-APIKEY' => $cex_apikey);
@@ -234,6 +247,17 @@ sub dex_deleteprice {
 }
 
 
+$base = "KMD";
+my $coin = "BTC";
+my $minmargin = 0.0025;
+my $cex_bid_price_full = undef;
+my $cex_ask_price_full = undef;
+my $cex_bid_price_half = undef;
+my $cex_ask_price_half = undef;
+
+cex_deleteprice($base,$coin,$quantity);
+cex_deleteprice($base,$coin,$quantity/2);
+
 my $gasprice = from_json(getgasprice())->{'standard'};
 
 if ( $api eq "cmcpaid" ) {
@@ -279,18 +303,10 @@ if ( $api eq "cmcpaid" ) {
     exit 1;
 }
 
-
-$base = "KMD";
-my $coin = "BTC";
-my $minmargin = 0.002;
 my $cex_price = decode_json(cex_latest_price($base,$coin))->{'price'};
 #print "lastprice: $cex_price\n";
 my $cex_depth = decode_json(cex_depth($base,$coin));
 #print Dumper($cex_depth);
-my $cex_bid_price_full = undef;
-my $cex_ask_price_full = undef;
-my $cex_bid_price_half = undef;
-my $cex_ask_price_half = undef;
 my $maxbidprice = sprintf("%.7f", ($cex_price - $cex_price * $minmargin));
 my $minaskprice = sprintf("%.7f", ($cex_price + $cex_price * $minmargin));
 
