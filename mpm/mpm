@@ -249,7 +249,7 @@ sub dex_deleteprice {
 
 $base = "KMD";
 my $coin = "BTC";
-my $minmargin = 0.0025;
+my $minmargin = $marginsconf->{$base}{'minmargin'};
 my $cex_bid_price_full = undef;
 my $cex_ask_price_full = undef;
 my $cex_bid_price_half = undef;
