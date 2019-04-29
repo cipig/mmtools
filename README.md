@@ -9,8 +9,9 @@ my $cex_apikey = "Binance API Key";
 my $cex_seckey = "Binance API secret";
 ```
 
-`~/mmtools/mpm/mpm coinpaprika binance` sets prices for all coins from mpm.conf in mm2 (KMD/$coin) and uses coinpaprika as price source  
-it also sets KMD/BTC bids/asks with size $quantity in Binance  
+`~/mmtools/mpm/mpm coinpaprika binance`  
+- sets prices for all coins from mpm.conf in mm2 (base is KMD) and uses coinpaprika as price source  
+- sets KMD/BTC bids/asks with size $quantity, $quantity/2 and $quantity/4 in Binance  
 
 cmcid/papid in `mpm.conf` are taken from https://api.coinmarketcap.com/v2/listings/ and  https://api.coinpaprika.com/v1/coins  
 If `bidmargin` or `askmargin` is not set, bid/ask will not be set  
