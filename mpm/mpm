@@ -372,8 +372,8 @@ if ( ( !defined $cex_bid_price_half ) || ( $cex_bid_price_half > $maxbidprice ) 
 if ( ( !defined $cex_ask_price_half ) || ( $cex_ask_price_half < $minaskprice ) ) { $cex_ask_price_half = sprintf("%.7f", ($cex_price + $cex_price * $marginsconf->{$base}{'askmargin'})); }
 #print "ask: $cex_ask_price_half\n";
 
-if ( $cex_ask_price_half == $cex_ask_price_full ) { $cex_ask_price_half = $cex_ask_price_half - 0.00000010; }
-if ( $cex_bid_price_half == $cex_bid_price_full ) { $cex_bid_price_half = $cex_bid_price_half + 0.00000010; }
+if ( $cex_ask_price_half > $cex_ask_price_full ) { $cex_ask_price_half = $cex_ask_price_full - 0.00000010; }
+if ( $cex_bid_price_half < $cex_bid_price_full ) { $cex_bid_price_half = $cex_bid_price_full + 0.00000010; }
 
 cex_setprice($base,$coin,$cex_bid_price_half,$cex_ask_price_half,$quantity/2);
 
