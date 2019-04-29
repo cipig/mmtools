@@ -154,14 +154,14 @@ sub cex_deleteprice {
     $body = $command."&signature=".$signature;
     $req->content($body);
     $resp = $ua->request($req);
-    #print $resp->content."\n";
+    print $resp->content."\n";
 
     $command = "symbol=".$base.$coin."&origClientOrderId=mybuyid".$quantity."&timestamp=".time()*1000;
     $signature = hmac_sha256_hex($command, $cex_seckey);
     $body = $command."&signature=".$signature;
     $req->content($body);
     $resp = $ua->request($req);
-    #print $resp->content."\n";
+    print $resp->content."\n";
 }
 
 
@@ -289,11 +289,11 @@ if ( $api eq "cmcpaid" ) {
     my $prices = apicmcpaid($base);
     if ( defined $prices ) {
         foreach my $coin ( keys %{$marginsconf} ) {
-            my $cmcid = $marginsconf->{$coin}{'cmcid'};
-            my $erc20 = $marginsconf->{$coin}{'erc20'};
-            if ( !defined $erc20 ) { $erc20 = "0"; }
-            my $price = from_json($prices)->{'data'}{$cmcid}{'quote'}{$base}{'price'};
             if ( $base ne $coin ) {
+                my $cmcid = $marginsconf->{$coin}{'cmcid'};
+                my $erc20 = $marginsconf->{$coin}{'erc20'};
+                if ( !defined $erc20 ) { $erc20 = "0"; }
+                my $price = from_json($prices)->{'data'}{$cmcid}{'quote'}{$base}{'price'};
                 if ( $erc20 eq "0" ) {
                     dex_setprice($base,$coin,$price);
                 } elsif ( ($erc20 eq "1") && ($gasprice < $maxgasprice) ) {
@@ -307,13 +307,13 @@ if ( $api eq "cmcpaid" ) {
 } elsif ( $api eq "coinpaprika" ) {
     my $basepapid = $marginsconf->{$base}{'papid'};
     foreach my $coin ( keys %{$marginsconf} ) {
-        my $price = undef;
-        my $papid = $marginsconf->{$coin}{'papid'};
-        my $erc20 = $marginsconf->{$coin}{'erc20'};
-        if ( !defined $erc20 ) { $erc20 = "0"; }
-        my $coinprice = apipaprika($basepapid,$papid);
-        if ( $coinprice ne "1" ) { $price = from_json($coinprice)->{'price'}; }
         if ( $base ne $coin ) {
+            my $price = undef;
+            my $papid = $marginsconf->{$coin}{'papid'};
+            my $erc20 = $marginsconf->{$coin}{'erc20'};
+            if ( !defined $erc20 ) { $erc20 = "0"; }
+            my $coinprice = apipaprika($basepapid,$papid);
+            if ( $coinprice ne "1" ) { $price = from_json($coinprice)->{'price'}; }
             if ( ($erc20 eq "0") && (defined $price) ) {
                 dex_setprice($base,$coin,$price);
             } elsif ( ($erc20 eq "1") && ($gasprice < $maxgasprice) && (defined $price) ) {
@@ -329,9 +329,9 @@ if ( $api eq "cmcpaid" ) {
 }
 
 if ( $cex eq "binance" ) {
-    cex_deleteprice($base,$coin,$quantity);
-    cex_deleteprice($base,$coin,$quantity/2);
     cex_deleteprice($base,$coin,$quantity/4);
+    cex_deleteprice($base,$coin,$quantity/2);
+    cex_deleteprice($base,$coin,$quantity);
 
     my $cex_price = decode_json(cex_latest_price($base,$coin))->{'price'};
     my $maxbidprice = sprintf("%.7f", ($cex_price - $cex_price * $minmargin));
