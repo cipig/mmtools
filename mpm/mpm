@@ -108,7 +108,7 @@ sub cex_latest_price {
 sub cex_depth {
     my $base = $_[0];
     my $coin = $_[1];
-    my $url = "https://api.binance.com/api/v1/depth?symbol=".$base.$coin."&limit=50";
+    my $url = "https://api.binance.com/api/v1/depth?symbol=".$base.$coin."&limit=20";
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
     $ua->timeout(15);
@@ -314,7 +314,7 @@ foreach (@{$cex_depth->{'bids'}}) {
     my @array = $_;
     my $price = $array[0][0];
     my $volume = $array[0][1];
-    if ( $volume*1.2 > $quantity ) {
+    if ( $volume > $quantity ) {
         $cex_bid_price_full = $price + 0.00000010;
         last;
     }
@@ -324,7 +324,7 @@ foreach (@{$cex_depth->{'asks'}}) {
     my @array = $_;
     my $price = $array[0][0];
     my $volume = $array[0][1];
-    if ( $volume*1.2 > $quantity ) {
+    if ( $volume > $quantity ) {
         $cex_ask_price_full = $price - 0.00000010;
         last;
     }
@@ -346,7 +346,7 @@ foreach (@{$cex_depth->{'bids'}}) {
     my @array = $_;
     my $price = $array[0][0];
     my $volume = $array[0][1];
-    if ( $volume*1.2 > $quantity/2 ) {
+    if ( $volume > $quantity/2 ) {
         $cex_bid_price_half = $price + 0.00000010;
         last;
     }
@@ -356,7 +356,7 @@ foreach (@{$cex_depth->{'asks'}}) {
     my @array = $_;
     my $price = $array[0][0];
     my $volume = $array[0][1];
-    if ( $volume*1.2 > $quantity/2 ) {
+    if ( $volume > $quantity/2 ) {
         $cex_ask_price_half = $price - 0.00000010;
         last;
     }
