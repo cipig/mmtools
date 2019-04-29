@@ -1,0 +1,17 @@
+{
+    "BTC": {
+        "cmcid": 1,
+        "papid": "btc-bitcoin",
+        "bidmargin": 0.006,
+        "askmargin": 0.006,
+        "quantity": 0.1
+    },
+    "KMD": {
+        "cmcid": 1521,
+        "papid": "kmd-komodo",
+        "bidmargin": 0.004,
+        "askmargin": 0.004,
+        "minmargin": 0.002,
+        "quantity": 400
+    }
+}
