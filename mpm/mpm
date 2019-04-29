@@ -335,11 +335,10 @@ if ( $api eq "cmcpaid" ) {
 }
 
 if ( $cex eq "binance" ) {
-    cex_cancelorders($base,$coin);
-
     my $cex_price = decode_json(cex_latest_price($base,$coin))->{'price'};
     my $maxbidprice = sprintf("%.7f", ($cex_price - $cex_price * $minmargin));
     my $minaskprice = sprintf("%.7f", ($cex_price + $cex_price * $minmargin));
+    cex_cancelorders($base,$coin);
     my $cex_depth = decode_json(cex_depth($base,$coin));
 
     $cex_bid_price_full = calc_bestbidprice($cex_depth->{'bids'},$quantity);
