@@ -250,15 +250,11 @@ sub dex_deleteprice {
 $base = "KMD";
 my $coin = "BTC";
 my $minmargin = $marginsconf->{$base}{'minmargin'};
+my $gasprice = from_json(getgasprice())->{'standard'};
 my $cex_bid_price_full = undef;
 my $cex_ask_price_full = undef;
 my $cex_bid_price_half = undef;
 my $cex_ask_price_half = undef;
-
-cex_deleteprice($base,$coin,$quantity);
-cex_deleteprice($base,$coin,$quantity/2);
-
-my $gasprice = from_json(getgasprice())->{'standard'};
 
 if ( $api eq "cmcpaid" ) {
     my $prices = apicmcpaid($base);
@@ -302,6 +298,9 @@ if ( $api eq "cmcpaid" ) {
     print "API not found\n";
     exit 1;
 }
+
+cex_deleteprice($base,$coin,$quantity);
+cex_deleteprice($base,$coin,$quantity/2);
 
 my $cex_price = decode_json(cex_latest_price($base,$coin))->{'price'};
 #print "lastprice: $cex_price\n";
