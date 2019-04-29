@@ -1,0 +1,233 @@
+{
+    "BCH": {
+        "cmcid": 1831,
+        "papid": "bch-bitcoin-cash",
+        "bidmargin": 0.05,
+        "askmargin": 0.05
+    },
+    "BLK": {
+        "cmcid": 170,
+        "papid": "blk-blackcoin",
+        "bidmargin": 0.20,
+        "askmargin": 0.05
+    },
+    "BTC": {
+        "cmcid": 1,
+        "papid": "btc-bitcoin",
+        "bidmargin": 0.01,
+        "askmargin": 0.01,
+        "quantity": 0.1
+    },
+    "BTCZ": {
+        "cmcid": 2041,
+        "papid": "btcz-bitcoinz",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "BTG": {
+        "cmcid": 2083,
+        "papid": "btg-bitcoin-gold",
+        "bidmargin": 0.20,
+        "askmargin": 0.05
+    },
+    "BTX": {
+        "cmcid": 1654,
+        "papid": "btx-bitcoin-x",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "CHIPS": {
+        "cmcid": 1986,
+        "papid": "chips-chips",
+        "bidmargin": 0.30,
+        "askmargin": 0.10
+    },
+    "DASH": {
+        "cmcid": 131,
+        "papid": "dash-dash",
+        "bidmargin": 0.10,
+        "askmargin": 0.10
+    },
+    "DGB": {
+        "cmcid": 109,
+        "papid": "dgb-digibyte",
+        "bidmargin": 0.10,
+        "askmargin": 0.05
+    },
+    "DOGE": {
+        "cmcid": 74,
+        "papid": "doge-dogecoin",
+        "bidmargin": 0.10,
+        "askmargin": 0.05
+    },
+    "ECA": {
+        "cmcid": 1711,
+        "papid": "eca-electra",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "EMC2": {
+        "cmcid": 201,
+        "papid": "emc2-einsteinium",
+        "bidmargin": 0.20,
+        "askmargin": 0.05
+    },
+    "ETH": {
+        "cmcid": 1027,
+        "papid": "eth-ethereum",
+        "erc20": 1,
+        "bidmargin": 0.10,
+        "askmargin": 0.05
+    },
+    "FLO": {
+        "cmcid": 64,
+        "papid": "flo-flo",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "FTC": {
+        "cmcid": 8,
+        "papid": "ftc-feathercoin",
+        "bidmargin": 0.20,
+        "askmargin": 0.05
+    },
+    "GAME": {
+        "cmcid": 576,
+        "papid": "game-gamecredits",
+        "bidmargin": 0.20,
+        "askmargin": 0.05
+    },
+    "GIN": {
+        "cmcid": 2773,
+        "papid": "gin-gincoin",
+        "bidmargin": 0.20,
+        "askmargin": 0.05
+    },
+    "GRS": {
+        "cmcid": 258,
+        "papid": "grs-groestlcoin",
+        "bidmargin": 0.20,
+        "askmargin": 0.05
+    },
+    "IOP": {
+        "cmcid": 1464,
+        "papid": "iop-internet-of-people",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "KMD": {
+        "cmcid": 1521,
+        "papid": "kmd-komodo",
+        "bidmargin": 0.004,
+        "askmargin": 0.004,
+        "minmargin": 0.002,
+        "quantity": 400
+    },
+    "LBC": {
+        "cmcid": 1298,
+        "papid": "lbc-lbry-credits",
+        "bidmargin": 0.20,
+        "askmargin": 0.05
+    },
+    "LTC": {
+        "cmcid": 2,
+        "papid": "ltc-litecoin",
+        "bidmargin": 0.05,
+        "askmargin": 0.05
+    },
+    "LUX": {
+        "cmcid": 2107,
+        "papid": "lux-luxcoin",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "MONA": {
+        "cmcid": 213,
+        "papid": "mona-monacoin",
+        "bidmargin": 0.20,
+        "askmargin": 0.05
+    },
+    "NAV": {
+        "cmcid": 377,
+        "papid": "nav-navcoin",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "NIX": {
+        "cmcid": 2991,
+        "papid": "nix-nix",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "NMC": {
+        "cmcid": 3,
+        "papid": "nmc-namecoin",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "OOT": {
+        "cmcid": 2731,
+        "papid": "oot-utrum",
+        "bidmargin": 0.50,
+        "askmargin": 0.20
+    },
+    "QTUM": {
+        "cmcid": 1684,
+        "papid": "qtum-qtum",
+        "bidmargin": 0.10,
+        "askmargin": 0.05
+    },
+    "RVN": {
+        "cmcid": 2577,
+        "papid": "rvn-ravencoin",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "SMART": {
+        "cmcid": 1828,
+        "papid": "smart-smartcash",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "SYS": {
+        "cmcid": 541,
+        "papid": "sys-syscoin",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "VIA": {
+        "cmcid": 470,
+        "papid": "via-viacoin",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "VRSC": {
+        "papid": "vrsc-verus-coin",
+        "bidmargin": 0.05,
+        "askmargin": 0.10
+    },
+    "VTC": {
+        "cmcid": 99,
+        "papid": "vtc-vertcoin",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "XSN": {
+        "cmcid": 2633,
+        "papid": "xsn-stakenet",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "XZC": {
+        "cmcid": 1414,
+        "papid": "xzc-zcoin",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "ZEC": {
+        "cmcid": 1437,
+        "papid": "zec-zcash",
+        "bidmargin": 0.05,
+        "askmargin": 0.05
+    }
+}

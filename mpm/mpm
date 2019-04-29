@@ -135,6 +135,23 @@ sub cex_depth {
 }
 
 
+sub cex_getorders {
+    my $base = $_[0];
+    my $coin = $_[1];
+
+    my $ua = LWP::UserAgent->new;
+    my $req = HTTP::Request->new(GET => 'https://api.binance.com/api/v3/openOrders');
+    $req->header('X-MBX-APIKEY' => $cex_apikey);
+
+    $command = "symbol=".$base.$coin."&timestamp=".time()*1000;
+    $signature = hmac_sha256_hex($command, $cex_seckey);
+    $body = $command."&signature=".$signature;
+    $req->content($body);
+    my $resp = $ua->request($req);
+    return $resp->content;
+}
+
+
 sub cex_deleteprice {
     my $base = $_[0];
     my $coin = $_[1];
@@ -142,10 +159,10 @@ sub cex_deleteprice {
     my $command = undef;
     my $signature = undef;
     my $body = undef;
-    my $ua = LWP::UserAgent->new;
     my $req = undef;
     my $resp = undef;
 
+    my $ua = LWP::UserAgent->new;
     $req = HTTP::Request->new(DELETE => 'https://api.binance.com/api/v3/order');
     $req->header('X-MBX-APIKEY' => $cex_apikey);
 
@@ -329,6 +346,8 @@ if ( $api eq "cmcpaid" ) {
 }
 
 if ( $cex eq "binance" ) {
+    print cex_getorders($base,$coin);
+
     cex_deleteprice($base,$coin,$quantity/4);
     cex_deleteprice($base,$coin,$quantity/2);
     cex_deleteprice($base,$coin,$quantity);
