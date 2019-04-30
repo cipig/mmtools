@@ -336,7 +336,6 @@ if ( $api eq "cmcpaid" ) {
     }
 } else {
     print "API not found\n";
-    exit 1;
 }
 
 if ( $cex eq "binance" ) {
@@ -369,5 +368,4 @@ if ( $cex eq "binance" ) {
     cex_setprice($base,$coin,$cex_bid_price_quarter,$cex_ask_price_quarter,$quantity/5);
 } else {
     print "CEX not found\n";
-    exit 1;
 }
