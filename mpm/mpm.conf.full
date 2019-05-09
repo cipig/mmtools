@@ -14,8 +14,8 @@
     "BTC": {
         "cmcid": 1,
         "papid": "btc-bitcoin",
-        "bidmargin": 0.01,
-        "askmargin": 0.01,
+        "bidmargin": 0.006,
+        "askmargin": 0.006,
         "quantity": 0.1
     },
     "BTCZ": {
@@ -118,10 +118,10 @@
     "KMD": {
         "cmcid": 1521,
         "papid": "kmd-komodo",
-        "bidmargin": 0.004,
-        "askmargin": 0.004,
-        "minmargin": 0.002,
-        "quantity": 400
+        "bidmargin": 0.006,
+        "askmargin": 0.006,
+        "minmargin": 0.005,
+        "quantity": 250
     },
     "LBC": {
         "cmcid": 1298,
