@@ -1,4 +1,11 @@
 {
+    "BAT": {
+        "cmcid": 1697,
+        "papid": "bat-basic-attention-token",
+        "erc20": 1,
+        "bidmargin": 0.10,
+        "askmargin": 0.05
+    },
     "BCH": {
         "cmcid": 1831,
         "papid": "bch-bitcoin-cash",
@@ -53,6 +60,13 @@
         "cmcid": 131,
         "papid": "dash-dash",
         "bidmargin": 0.10,
+        "askmargin": 0.10
+    },
+    "DDD": {
+        "cmcid": 2428,
+        "papid": "ddd-scryinfo",
+        "erc20": 1,
+        "bidmargin": 0.15,
         "askmargin": 0.10
     },
     "DGB": {
@@ -205,6 +219,13 @@
         "cmcid": 541,
         "papid": "sys-syscoin",
         "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "USDT": {
+        "cmcid": 825,
+        "papid": "usdt-tether",
+        "erc20": 1,
+        "bidmargin": 0.05,
         "askmargin": 0.05
     },
     "VIA": {
