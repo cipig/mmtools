@@ -11,6 +11,13 @@
         "bidmargin": 0.20,
         "askmargin": 0.05
     },
+    "BNB": {
+        "cmcid": 1839,
+        "papid": "bnb-binance-coin",
+        "erc20": 1,
+        "bidmargin": 0.10,
+        "askmargin": 0.05
+    },
     "BTC": {
         "cmcid": 1,
         "papid": "btc-bitcoin",
@@ -176,6 +183,11 @@
         "papid": "qtum-qtum",
         "bidmargin": 0.10,
         "askmargin": 0.05
+    },
+    "RFOX": {
+        "papid": "rfox-redfox-labs",
+        "bidmargin": 0.20,
+        "askmargin": 0.10
     },
     "RVN": {
         "cmcid": 2577,
