@@ -18,13 +18,6 @@
         "bidmargin": 0.20,
         "askmargin": 0.05
     },
-    "BNB": {
-        "cmcid": 1839,
-        "papid": "bnb-binance-coin",
-        "erc20": 1,
-        "bidmargin": 0.10,
-        "askmargin": 0.05
-    },
     "BTC": {
         "cmcid": 1,
         "papid": "btc-bitcoin",
@@ -219,13 +212,6 @@
         "cmcid": 541,
         "papid": "sys-syscoin",
         "bidmargin": 0.30,
-        "askmargin": 0.05
-    },
-    "USDT": {
-        "cmcid": 825,
-        "papid": "usdt-tether",
-        "erc20": 1,
-        "bidmargin": 0.05,
         "askmargin": 0.05
     },
     "VIA": {
