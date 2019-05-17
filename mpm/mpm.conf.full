@@ -123,6 +123,12 @@
         "bidmargin": 0.20,
         "askmargin": 0.05
     },
+    "HUSH": {
+        "cmcid": 1466,
+        "papid": "hush-hush",
+        "bidmargin": 0.20,
+        "askmargin": 0.20
+    },
     "IOP": {
         "cmcid": 1464,
         "papid": "iop-internet-of-people",
