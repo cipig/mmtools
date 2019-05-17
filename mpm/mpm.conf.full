@@ -248,5 +248,10 @@
         "papid": "zec-zcash",
         "bidmargin": 0.05,
         "askmargin": 0.05
+    },
+    "ZEXO": {
+        "papid": "zex-zaddex",
+        "bidmargin": 0.20,
+        "askmargin": 0.10
     }
 }
