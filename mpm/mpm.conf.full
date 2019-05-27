@@ -135,6 +135,11 @@
         "bidmargin": 0.30,
         "askmargin": 0.05
     },
+    "K64": {
+        "papid": "k64-komodore64",
+        "bidmargin": 0.20,
+        "askmargin": 0.20
+    },
     "KMD": {
         "cmcid": 1521,
         "papid": "kmd-komodo",
