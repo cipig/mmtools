@@ -233,17 +233,21 @@ sub dex_setprice {
     $req->content_type('application/x-www-form-urlencoded');
 
     if ( defined $ask ) {
-        $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[1].'","rel":"'.$_[0].'","price":'.$ask.'}';
+	$command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[1].'","rel":"'.$_[0].'","price":'.$ask.',"max":true}';
         $req->content($command);
         my $resp = $ua->request($req);
-        print "$_[0]/$_[1] bid ".sprintf("%.8f",1/$ask)." ".$resp->content." ";
+        my $uuid = from_json($resp->content)->{'result'}{'uuid'};
+        if ( !defined $uuid ) { $uuid = "error"; }
+        print "$_[0]/$_[1] bid ".sprintf("%.8f",1/$ask)." ".$uuid." ";
     }
 
     if ( defined $bid ) {
-        $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.'}';
+	$command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.',"max":true}';
         $req->content($command);
         $resp = $ua->request($req);
-        print "ask $bid ".$resp->content."\n";
+        my $uuid = from_json($resp->content)->{'result'}{'uuid'};
+        if ( !defined $uuid ) { $uuid = "error"; }
+        print "ask $bid ".$uuid."\n";
     }
 }
 
