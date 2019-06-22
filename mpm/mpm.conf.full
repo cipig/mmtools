@@ -25,12 +25,6 @@
         "askmargin": 0.006,
         "quantity": 0.1
     },
-    "BTCZ": {
-        "cmcid": 2041,
-        "papid": "btcz-bitcoinz",
-        "bidmargin": 0.30,
-        "askmargin": 0.05
-    },
     "BTG": {
         "cmcid": 2083,
         "papid": "btg-bitcoin-gold",
