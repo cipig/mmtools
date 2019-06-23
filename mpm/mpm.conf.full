@@ -50,6 +50,12 @@
         "bidmargin": 0.05,
         "askmargin": 0.05
     },
+    "DASH": {
+        "cmcid": 131,
+        "papid": "dash-dash",
+        "bidmargin": 0.10,
+        "askmargin": 0.10
+    },
     "DDD": {
         "cmcid": 2428,
         "papid": "ddd-scryinfo",
