@@ -43,11 +43,12 @@
         "bidmargin": 0.30,
         "askmargin": 0.10
     },
-    "DASH": {
-        "cmcid": 131,
-        "papid": "dash-dash",
-        "bidmargin": 0.10,
-        "askmargin": 0.10
+    "DAI": {
+        "cmcid": 2308,
+        "papid": "dai-dai",
+        "erc20": 1,
+        "bidmargin": 0.05,
+        "askmargin": 0.05
     },
     "DDD": {
         "cmcid": 2428,
