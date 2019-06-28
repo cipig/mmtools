@@ -9,7 +9,9 @@ use Digest::SHA qw(hmac_sha256_hex);
 #use Data::Dumper;
 
 
-my $maxgasprice = 10;
+my $maxgasprice = 8;
+my $gaspriceurl = "https://www.etherchain.org/api/gasPriceOracle";
+my $gasprice = from_json(getgasprice())->{'standard'};
 my $cex_apikey = "";
 my $cex_seckey = "";
 my $base = "KMD";
@@ -22,7 +24,6 @@ my $json = read_file("$cwd/mpm.conf");
 my $marginsconf = decode_json($json);
 my $quantity = $marginsconf->{$base}{'quantity'};
 my $minmargin = $marginsconf->{$base}{'minmargin'};
-my $gasprice = from_json(getgasprice())->{'standard'};
 my $cex_bid_price_full = undef;
 my $cex_ask_price_full = undef;
 my $cex_bid_price_half = undef;
@@ -32,17 +33,16 @@ my $cex_ask_price_quarter = undef;
 
 
 sub getgasprice {
-    my $url = "https://www.etherchain.org/api/gasPriceOracle";
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
     $ua->timeout(15);
-    my $req = HTTP::Request->new(GET => $url);
+    my $req = HTTP::Request->new(GET => $gaspriceurl);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
         if ($resp->is_success) {
             return $resp->content;
         } else {
-            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET url: ", $gaspriceurl, "\n";
             print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
         }
