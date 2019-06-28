@@ -197,6 +197,11 @@
         "bidmargin": 0.50,
         "askmargin": 0.20
     },
+    "OURC": {
+        "papid": "gxe-crypto-union",
+        "bidmargin": 0.20,
+        "askmargin": 0.05
+    },
     "QTUM": {
         "cmcid": 1684,
         "papid": "qtum-qtum",
