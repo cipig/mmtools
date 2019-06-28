@@ -260,12 +260,12 @@ sub dex_deleteprice {
     $command = '{"userpass":"'.$userpass.'","method":"cancel_all_orders","cancel_by":{"type":"Pair","data":{"base":"'.$_[1].'","rel":"'.$_[0].'"}}}';
     $req->content($command);
     my $resp = $ua->request($req);
-    print "$_[1]/$_[0] ".$resp->content."\n";
+    print "$_[0]/$_[1] ".$resp->content;
 
     $command = '{"userpass":"'.$userpass.'","method":"cancel_all_orders","cancel_by":{"type":"Pair","data":{"base":"'.$_[0].'","rel":"'.$_[1].'"}}}';
     $req->content($command);
     $resp = $ua->request($req);
-    print "$_[0]/$_[1] ".$resp->content."\n";
+    print " ".$resp->content."\n";
 }
 
 
