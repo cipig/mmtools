@@ -238,7 +238,7 @@ sub dex_setprice {
         my $resp = $ua->request($req);
         my $uuid = from_json($resp->content)->{'result'}{'uuid'};
         if ( !defined $uuid ) { $uuid = "error"; }
-        print "$_[0]/$_[1] bid ".sprintf("%.8f",1/$ask)." ".$uuid." ";
+        print "$_[1]/$_[0] ask ".sprintf("%.8f",$ask)." ".$uuid." ";
     }
 
     if ( defined $bid ) {
@@ -247,7 +247,7 @@ sub dex_setprice {
         $resp = $ua->request($req);
         my $uuid = from_json($resp->content)->{'result'}{'uuid'};
         if ( !defined $uuid ) { $uuid = "error"; }
-        print "ask $bid ".$uuid."\n";
+        print "bid ".sprintf("%.8f",1/$bid)." ".$uuid."\n";
     }
 }
 
