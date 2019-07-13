@@ -3,7 +3,7 @@
         "cmcid": 1697,
         "papid": "bat-basic-attention-token",
         "erc20": 1,
-        "bidmargin": 0.10,
+        "bidmargin": 0.05,
         "askmargin": 0.05
     },
     "BCH": {
@@ -41,7 +41,7 @@
         "cmcid": 1986,
         "papid": "chips-chips",
         "bidmargin": 0.30,
-        "askmargin": 0.10
+        "askmargin": 0.05
     },
     "DAI": {
         "cmcid": 2308,
@@ -53,26 +53,26 @@
     "DASH": {
         "cmcid": 131,
         "papid": "dash-dash",
-        "bidmargin": 0.10,
-        "askmargin": 0.10
+        "bidmargin": 0.05,
+        "askmargin": 0.05
     },
     "DDD": {
         "cmcid": 2428,
         "papid": "ddd-scryinfo",
         "erc20": 1,
-        "bidmargin": 0.15,
+        "bidmargin": 0.20,
         "askmargin": 0.10
     },
     "DGB": {
         "cmcid": 109,
         "papid": "dgb-digibyte",
-        "bidmargin": 0.10,
+        "bidmargin": 0.05,
         "askmargin": 0.05
     },
     "DOGE": {
         "cmcid": 74,
         "papid": "doge-dogecoin",
-        "bidmargin": 0.10,
+        "bidmargin": 0.05,
         "askmargin": 0.05
     },
     "ECA": {
@@ -84,14 +84,14 @@
     "EMC2": {
         "cmcid": 201,
         "papid": "emc2-einsteinium",
-        "bidmargin": 0.20,
+        "bidmargin": 0.10,
         "askmargin": 0.05
     },
     "ETH": {
         "cmcid": 1027,
         "papid": "eth-ethereum",
         "erc20": 1,
-        "bidmargin": 0.10,
+        "bidmargin": 0.05,
         "askmargin": 0.05
     },
     "FLO": {
@@ -109,13 +109,13 @@
     "GAME": {
         "cmcid": 576,
         "papid": "game-gamecredits",
-        "bidmargin": 0.20,
+        "bidmargin": 0.10,
         "askmargin": 0.05
     },
     "GIN": {
         "cmcid": 2773,
         "papid": "gin-gincoin",
-        "bidmargin": 0.20,
+        "bidmargin": 0.10,
         "askmargin": 0.05
     },
     "GRS": {
@@ -132,7 +132,7 @@
     },
     "K64": {
         "papid": "k64-komodore64",
-        "bidmargin": 0.20,
+        "bidmargin": 0.50,
         "askmargin": 0.20
     },
     "KMD": {
@@ -140,7 +140,7 @@
         "papid": "kmd-komodo",
         "bidmargin": 0.006,
         "askmargin": 0.006,
-        "minmargin": 0.005,
+        "minmargin": 0.004,
         "quantity": 250
     },
     "LBC": {
@@ -170,7 +170,7 @@
     "NAV": {
         "cmcid": 377,
         "papid": "nav-navcoin",
-        "bidmargin": 0.30,
+        "bidmargin": 0.20,
         "askmargin": 0.05
     },
     "NIX": {
@@ -182,7 +182,7 @@
     "NMC": {
         "cmcid": 3,
         "papid": "nmc-namecoin",
-        "bidmargin": 0.30,
+        "bidmargin": 0.20,
         "askmargin": 0.05
     },
     "OOT": {
@@ -193,24 +193,24 @@
     },
     "OURC": {
         "papid": "gxe-crypto-union",
-        "bidmargin": 0.20,
+        "bidmargin": 0.30,
         "askmargin": 0.05
     },
     "QTUM": {
         "cmcid": 1684,
         "papid": "qtum-qtum",
-        "bidmargin": 0.10,
+        "bidmargin": 0.05,
         "askmargin": 0.05
     },
     "RFOX": {
         "papid": "rfox-redfox-labs",
         "bidmargin": 0.20,
-        "askmargin": 0.10
+        "askmargin": 0.05
     },
     "RVN": {
         "cmcid": 2577,
         "papid": "rvn-ravencoin",
-        "bidmargin": 0.30,
+        "bidmargin": 0.20,
         "askmargin": 0.05
     },
     "SMART": {
@@ -222,7 +222,7 @@
     "SYS": {
         "cmcid": 541,
         "papid": "sys-syscoin",
-        "bidmargin": 0.30,
+        "bidmargin": 0.20,
         "askmargin": 0.05
     },
     "USDC": {
@@ -235,18 +235,18 @@
     "VIA": {
         "cmcid": 470,
         "papid": "via-viacoin",
-        "bidmargin": 0.30,
+        "bidmargin": 0.20,
         "askmargin": 0.05
     },
     "VRSC": {
         "papid": "vrsc-verus-coin",
         "bidmargin": 0.05,
-        "askmargin": 0.10
+        "askmargin": 0.05
     },
     "VTC": {
         "cmcid": 99,
         "papid": "vtc-vertcoin",
-        "bidmargin": 0.30,
+        "bidmargin": 0.20,
         "askmargin": 0.05
     },
     "XSN": {
@@ -258,7 +258,7 @@
     "XZC": {
         "cmcid": 1414,
         "papid": "xzc-zcoin",
-        "bidmargin": 0.30,
+        "bidmargin": 0.20,
         "askmargin": 0.05
     },
     "ZEC": {
@@ -270,6 +270,6 @@
     "ZEXO": {
         "papid": "zex-zaddex",
         "bidmargin": 0.20,
-        "askmargin": 0.10
+        "askmargin": 0.05
     }
 }
