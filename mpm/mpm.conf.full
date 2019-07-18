@@ -43,6 +43,13 @@
         "bidmargin": 0.30,
         "askmargin": 0.05
     },
+    "CRO": {
+        "cmcid": 3635,
+        "papid": "cro-cryptocom-chain",
+        "erc20": 1,
+        "bidmargin": 0.05,
+        "askmargin": 0.05
+    },
     "DAI": {
         "cmcid": 2308,
         "papid": "dai-dai",
@@ -149,6 +156,13 @@
         "bidmargin": 0.20,
         "askmargin": 0.05
     },
+    "LINK": {
+        "cmcid": 1975,
+        "papid": "link-chainlink",
+        "erc20": 1,
+        "bidmargin": 0.05,
+        "askmargin": 0.05
+    },
     "LTC": {
         "cmcid": 2,
         "papid": "ltc-litecoin",
@@ -159,6 +173,13 @@
         "cmcid": 2107,
         "papid": "lux-luxcoin",
         "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
+    "MKR": {
+        "cmcid": 1518,
+        "papid": "mkr-maker",
+        "erc20": 1,
+        "bidmargin": 0.05,
         "askmargin": 0.05
     },
     "MONA": {
@@ -185,6 +206,13 @@
         "bidmargin": 0.20,
         "askmargin": 0.05
     },
+    "NPXS": {
+        "cmcid": 2603,
+        "papid": "npxs-pundi-x",
+        "erc20": 1,
+        "bidmargin": 0.05,
+        "askmargin": 0.05
+    },
     "OOT": {
         "cmcid": 2731,
         "papid": "oot-utrum",
@@ -196,15 +224,29 @@
         "bidmargin": 0.30,
         "askmargin": 0.05
     },
+    "PAX": {
+        "cmcid": 3330,
+        "papid": "pax-paxos-standard-token",
+        "erc20": 1,
+        "bidmargin": 0.05,
+        "askmargin": 0.05
+    },
     "QTUM": {
         "cmcid": 1684,
         "papid": "qtum-qtum",
         "bidmargin": 0.05,
         "askmargin": 0.05
     },
+    "REP": {
+        "cmcid": 1104,
+        "papid": "rep-augur",
+        "erc20": 1,
+        "bidmargin": 0.05,
+        "askmargin": 0.05
+    },
     "RFOX": {
         "papid": "rfox-redfox-labs",
-        "bidmargin": 0.20,
+        "bidmargin": 0.05,
         "askmargin": 0.05
     },
     "RVN": {
@@ -223,6 +265,13 @@
         "cmcid": 541,
         "papid": "sys-syscoin",
         "bidmargin": 0.20,
+        "askmargin": 0.05
+    },
+    "TUSD": {
+        "cmcid": 2563,
+        "papid": "tusd-trueusd",
+        "erc20": 1,
+        "bidmargin": 0.05,
         "askmargin": 0.05
     },
     "USDC": {
@@ -258,7 +307,7 @@
     "XZC": {
         "cmcid": 1414,
         "papid": "xzc-zcoin",
-        "bidmargin": 0.20,
+        "bidmargin": 0.10,
         "askmargin": 0.05
     },
     "ZEC": {
@@ -270,6 +319,13 @@
     "ZEXO": {
         "papid": "zex-zaddex",
         "bidmargin": 0.20,
+        "askmargin": 0.05
+    },
+    "ZRX": {
+        "cmcid": 1896,
+        "papid": "zrx-0x",
+        "erc20": 1,
+        "bidmargin": 0.05,
         "askmargin": 0.05
     }
 }
