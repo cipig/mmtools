@@ -33,7 +33,7 @@
     },
     "BTX": {
         "cmcid": 1654,
-        "papid": "btx-bitcoin-x",
+        "papid": "btx-bitcore",
         "bidmargin": 0.30,
         "askmargin": 0.05
     },
