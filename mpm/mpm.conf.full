@@ -81,6 +81,12 @@
         "bidmargin": 0.05,
         "askmargin": 0.05
     },
+    "DP": {
+        "cmcid": 654,
+        "papid": "dp-digitalprice",
+        "bidmargin": 0.30,
+        "askmargin": 0.05
+    },
     "ECA": {
         "cmcid": 1711,
         "papid": "eca-electra",
