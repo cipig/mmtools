@@ -273,6 +273,12 @@
         "bidmargin": 0.20,
         "askmargin": 0.05
     },
+    "THC": {
+        "cmcid": 416,
+        "papid": "thc-hempcoin",
+        "bidmargin": 0.10,
+        "askmargin": 0.05
+    },
     "TUSD": {
         "cmcid": 2563,
         "papid": "tusd-trueusd",
