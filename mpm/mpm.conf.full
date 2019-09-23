@@ -1,4 +1,10 @@
 {
+    "AXE": {
+        "cmcid": 3898,
+        "papid": "axe-axe",
+        "bidmargin": 0.05,
+        "askmargin": 0.05
+    },
     "BAT": {
         "cmcid": 1697,
         "papid": "bat-basic-attention-token",
