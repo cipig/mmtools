@@ -15,7 +15,6 @@ my $gasprice = from_json(getgasprice())->{'standard'};
 my $cex_apikey = "";
 my $cex_seckey = "";
 my $base = "KMD";
-my $coin = "BTC";
 my $userpass =  $ENV{'userpass'};
 my $api = $ARGV[0];
 my $cex = $ARGV[1];
@@ -176,8 +175,15 @@ sub cex_cancelorders {
 sub cex_setprice {
     my $base = $_[0];
     my $coin = $_[1];
-    my $bid = sprintf("%.7f",$_[2]);
-    my $ask = sprintf("%.7f",$_[3]);
+    my $bid = undef;
+    my $ask = undef;
+    if ( $coin eq "ETH" ) {
+        $bid = sprintf("%.6f",$_[2]);
+        $ask = sprintf("%.6f",$_[3]);
+    } else {
+        $bid = sprintf("%.7f",$_[2]);
+        $ask = sprintf("%.7f",$_[3]);
+    }
     my $quantity = sprintf("%u",$_[4]);
 
     my $ua = LWP::UserAgent->new;
@@ -341,33 +347,35 @@ if ( $api eq "cmcpaid" ) {
 }
 
 if ( $cex eq "binance" ) {
-    my $cex_price = decode_json(cex_latest_price($base,$coin))->{'price'};
-    my $maxbidprice = sprintf("%.7f", ($cex_price - $cex_price * $bidminmargin));
-    my $minaskprice = sprintf("%.7f", ($cex_price + $cex_price * $askminmargin));
-    cex_cancelorders($base,$coin);
-    my $cex_depth = decode_json(cex_depth($base,$coin));
+    foreach my $coin ( "BTC", "ETH" ) {
+        my $cex_price = decode_json(cex_latest_price($base,$coin))->{'price'};
+        my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin));
+        my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin));
+        cex_cancelorders($base,$coin);
+        my $cex_depth = decode_json(cex_depth($base,$coin));
 
-    $cex_bid_price_full = calc_bestbidprice($cex_depth->{'bids'},$quantity*1.5);
-    $cex_ask_price_full = calc_bestaskprice($cex_depth->{'asks'},$quantity*1.5);
-    if ( ( !defined $cex_bid_price_full ) || ( $cex_bid_price_full > $maxbidprice ) ) { $cex_bid_price_full = sprintf("%.7f", ($cex_price - $cex_price * $marginsconf->{$base}{'bidmargin'})); }
-    if ( ( !defined $cex_ask_price_full ) || ( $cex_ask_price_full < $minaskprice ) ) { $cex_ask_price_full = sprintf("%.7f", ($cex_price + $cex_price * $marginsconf->{$base}{'askmargin'})); }
-    cex_setprice($base,$coin,$cex_bid_price_full,$cex_ask_price_full,$quantity);
+        $cex_bid_price_full = calc_bestbidprice($cex_depth->{'bids'},$quantity*2);
+        $cex_ask_price_full = calc_bestaskprice($cex_depth->{'asks'},$quantity*2);
+        if ( ( !defined $cex_bid_price_full ) || ( $cex_bid_price_full > $maxbidprice ) ) { $cex_bid_price_full = sprintf("%.8f", ($cex_price - $cex_price * $marginsconf->{$base}{'bidmargin'})); }
+        if ( ( !defined $cex_ask_price_full ) || ( $cex_ask_price_full < $minaskprice ) ) { $cex_ask_price_full = sprintf("%.8f", ($cex_price + $cex_price * $marginsconf->{$base}{'askmargin'})); }
+        cex_setprice($base,$coin,$cex_bid_price_full,$cex_ask_price_full,$quantity);
 
-    $cex_bid_price_half = calc_bestbidprice($cex_depth->{'bids'},$quantity/2*1.25);
-    $cex_ask_price_half = calc_bestaskprice($cex_depth->{'asks'},$quantity/2*1.25);
-    if ( ( !defined $cex_bid_price_half ) || ( $cex_bid_price_half > $maxbidprice ) ) { $cex_bid_price_half = sprintf("%.7f", ($cex_price - $cex_price * $marginsconf->{$base}{'bidmargin'})); }
-    if ( ( !defined $cex_ask_price_half ) || ( $cex_ask_price_half < $minaskprice ) ) { $cex_ask_price_half = sprintf("%.7f", ($cex_price + $cex_price * $marginsconf->{$base}{'askmargin'})); }
-    if ( $cex_ask_price_half >= $cex_ask_price_full ) { $cex_ask_price_half = $cex_ask_price_full - 0.00000010; }
-    if ( $cex_bid_price_half <= $cex_bid_price_full ) { $cex_bid_price_half = $cex_bid_price_full + 0.00000010; }
-    cex_setprice($base,$coin,$cex_bid_price_half,$cex_ask_price_half,$quantity/2);
+        $cex_bid_price_half = calc_bestbidprice($cex_depth->{'bids'},$quantity/2*1.5);
+        $cex_ask_price_half = calc_bestaskprice($cex_depth->{'asks'},$quantity/2*1.5);
+        if ( ( !defined $cex_bid_price_half ) || ( $cex_bid_price_half > $maxbidprice ) ) { $cex_bid_price_half = sprintf("%.8f", ($cex_price - $cex_price * $marginsconf->{$base}{'bidmargin'})); }
+        if ( ( !defined $cex_ask_price_half ) || ( $cex_ask_price_half < $minaskprice ) ) { $cex_ask_price_half = sprintf("%.8f", ($cex_price + $cex_price * $marginsconf->{$base}{'askmargin'})); }
+        if ( $cex_ask_price_half > $cex_ask_price_full ) { $cex_ask_price_half = $cex_ask_price_full - 0.00000010; }
+        if ( $cex_bid_price_half < $cex_bid_price_full ) { $cex_bid_price_half = $cex_bid_price_full + 0.00000010; }
+        cex_setprice($base,$coin,$cex_bid_price_half,$cex_ask_price_half,$quantity/2);
 
-    $cex_bid_price_quarter = calc_bestbidprice($cex_depth->{'bids'},$quantity/5);
-    $cex_ask_price_quarter = calc_bestaskprice($cex_depth->{'asks'},$quantity/5);
-    if ( ( !defined $cex_bid_price_quarter ) || ( $cex_bid_price_quarter > $maxbidprice ) ) { $cex_bid_price_quarter = sprintf("%.7f", ($cex_price - $cex_price * $marginsconf->{$base}{'bidmargin'})); }
-    if ( ( !defined $cex_ask_price_quarter ) || ( $cex_ask_price_quarter < $minaskprice ) ) { $cex_ask_price_quarter = sprintf("%.7f", ($cex_price + $cex_price * $marginsconf->{$base}{'askmargin'})); }
-    if ( $cex_ask_price_quarter >= $cex_ask_price_half ) { $cex_ask_price_quarter = $cex_ask_price_half - 0.00000010; }
-    if ( $cex_bid_price_quarter <= $cex_bid_price_half ) { $cex_bid_price_quarter = $cex_bid_price_half + 0.00000010; }
-    cex_setprice($base,$coin,$cex_bid_price_quarter,$cex_ask_price_quarter,$quantity/5);
+        $cex_bid_price_quarter = calc_bestbidprice($cex_depth->{'bids'},$quantity/5*1.25);
+        $cex_ask_price_quarter = calc_bestaskprice($cex_depth->{'asks'},$quantity/5*1.25);
+        if ( ( !defined $cex_bid_price_quarter ) || ( $cex_bid_price_quarter > $maxbidprice ) ) { $cex_bid_price_quarter = sprintf("%.8f", ($cex_price - $cex_price * $marginsconf->{$base}{'bidminmargin'})); }
+        if ( ( !defined $cex_ask_price_quarter ) || ( $cex_ask_price_quarter < $minaskprice ) ) { $cex_ask_price_quarter = sprintf("%.8f", ($cex_price + $cex_price * $marginsconf->{$base}{'askminmargin'})); }
+        if ( $cex_ask_price_quarter > $cex_ask_price_half ) { $cex_ask_price_quarter = $cex_ask_price_half - 0.00000010; }
+        if ( $cex_bid_price_quarter < $cex_bid_price_half ) { $cex_bid_price_quarter = $cex_bid_price_half + 0.00000010; }
+        cex_setprice($base,$coin,$cex_bid_price_quarter,$cex_ask_price_quarter,$quantity/5);
+    }
 } else {
     print "CEX not found\n";
 }
