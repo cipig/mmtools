@@ -142,6 +142,13 @@
         "bidmargin": 0.20,
         "askmargin": 0.05
     },
+    "HT": {
+        "cmcid": 2502,
+        "papid": "ht-huobi-token",
+        "erc20": 1,
+        "bidmargin": 0.05,
+        "askmargin": 0.05
+    },
     "HUSH": {
         "cmcid": 1466,
         "papid": "hush-hush",
