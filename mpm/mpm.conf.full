@@ -1,4 +1,11 @@
 {
+    "AWC": {
+        "cmcid": 3667,
+        "papid": "awc-atomic-wallet-coin",
+        "erc20": 1,
+        "bidmargin": 0.10,
+        "askmargin": 0.10
+    },
     "AXE": {
         "cmcid": 3898,
         "papid": "axe-axe",
@@ -140,6 +147,13 @@
         "cmcid": 258,
         "papid": "grs-groestlcoin",
         "bidmargin": 0.20,
+        "askmargin": 0.05
+    },
+    "HOT": {
+        "cmcid": 2682,
+        "papid": "hot-holo",
+        "erc20": 1,
+        "bidmargin": 0.05,
         "askmargin": 0.05
     },
     "HT": {
