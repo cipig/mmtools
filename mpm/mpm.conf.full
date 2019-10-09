@@ -112,6 +112,13 @@
         "bidmargin": 0.10,
         "askmargin": 0.05
     },
+    "ENJ": {
+        "cmcid": 2130,
+        "papid": "enj-enjin-coin",
+        "erc20": 1,
+        "bidmargin": 0.10,
+        "askmargin": 0.10
+    },
     "ETH": {
         "cmcid": 1027,
         "papid": "eth-ethereum",
