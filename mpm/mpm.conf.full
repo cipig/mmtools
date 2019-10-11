@@ -203,6 +203,13 @@
         "bidmargin": 0.05,
         "askmargin": 0.05
     },
+    "LRC": {
+        "cmcid": 1934,
+        "papid": "lrc-loopring",
+        "erc20": 1,
+        "bidmargin": 0.10,
+        "askmargin": 0.10
+    },
     "LTC": {
         "cmcid": 2,
         "papid": "ltc-litecoin",
