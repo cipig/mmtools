@@ -278,6 +278,13 @@
         "bidmargin": 0.05,
         "askmargin": 0.05
     },
+    "POWR": {
+        "cmcid": 2132,
+        "papid": "powr-power-ledger",
+        "erc20": 1,
+        "bidmargin": 0.10,
+        "askmargin": 0.10
+    },
     "QTUM": {
         "cmcid": 1684,
         "papid": "qtum-qtum",
