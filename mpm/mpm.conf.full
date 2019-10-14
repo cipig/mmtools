@@ -222,6 +222,13 @@
         "bidmargin": 0.30,
         "askmargin": 0.05
     },
+    "MANA": {
+        "cmcid": 1966,
+        "papid": "mana-decentraland",
+        "erc20": 1,
+        "bidmargin": 0.10,
+        "askmargin": 0.10
+    },
     "MKR": {
         "cmcid": 1518,
         "papid": "mkr-maker",
