@@ -322,6 +322,13 @@
         "bidmargin": 0.30,
         "askmargin": 0.05
     },
+    "SNT": {
+        "cmcid": 1759,
+        "papid": "snt-status",
+        "erc20": 1,
+        "bidmargin": 0.05,
+        "askmargin": 0.05
+    },
     "SYS": {
         "cmcid": 541,
         "papid": "sys-syscoin",
