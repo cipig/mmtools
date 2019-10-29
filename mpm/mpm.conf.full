@@ -49,6 +49,13 @@
         "bidmargin": 0.30,
         "askmargin": 0.05
     },
+    "BUSD": {
+        "cmcid": 4687,
+        "papid": "busd-binance-usd",
+        "erc20": 1,
+        "bidmargin": 0.03,
+        "askmargin": 0.03
+    },
     "CHIPS": {
         "cmcid": 1986,
         "papid": "chips-chips",
