@@ -298,6 +298,7 @@ sub crex24_setprice {
             print " ask 0.0000000\n";
             #print " ".$resp->content."\n";
         }
+        sleep(1);
     }
 }
 
@@ -481,11 +482,20 @@ if ( $cex eq "binance" ) {
     my $bidmargin = $marginsconf->{$base}{'bidmargin'};
     my $askmargin = $marginsconf->{$base}{'askmargin'};
     foreach my $coin ( "BTC" ) {
+        crex24_cancelorders($base,$coin);
         my $cex_price = decode_json(binance_latest_price($base,$coin))->{'price'};
+
         my $cex_bid_price = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin));
         my $cex_ask_price = sprintf("%.7f", ($cex_price + $cex_price * $askmargin));
-        crex24_cancelorders($base,$coin);
         crex24_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity);
+
+        my $cex_bid_price_2 = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin * 2));
+        my $cex_ask_price_2 = sprintf("%.7f", ($cex_price + $cex_price * $askmargin * 2));
+        crex24_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity*2);
+
+        my $cex_bid_price_5 = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin * 5));
+        my $cex_ask_price_5 = sprintf("%.7f", ($cex_price + $cex_price * $askmargin * 5));
+        crex24_setprice($base,$coin,$cex_bid_price_5,$cex_ask_price_5,$quantity*5);
     }
 } else {
     print "CEX not found\n";

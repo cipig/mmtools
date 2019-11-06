@@ -1,0 +1,11 @@
+{
+    "KMD": {
+        "cmcid": 1521,
+        "papid": "kmd-komodo",
+        "bidmargin": 0.0065,
+        "bidminmargin": 0.0035,
+        "askmargin": 0.0065,
+        "askminmargin": 0.0035,
+        "quantity": 600
+    }
+}
