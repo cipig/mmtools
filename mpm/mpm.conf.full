@@ -1,4 +1,11 @@
 {
+    "ARPA": {
+        "cmcid": 4039,
+        "papid": "arpa-arpa-chain",
+        "erc20": 1,
+        "bidmargin": 0.30,
+        "askmargin": 0.10
+    },
     "AWC": {
         "cmcid": 3667,
         "papid": "awc-atomic-wallet-coin",
