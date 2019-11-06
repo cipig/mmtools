@@ -450,10 +450,10 @@ if ( $cex eq "binance" ) {
     my $bidminmargin = $marginsconf->{$base}{'bidminmargin'};
     my $askminmargin = $marginsconf->{$base}{'askminmargin'};
     foreach my $coin ( "BTC", "ETH" ) {
+        binance_cancelorders($base,$coin);
         my $cex_price = decode_json(binance_latest_price($base,$coin))->{'price'};
         my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin));
         my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin));
-        binance_cancelorders($base,$coin);
         my $binance_depth = decode_json(binance_depth($base,$coin));
 
         $cex_bid_price_full = calc_bestbidprice($binance_depth->{'bids'},$quantity*2,$coin);
