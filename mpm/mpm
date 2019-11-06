@@ -3,9 +3,11 @@
 use warnings;
 use LWP::UserAgent;
 use JSON;
-use File::Slurp qw( read_file );
+use File::Slurp qw(read_file);
 use File::Basename;
+use MIME::Base64;
 use Digest::SHA qw(hmac_sha256_hex);
+use Digest::SHA qw(hmac_sha512_base64);
 #use Data::Dumper;
 
 
@@ -14,6 +16,8 @@ my $gaspriceurl = "https://www.etherchain.org/api/gasPriceOracle";
 my $gasprice = from_json(getgasprice())->{'standard'};
 my $binance_apikey = "";
 my $binance_seckey = "";
+my $crex24_apikey = "";
+my $crex24_seckey = decode_base64("");
 my $base = "KMD";
 my $userpass =  $ENV{'userpass'};
 my $api = $ARGV[0];
@@ -164,6 +168,31 @@ sub binance_cancelorders {
 }
 
 
+sub crex24_cancelorders {
+    my $base = $_[0];
+    my $coin = $_[1];
+    my $urlpath = "/v2/trading/cancelOrdersByInstrument";
+    my $nonce = time();
+    my $body = '{"instruments":["'.$base.'-'.$coin.'"]}';
+    my $command = $urlpath . $nonce . $body;
+    my $signature = hmac_sha512_base64($command,$crex24_seckey);
+    while (length($signature) % 4) {
+        $signature .= '=';
+    }
+
+    my $ua = LWP::UserAgent->new;
+    $req = HTTP::Request->new(POST => 'https://api.crex24.com/v2/trading/cancelOrdersByInstrument');
+    $req->header('X-CREX24-API-KEY' => $crex24_apikey,
+                 'X-CREX24-API-NONCE' => $nonce,
+                 'X-CREX24-API-SIGN' => $signature);
+
+    $req->content($body);
+    my $resp = $ua->request($req);
+    #print $resp->content."\n";
+    sleep(1);
+}
+
+
 sub binance_setprice {
     my $base = $_[0];
     my $coin = $_[1];
@@ -202,6 +231,65 @@ sub binance_setprice {
 	my $command = "symbol=".$base.$coin."&side=SELL&type=LIMIT_MAKER&newOrderRespType=RESULT&quantity=".$quantity."&price=".$ask."&newClientOrderId=mysellid".$quantity."&timestamp=".time()*1000;
 	my $signature = hmac_sha256_hex($command, $binance_seckey);
         my $body = $command."&signature=".$signature;
+        $req->content($body);
+        my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            print " ask ".$ask."\n";
+        } else {
+            print " ask 0.0000000\n";
+            #print " ".$resp->content."\n";
+        }
+    }
+}
+
+
+sub crex24_setprice {
+    my $base = $_[0];
+    my $coin = $_[1];
+    my $bid = $_[2];
+    my $ask = $_[3];
+    my $quantity = sprintf("%u",$_[4]);
+    my $urlpath = "/v2/trading/placeOrder";
+
+    print "$base/$coin size ".sprintf("%03d",$quantity);
+
+    if ( defined $bid ) {
+        my $nonce = time();
+        my $body = '{"instrument":"'.$base.'-'.$coin.'","side":"buy","volume":'.$quantity.',"price":'.$bid.'}';
+        my $command = $urlpath . $nonce . $body;
+        my $signature = hmac_sha512_base64($command,$crex24_seckey);
+        while (length($signature) % 4) {
+            $signature .= '=';
+        }
+        my $ua = LWP::UserAgent->new;
+        $req = HTTP::Request->new(POST => 'https://api.crex24.com/v2/trading/placeOrder');
+        $req->header('X-CREX24-API-KEY' => $crex24_apikey,
+                     'X-CREX24-API-NONCE' => $nonce,
+                     'X-CREX24-API-SIGN' => $signature);
+        $req->content($body);
+        my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            print " bid ".$bid;
+        } else {
+            print " bid 0.0000000";
+            #print " ".$resp->content;
+        }
+        sleep(1);
+    }
+
+    if ( defined $ask ) {
+        my $nonce = time();
+        my $body = '{"instrument":"'.$base.'-'.$coin.'","side":"sell","volume":'.$quantity.',"price":'.$ask.'}';
+        my $command = $urlpath . $nonce . $body;
+        my $signature = hmac_sha512_base64($command,$crex24_seckey);
+        while (length($signature) % 4) {
+            $signature .= '=';
+        }
+        my $ua = LWP::UserAgent->new;
+        $req = HTTP::Request->new(POST => 'https://api.crex24.com/v2/trading/placeOrder');
+        $req->header('X-CREX24-API-KEY' => $crex24_apikey,
+                     'X-CREX24-API-NONCE' => $nonce,
+                     'X-CREX24-API-SIGN' => $signature);
         $req->content($body);
         my $resp = $ua->request($req);
         if ($resp->is_success) {
@@ -356,6 +444,8 @@ if ( $cex eq "binance" ) {
     my $cex_ask_price_half = undef;
     my $cex_bid_price_quarter = undef;
     my $cex_ask_price_quarter = undef;
+    my $bidmargin = $marginsconf->{$base}{'bidmargin'};
+    my $askmargin = $marginsconf->{$base}{'askmargin'};
     my $bidminmargin = $marginsconf->{$base}{'bidminmargin'};
     my $askminmargin = $marginsconf->{$base}{'askminmargin'};
     foreach my $coin ( "BTC", "ETH" ) {
@@ -367,28 +457,37 @@ if ( $cex eq "binance" ) {
 
         $cex_bid_price_full = calc_bestbidprice($binance_depth->{'bids'},$quantity*2,$coin);
         $cex_ask_price_full = calc_bestaskprice($binance_depth->{'asks'},$quantity*2,$coin);
-        if ( ( !defined $cex_bid_price_full ) || ( $cex_bid_price_full > $maxbidprice ) ) { $cex_bid_price_full = sprintf("%.8f", ($cex_price - $cex_price * $marginsconf->{$base}{'bidmargin'})); }
-        if ( ( !defined $cex_ask_price_full ) || ( $cex_ask_price_full < $minaskprice ) ) { $cex_ask_price_full = sprintf("%.8f", ($cex_price + $cex_price * $marginsconf->{$base}{'askmargin'})); }
+        if ( ( !defined $cex_bid_price_full ) || ( $cex_bid_price_full > $maxbidprice ) ) { $cex_bid_price_full = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
+        if ( ( !defined $cex_ask_price_full ) || ( $cex_ask_price_full < $minaskprice ) ) { $cex_ask_price_full = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
         binance_setprice($base,$coin,$cex_bid_price_full,$cex_ask_price_full,$quantity);
 
         $cex_bid_price_half = calc_bestbidprice($binance_depth->{'bids'},$quantity/2*1.5,$coin);
         $cex_ask_price_half = calc_bestaskprice($binance_depth->{'asks'},$quantity/2*1.5,$coin);
-        if ( ( !defined $cex_bid_price_half ) || ( $cex_bid_price_half > $maxbidprice ) ) { $cex_bid_price_half = sprintf("%.8f", ($cex_price - $cex_price * $marginsconf->{$base}{'bidmargin'})); }
-        if ( ( !defined $cex_ask_price_half ) || ( $cex_ask_price_half < $minaskprice ) ) { $cex_ask_price_half = sprintf("%.8f", ($cex_price + $cex_price * $marginsconf->{$base}{'askmargin'})); }
+        if ( ( !defined $cex_bid_price_half ) || ( $cex_bid_price_half > $maxbidprice ) ) { $cex_bid_price_half = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
+        if ( ( !defined $cex_ask_price_half ) || ( $cex_ask_price_half < $minaskprice ) ) { $cex_ask_price_half = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
         if ( $cex_ask_price_half > $cex_ask_price_full ) { $cex_ask_price_half = $cex_ask_price_full; }
         if ( $cex_bid_price_half < $cex_bid_price_full ) { $cex_bid_price_half = $cex_bid_price_full; }
         binance_setprice($base,$coin,$cex_bid_price_half,$cex_ask_price_half,$quantity/2);
 
         $cex_bid_price_quarter = calc_bestbidprice($binance_depth->{'bids'},$quantity/5*1.25,$coin);
         $cex_ask_price_quarter = calc_bestaskprice($binance_depth->{'asks'},$quantity/5*1.25,$coin);
-        if ( ( !defined $cex_bid_price_quarter ) || ( $cex_bid_price_quarter > $maxbidprice ) ) { $cex_bid_price_quarter = sprintf("%.8f", ($cex_price - $cex_price * $marginsconf->{$base}{'bidminmargin'})); }
-        if ( ( !defined $cex_ask_price_quarter ) || ( $cex_ask_price_quarter < $minaskprice ) ) { $cex_ask_price_quarter = sprintf("%.8f", ($cex_price + $cex_price * $marginsconf->{$base}{'askminmargin'})); }
+        if ( ( !defined $cex_bid_price_quarter ) || ( $cex_bid_price_quarter > $maxbidprice ) ) { $cex_bid_price_quarter = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin)); }
+        if ( ( !defined $cex_ask_price_quarter ) || ( $cex_ask_price_quarter < $minaskprice ) ) { $cex_ask_price_quarter = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin)); }
         if ( $cex_ask_price_quarter > $cex_ask_price_half ) { $cex_ask_price_quarter = $cex_ask_price_half; }
         if ( $cex_bid_price_quarter < $cex_bid_price_half ) { $cex_bid_price_quarter = $cex_bid_price_half; }
         binance_setprice($base,$coin,$cex_bid_price_quarter,$cex_ask_price_quarter,$quantity/5);
     }
 } elsif ( $cex eq "crex24" ) {
-    print "TBD\n";
+    my $bidmargin = $marginsconf->{$base}{'bidmargin'};
+    my $askmargin = $marginsconf->{$base}{'askmargin'};
+    foreach my $coin ( "BTC" ) {
+        my $cex_price = decode_json(binance_latest_price($base,$coin))->{'price'};
+        my $cex_bid_price = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin));
+        my $cex_ask_price = sprintf("%.7f", ($cex_price + $cex_price * $askmargin));
+        crex24_cancelorders($base,$coin);
+        crex24_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity);
+    }
 } else {
     print "CEX not found\n";
 }
+
