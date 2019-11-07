@@ -195,15 +195,6 @@
         "bidmargin": 0.50,
         "askmargin": 0.20
     },
-    "KMD": {
-        "cmcid": 1521,
-        "papid": "kmd-komodo",
-        "bidmargin": 0.006,
-        "bidminmargin": 0.005,
-        "askmargin": 0.007,
-        "askminmargin": 0.006,
-        "quantity": 250
-    },
     "LBC": {
         "cmcid": 1298,
         "papid": "lbc-lbry-credits",

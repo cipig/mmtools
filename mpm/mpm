@@ -11,21 +11,13 @@ use Digest::SHA qw(hmac_sha512_base64);
 #use Data::Dumper;
 
 
-my $maxgasprice = 15;
-my $gaspriceurl = "https://www.etherchain.org/api/gasPriceOracle";
-my $gasprice = from_json(getgasprice())->{'standard'};
+my $base = "KMD";
 my $binance_apikey = "";
 my $binance_seckey = "";
 my $crex24_apikey = "";
 my $crex24_seckey = decode_base64("");
-my $base = "KMD";
-my $userpass =  $ENV{'userpass'};
 my $api = $ARGV[0];
-my $cex = $ARGV[1];
 my $cwd = dirname($0);
-my $json = read_file("$cwd/mpm.conf");
-my $marginsconf = decode_json($json);
-my $quantity = $marginsconf->{$base}{'quantity'};
 
 
 sub getgasprice {
@@ -395,26 +387,13 @@ sub calc_bestaskprice {
 }
 
 
-if ( $api eq "cmcpaid" ) {
-    my $prices = apicmcpaid($base);
-    if ( defined $prices ) {
-        foreach my $coin ( keys %{$marginsconf} ) {
-            if ( $base ne $coin ) {
-                my $cmcid = $marginsconf->{$coin}{'cmcid'};
-                my $erc20 = $marginsconf->{$coin}{'erc20'};
-                if ( !defined $erc20 ) { $erc20 = "0"; }
-                my $price = from_json($prices)->{'data'}{$cmcid}{'quote'}{$base}{'price'};
-                if ( $erc20 eq "0" ) {
-                    dex_setprice($base,$coin,$price);
-                } elsif ( ($erc20 eq "1") && ($gasprice < $maxgasprice) ) {
-                    dex_setprice($base,$coin,$price);
-                } else {
-                    dex_deleteprice($base,$coin);
-                }
-            }
-        }
-    }
-} elsif ( $api eq "coinpaprika" ) {
+if ( $api eq "dex" ) {
+    my $maxgasprice = 15;
+    my $gaspriceurl = "https://www.etherchain.org/api/gasPriceOracle";
+    my $gasprice = from_json(getgasprice())->{'standard'};
+    my $userpass =  $ENV{'userpass'};
+    my $json = read_file("$cwd/mpm.conf.dex");
+    my $marginsconf = decode_json($json);
     my $basepapid = $marginsconf->{$base}{'papid'};
     foreach my $coin ( keys %{$marginsconf} ) {
         if ( $base ne $coin ) {
@@ -438,22 +417,14 @@ if ( $api eq "cmcpaid" ) {
             }
         }
     }
-} else {
-    print "API not found\n";
-}
-
-
-if ( $cex eq "binance" ) {
-    my $cex_bid_price_full = undef;
-    my $cex_ask_price_full = undef;
-    my $cex_bid_price_half = undef;
-    my $cex_ask_price_half = undef;
-    my $cex_bid_price_quarter = undef;
-    my $cex_ask_price_quarter = undef;
+} elsif ( $api eq "binance" ) {
+    my $json = read_file("$cwd/mpm.conf.binance");
+    my $marginsconf = decode_json($json);
     my $bidmargin = $marginsconf->{$base}{'bidmargin'};
     my $askmargin = $marginsconf->{$base}{'askmargin'};
     my $bidminmargin = $marginsconf->{$base}{'bidminmargin'};
     my $askminmargin = $marginsconf->{$base}{'askminmargin'};
+    my $quantity = $marginsconf->{$base}{'quantity'};
     foreach my $coin ( "BTC", "ETH" ) {
         binance_cancelorders($base,$coin);
         my $cex_price = decode_json(binance_latest_price($base,$coin))->{'price'};
@@ -483,9 +454,12 @@ if ( $cex eq "binance" ) {
         if ( $cex_bid_price_quarter < $cex_bid_price_half ) { $cex_bid_price_quarter = $cex_bid_price_half; }
         binance_setprice($base,$coin,$cex_bid_price_quarter,$cex_ask_price_quarter,$quantity/5);
     }
-} elsif ( $cex eq "crex24" ) {
+} elsif ( $api eq "crex24" ) {
+    my $json = read_file("$cwd/mpm.conf.crex24");
+    my $marginsconf = decode_json($json);
     my $bidmargin = $marginsconf->{$base}{'bidmargin'};
     my $askmargin = $marginsconf->{$base}{'askmargin'};
+    my $quantity = $marginsconf->{$base}{'quantity'};
     foreach my $coin ( "BTC" ) {
         crex24_cancelorders($base,$coin);
         my $cex_price = decode_json(binance_latest_price($base,$coin))->{'price'};
@@ -503,6 +477,6 @@ if ( $cex eq "binance" ) {
         crex24_setprice($base,$coin,$cex_bid_price_5,$cex_ask_price_5,$quantity*5);
     }
 } else {
-    print "CEX not found\n";
+    print "API not found\n";
 }
 

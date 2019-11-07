@@ -2,6 +2,6 @@
 source ~/SuperNET/etomic_build/client/userpass
 while true; do
   date
-  ~/mmtools/mpm/mpm coinpaprika binance
-  sleep 70
+  ~/mmtools/mpm/mpm dex
+  sleep 90
 done
