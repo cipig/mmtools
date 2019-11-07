@@ -8,7 +8,7 @@ cd && git clone https://github.com/cipig/mmtools
 `~/mmtools/mpm/mpm dex`  
 - sets prices for all coins from mpm.conf.dex in AtomicDEX (base is KMD) and uses coinpaprika as price source  
 
-cmcid/papid in `mpm.conf.dex` are taken from https://api.coinmarketcap.com/v2/listings/ and  https://api.coinpaprika.com/v1/coins  
+papid in `mpm.conf.dex` are taken from https://api.coinpaprika.com/v1/coins  
 If `bidmargin` or `askmargin` is not set, bid/ask will not be set  
 
 can be started with `stdbuf -oL nohup ~/mmtools/mpm/mpm.sh > /tmp/mpm.log &` in the background and will update the prices every minute  

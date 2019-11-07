@@ -55,34 +55,6 @@ sub apipaprika {
 }
 
 
-sub apicmcpaid {
-    my $baseurl = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?";
-    my $ids = "id=";
-    my $rel = "&convert=$_[0]";
-    my $cmc_apikey = "&CMC_PRO_API_KEY=x";
-
-    foreach my $coin ( keys %{$marginsconf} ) {
-        my $cmcid = $marginsconf->{$coin}{'cmcid'};
-        $ids .= $cmcid.",";
-    }
-    chop($ids);
-    my $url = $baseurl.$ids.$rel.$cmc_apikey;
-    my $ua = LWP::UserAgent->new;
-    $ua->agent("Mozilla");
-    $ua->timeout(15);
-    my $req = HTTP::Request->new(GET => $url);
-    $req->header('content-type' => 'application/json');
-    my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-        }
-}
-
-
 sub binance_latest_price {
     my $base = $_[0];
     my $coin = $_[1];
