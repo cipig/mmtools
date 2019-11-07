@@ -422,7 +422,7 @@ if ( $api eq "cmcpaid" ) {
             my $papid = $marginsconf->{$coin}{'papid'};
             my $erc20 = $marginsconf->{$coin}{'erc20'};
             if ( !defined $erc20 ) { $erc20 = "0"; }
-            if ( $coin eq "BTC" ) {
+            if ( ( $coin eq "BTC" ) || ( $coin eq "ETH" ) ) {
                 my $cex_price = decode_json(binance_latest_price($base,$coin))->{'price'};
                 $price = 1 / $cex_price;
             } else {
