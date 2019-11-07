@@ -422,8 +422,13 @@ if ( $api eq "cmcpaid" ) {
             my $papid = $marginsconf->{$coin}{'papid'};
             my $erc20 = $marginsconf->{$coin}{'erc20'};
             if ( !defined $erc20 ) { $erc20 = "0"; }
-            my $coinprice = apipaprika($basepapid,$papid);
-            if ( $coinprice ne "1" ) { $price = from_json($coinprice)->{'price'}; }
+            if ( $coin eq "BTC" ) {
+                my $cex_price = decode_json(binance_latest_price($base,$coin))->{'price'};
+                $price = 1 / $cex_price;
+            } else {
+                my $coinprice = apipaprika($basepapid,$papid);
+                if ( $coinprice ne "1" ) { $price = from_json($coinprice)->{'price'}; }
+            }
             if ( ($erc20 eq "0") && (defined $price) ) {
                 dex_setprice($base,$coin,$price);
             } elsif ( ($erc20 eq "1") && ($gasprice < $maxgasprice) && (defined $price) ) {
