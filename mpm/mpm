@@ -418,13 +418,13 @@ if ( $api eq "dex" ) {
         if ( $cex_bid_price_half < $cex_bid_price_full ) { $cex_bid_price_half = $cex_bid_price_full; }
         binance_setprice($base,$coin,$cex_bid_price_half,$cex_ask_price_half,$quantity/2);
 
-        $cex_bid_price_quarter = calc_bestbidprice($binance_depth->{'bids'},$quantity/5*1.25,$coin);
-        $cex_ask_price_quarter = calc_bestaskprice($binance_depth->{'asks'},$quantity/5*1.25,$coin);
+        $cex_bid_price_quarter = calc_bestbidprice($binance_depth->{'bids'},$quantity/6*1.25,$coin);
+        $cex_ask_price_quarter = calc_bestaskprice($binance_depth->{'asks'},$quantity/6*1.25,$coin);
         if ( ( !defined $cex_bid_price_quarter ) || ( $cex_bid_price_quarter > $maxbidprice ) ) { $cex_bid_price_quarter = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin)); }
         if ( ( !defined $cex_ask_price_quarter ) || ( $cex_ask_price_quarter < $minaskprice ) ) { $cex_ask_price_quarter = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin)); }
         if ( $cex_ask_price_quarter > $cex_ask_price_half ) { $cex_ask_price_quarter = $cex_ask_price_half; }
         if ( $cex_bid_price_quarter < $cex_bid_price_half ) { $cex_bid_price_quarter = $cex_bid_price_half; }
-        binance_setprice($base,$coin,$cex_bid_price_quarter,$cex_ask_price_quarter,$quantity/5);
+        binance_setprice($base,$coin,$cex_bid_price_quarter,$cex_ask_price_quarter,$quantity/6);
     }
 } elsif ( $api eq "crex24" ) {
     my $json = read_file("$cwd/mpm.conf.crex24");
