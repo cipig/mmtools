@@ -420,7 +420,6 @@ if ( $api eq "dex" ) {
         $cex_ask_price_quarter = calc_bestaskprice($binance_depth->{'asks'},$quantity/6*1.25,$coin);
         if ( ( $cex_bid_price_quarter eq "" ) || ( $cex_bid_price_quarter > $maxbidprice ) ) { $cex_bid_price_quarter = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin)); }
         if ( ( $cex_ask_price_quarter eq "" ) || ( $cex_ask_price_quarter < $minaskprice ) ) { $cex_ask_price_quarter = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin)); }
-
         if ( $cex_ask_price_quarter > $cex_ask_price_half ) { $cex_ask_price_quarter = $cex_ask_price_half; }
         if ( $cex_bid_price_quarter < $cex_bid_price_half ) { $cex_bid_price_quarter = $cex_bid_price_half; }
         binance_setprice($base,$coin,$cex_bid_price_quarter,$cex_ask_price_quarter,$quantity/6);
