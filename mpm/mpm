@@ -404,22 +404,23 @@ if ( $api eq "dex" ) {
 
         $cex_bid_price_full = calc_bestbidprice($binance_depth->{'bids'},$quantity*2,$coin);
         $cex_ask_price_full = calc_bestaskprice($binance_depth->{'asks'},$quantity*2,$coin);
-        if ( ( !defined $cex_bid_price_full ) || ( $cex_bid_price_full > $maxbidprice ) ) { $cex_bid_price_full = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
-        if ( ( !defined $cex_ask_price_full ) || ( $cex_ask_price_full < $minaskprice ) ) { $cex_ask_price_full = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
+        if ( ( $cex_bid_price_full eq "" ) || ( $cex_bid_price_full > $maxbidprice ) ) { $cex_bid_price_full = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
+        if ( ( $cex_ask_price_full eq "" ) || ( $cex_ask_price_full < $minaskprice ) ) { $cex_ask_price_full = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
         binance_setprice($base,$coin,$cex_bid_price_full,$cex_ask_price_full,$quantity);
 
         $cex_bid_price_half = calc_bestbidprice($binance_depth->{'bids'},$quantity/2*1.5,$coin);
         $cex_ask_price_half = calc_bestaskprice($binance_depth->{'asks'},$quantity/2*1.5,$coin);
-        if ( ( !defined $cex_bid_price_half ) || ( $cex_bid_price_half > $maxbidprice ) ) { $cex_bid_price_half = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
-        if ( ( !defined $cex_ask_price_half ) || ( $cex_ask_price_half < $minaskprice ) ) { $cex_ask_price_half = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
+        if ( ( $cex_bid_price_half eq "" ) || ( $cex_bid_price_half > $maxbidprice ) ) { $cex_bid_price_half = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
+        if ( ( $cex_ask_price_half eq "" ) || ( $cex_ask_price_half < $minaskprice ) ) { $cex_ask_price_half = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
         if ( $cex_ask_price_half > $cex_ask_price_full ) { $cex_ask_price_half = $cex_ask_price_full; }
         if ( $cex_bid_price_half < $cex_bid_price_full ) { $cex_bid_price_half = $cex_bid_price_full; }
         binance_setprice($base,$coin,$cex_bid_price_half,$cex_ask_price_half,$quantity/2);
 
         $cex_bid_price_quarter = calc_bestbidprice($binance_depth->{'bids'},$quantity/6*1.25,$coin);
         $cex_ask_price_quarter = calc_bestaskprice($binance_depth->{'asks'},$quantity/6*1.25,$coin);
-        if ( ( !defined $cex_bid_price_quarter ) || ( $cex_bid_price_quarter > $maxbidprice ) ) { $cex_bid_price_quarter = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin)); }
-        if ( ( !defined $cex_ask_price_quarter ) || ( $cex_ask_price_quarter < $minaskprice ) ) { $cex_ask_price_quarter = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin)); }
+        if ( ( $cex_bid_price_quarter eq "" ) || ( $cex_bid_price_quarter > $maxbidprice ) ) { $cex_bid_price_quarter = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin)); }
+        if ( ( $cex_ask_price_quarter eq "" ) || ( $cex_ask_price_quarter < $minaskprice ) ) { $cex_ask_price_quarter = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin)); }
+
         if ( $cex_ask_price_quarter > $cex_ask_price_half ) { $cex_ask_price_quarter = $cex_ask_price_half; }
         if ( $cex_bid_price_quarter < $cex_bid_price_half ) { $cex_bid_price_quarter = $cex_bid_price_half; }
         binance_setprice($base,$coin,$cex_bid_price_quarter,$cex_ask_price_quarter,$quantity/6);
