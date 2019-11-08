@@ -80,7 +80,7 @@ sub binance_latest_price {
 sub binance_depth {
     my $base = $_[0];
     my $coin = $_[1];
-    my $url = "https://api.binance.com/api/v1/depth?symbol=".$base.$coin."&limit=20";
+    my $url = "https://api.binance.com/api/v1/depth?symbol=".$base.$coin."&limit=100";
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
     $ua->timeout(15);
