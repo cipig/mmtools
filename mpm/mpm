@@ -337,7 +337,7 @@ sub coinex_setprice {
         if ($code eq "0") {
             print " bid ".$bid;
         } else {
-            print " bid 0.0000000";
+            print " bid 0.00000000";
             #print " ".$resp->content;
         }
     }
@@ -359,7 +359,7 @@ sub coinex_setprice {
         if ($code eq "0") {
             print " ask ".$ask."\n";
         } else {
-            print " ask 0.0000000\n";
+            print " ask 0.00000000\n";
             #print " ".$resp->content."\n";
         }
     }
@@ -549,12 +549,12 @@ if ( $api eq "dex" ) {
         coinex_cancelorders($base,$coin);
         my $cex_price = decode_json(coinex_latest_price($base,$coin))->{'data'}{'ticker'}{'last'};
 
-        my $cex_bid_price = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin));
-        my $cex_ask_price = sprintf("%.7f", ($cex_price + $cex_price * $askmargin));
+        my $cex_bid_price = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin));
+        my $cex_ask_price = sprintf("%.8f", ($cex_price + $cex_price * $askmargin));
         coinex_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity);
 
-        my $cex_bid_price_2 = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin * 2));
-        my $cex_ask_price_2 = sprintf("%.7f", ($cex_price + $cex_price * $askmargin * 2));
+        my $cex_bid_price_2 = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin * 2));
+        my $cex_ask_price_2 = sprintf("%.8f", ($cex_price + $cex_price * $askmargin * 2));
         coinex_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity*2);
     }
 } else {
