@@ -1,0 +1,6 @@
+#!/bin/bash
+while true; do
+  date
+  ~/mmtools/mpm/mpm coinex
+  sleep 60
+done
