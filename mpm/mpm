@@ -17,8 +17,8 @@ my $binance_apikey = "";
 my $binance_seckey = "";
 my $crex24_apikey = "";
 my $crex24_seckey = decode_base64("");
-my $coinex_accessid = "F2273C3595514559A3171739594CBF49";
-my $coinex_seckey = "93F9B7A1471C473EB7A5F72E7823F7D4B5E6A78263C756A3";
+my $coinex_accessid = "";
+my $coinex_seckey = "";
 my $api = $ARGV[0];
 my $cwd = dirname($0);
 
