@@ -39,7 +39,7 @@ sub getgasprice {
 }
 
 
-sub apipaprika {
+sub paprika_latest_price {
     my $url = "https://api.coinpaprika.com/v1/price-converter?base_currency_id=".$_[1]."&quote_currency_id=".$_[0]."&amount=1";
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
@@ -376,7 +376,7 @@ if ( $api eq "dex" ) {
             my $cex_price = decode_json(binance_latest_price($base,$coin))->{'price'};
             $price = 1 / $cex_price;
         } else {
-            my $coinprice = apipaprika($basepapid,$papid);
+            my $coinprice = paprika_latest_price($basepapid,$papid);
             if ( $coinprice ne "1" ) { $price = from_json($coinprice)->{'price'}; }
         }
         if ( ($erc20 eq "0") && (defined $price) ) {
