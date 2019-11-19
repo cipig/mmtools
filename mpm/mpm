@@ -438,9 +438,9 @@ if ( $api eq "dex" ) {
         my $cex_ask_price = sprintf("%.7f", ($cex_price + $cex_price * $askmargin));
         crex24_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity);
 
-        my $cex_bid_price_3 = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin * 3));
-        my $cex_ask_price_3 = sprintf("%.7f", ($cex_price + $cex_price * $askmargin * 3));
-        crex24_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity*3);
+        my $cex_bid_price_2 = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin * 2));
+        my $cex_ask_price_2 = sprintf("%.7f", ($cex_price + $cex_price * $askmargin * 2));
+        crex24_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity*2);
     }
 } else {
     print "API not found\n";
