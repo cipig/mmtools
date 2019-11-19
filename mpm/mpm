@@ -333,7 +333,8 @@ sub coinex_setprice {
         $req->header('content-type' => 'application/json');
         $req->content($body);
         $resp = $ua->request($req);
-        if ($resp->is_success) {
+        my $code = decode_json($resp->content)->{'code'};
+        if ($code eq "0") {
             print " bid ".$bid;
         } else {
             print " bid 0.0000000";
@@ -354,7 +355,8 @@ sub coinex_setprice {
         $req->header('content-type' => 'application/json');
         $req->content($body);
         $resp = $ua->request($req);
-        if ($resp->is_success) {
+        my $code = decode_json($resp->content)->{'code'};
+        if ($code eq "0") {
             print " ask ".$ask."\n";
         } else {
             print " ask 0.0000000\n";
