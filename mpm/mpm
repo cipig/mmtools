@@ -547,7 +547,8 @@ if ( $api eq "dex" ) {
     my $quantity = $marginsconf->{$base}{'quantity'};
     my $binance_latest_price = decode_json(binance_latest_price("KMD","BTC"))->{'price'};
     my $coinex_latest_price = decode_json(coinex_latest_price("KMD","BTC"))->{'data'}{'ticker'}{'last'};
-    print "Binance: ".$binance_latest_price." CoinEx: ".$coinex_latest_price."\n";
+    my $diff = sprintf("%.2f", (($binance_latest_price/$coinex_latest_price-1)*100));
+    print "Binance: ".$binance_latest_price.", CoinEx: ".$coinex_latest_price.", Diff: ".$diff."%\n";
     if ( $coinex_latest_price < $binance_latest_price ) {
         $bidmargin = $bidmargin/2;
         $askmargin = $askmargin*2;
