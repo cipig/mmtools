@@ -2,5 +2,5 @@
 while true; do
   date
   ~/mmtools/mpm/mpm coinex
-  sleep 60
+  sleep 40
 done
