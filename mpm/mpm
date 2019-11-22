@@ -575,11 +575,11 @@ if ( $api eq "dex" ) {
     my $coinex_latest_price = decode_json(coinex_latest_price("KMD","BTC"))->{'data'}{'ticker'}{'last'};
     my $diff = sprintf("%.2f", (($binance_latest_price/$coinex_latest_price-1)*100));
     if ( $diff > 1 ) {
-        $bidmargin = $bidmargin/2;
-        $askmargin = $askmargin*2;
+        $bidmargin = sprintf("%.4f",$bidmargin/$diff);
+        $askmargin = sprintf("%.4f",$askmargin*$diff);
     } elsif ( $diff < -1 ) {
-        $bidmargin = $bidmargin*2;
-        $askmargin = $askmargin/2;
+        $bidmargin = sprintf("%.4f",$bidmargin*abs($diff));
+        $askmargin = sprintf("%.4f",$askmargin/abs($diff));
     }
     print "Binance: ".$binance_latest_price.", CoinEx: ".$coinex_latest_price.", diff: ".$diff."%, bidmargin: ".$bidmargin.", askmargin: ".$askmargin."\n";
     foreach my $coin ( "BTC", "BCH" ) {
