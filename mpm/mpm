@@ -584,6 +584,12 @@ if ( $api eq "dex" ) {
                 $askmargin = sprintf("%.4f",$askmargin/abs($diff));
             }
             print "Binance: ".$binance_latest_price.", CoinEx: ".$coinex_latest_price.", diff: ".$diff."%, bidmargin: ".$bidmargin.", askmargin: ".$askmargin."\n";
+        } else {
+            if ( $diff > 1 ) {
+                $askmargin = sprintf("%.4f",$askmargin*$diff);
+            } elsif ( $diff < -1 ) {
+                $bidmargin = sprintf("%.4f",$bidmargin*abs($diff));
+            }
         }
         coinex_cancelorders($base,$coin);
         my $cex_price = decode_json(coinex_latest_price($base,$coin))->{'data'}{'ticker'}{'last'};
