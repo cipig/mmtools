@@ -577,11 +577,11 @@ if ( $api eq "dex" ) {
         my $askmargin = $marginsconf->{$base}{'askmargin'};
         if ( $coin eq "BTC" ) {
             if ( $diff > 1 ) {
-                $bidmargin = sprintf("%.4f",$bidmargin/$diff);
+                $bidmargin = sprintf("%.4f",$bidmargin/2);
                 $askmargin = sprintf("%.4f",$askmargin*$diff);
             } elsif ( $diff < -1 ) {
                 $bidmargin = sprintf("%.4f",$bidmargin*abs($diff));
-                $askmargin = sprintf("%.4f",$askmargin/abs($diff));
+                $askmargin = sprintf("%.4f",$askmargin/2);
             }
             print "Binance: ".$binance_latest_price.", CoinEx: ".$coinex_latest_price.", diff: ".$diff."%, bidmargin: ".$bidmargin.", askmargin: ".$askmargin."\n";
         } else {
