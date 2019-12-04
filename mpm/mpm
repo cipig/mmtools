@@ -27,7 +27,7 @@ sub getgasprice {
     my $gaspriceurl = "https://www.etherchain.org/api/gasPriceOracle";
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
-    $ua->timeout(15);
+    $ua->timeout(5);
     my $req = HTTP::Request->new(GET => $gaspriceurl);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -45,7 +45,7 @@ sub paprika_latest_price {
     my $url = "https://api.coinpaprika.com/v1/price-converter?base_currency_id=".$_[1]."&quote_currency_id=".$_[0]."&amount=1";
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
-    $ua->timeout(15);
+    $ua->timeout(5);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -65,7 +65,7 @@ sub binance_latest_price {
     my $url = "https://api.binance.com/api/v3/ticker/price?symbol=".$base.$coin;
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
-    $ua->timeout(15);
+    $ua->timeout(5);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -85,7 +85,7 @@ sub binance_book_price {
     my $url = "https://api.binance.com/api/v3/ticker/bookTicker?symbol=".$base.$coin;
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
-    $ua->timeout(15);
+    $ua->timeout(5);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -105,7 +105,7 @@ sub coinex_latest_price {
     my $url = "https://api.coinex.com/v1/market/ticker?market=".$base.$coin;
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
-    $ua->timeout(15);
+    $ua->timeout(5);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -125,7 +125,7 @@ sub binance_depth {
     my $url = "https://api.binance.com/api/v1/depth?symbol=".$base.$coin."&limit=100";
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
-    $ua->timeout(15);
+    $ua->timeout(5);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -566,25 +566,23 @@ if ( $api eq "dex" ) {
 } elsif ( $api eq "coinex" ) {
     my $json = read_file("$cwd/mpm.conf.coinex");
     my $marginsconf = decode_json($json);
+    my $bidmargin = $marginsconf->{$base}{'bidmargin'};
+    my $askmargin = $marginsconf->{$base}{'askmargin'};
     my $quantity = $marginsconf->{$base}{'quantity'};
     my $binance_book_price = decode_json(binance_book_price("KMD","BTC"));
     my $binance_latest_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
-    #my $binance_latest_price = decode_json(binance_latest_price("KMD","BTC"))->{'price'};
-    my $coinex_latest_price = decode_json(coinex_latest_price("KMD","BTC"))->{'data'}{'ticker'}{'last'};
-    my $diff = sprintf("%.2f", (($binance_latest_price/$coinex_latest_price-1)*100));
-    my $bidmargin = $marginsconf->{$base}{'bidmargin'};
-    my $askmargin = $marginsconf->{$base}{'askmargin'};
-    if ( $diff > 1 ) {
-        $bidmargin = sprintf("%.4f",$bidmargin/2);
-        $askmargin = sprintf("%.4f",$askmargin*$diff);
-    } elsif ( $diff < -1 ) {
-        $bidmargin = sprintf("%.4f",$bidmargin*abs($diff));
-        $askmargin = sprintf("%.4f",$askmargin/2);
-    }
-    print "Binance: ".$binance_latest_price.", CoinEx: ".$coinex_latest_price.", diff: ".$diff."%, bidmargin: ".$bidmargin.", askmargin: ".$askmargin."\n";
     foreach my $coin ( "BTC", "BCH" ) {
         coinex_cancelorders($base,$coin);
-        my $cex_price = decode_json(coinex_latest_price($base,$coin))->{'data'}{'ticker'}{'last'};
+        my $cex_price = undef;
+        if ( $coin eq "BTC" ) {
+            $cex_price = $binance_latest_price;
+        } elsif ( $coin eq "BCH" ) {
+            my $papid = "bch-bitcoin-cash";
+            $cex_price = decode_json(paprika_latest_price($papid,$basepapid))->{'price'};
+            #$cex_price = decode_json(coinex_latest_price($base,$coin))->{'data'}{'ticker'}{'last'};
+        } else {
+            $cex_price = decode_json(coinex_latest_price($base,$coin))->{'data'}{'ticker'}{'last'};
+        }
 
         my $cex_bid_price = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin));
         my $cex_ask_price = sprintf("%.8f", ($cex_price + $cex_price * $askmargin));
