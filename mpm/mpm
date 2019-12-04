@@ -579,7 +579,6 @@ if ( $api eq "dex" ) {
         } elsif ( $coin eq "BCH" ) {
             my $papid = "bch-bitcoin-cash";
             $cex_price = decode_json(paprika_latest_price($papid,$basepapid))->{'price'};
-            #$cex_price = decode_json(coinex_latest_price($base,$coin))->{'data'}{'ticker'}{'last'};
         } else {
             $cex_price = decode_json(coinex_latest_price($base,$coin))->{'data'}{'ticker'}{'last'};
         }
