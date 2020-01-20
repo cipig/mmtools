@@ -481,7 +481,9 @@ sub calc_bestaskprice {
 if ( $api eq "dex" ) {
     $userpass =  $ENV{'userpass'};
     my $maxgasprice = 15;
-    my $gasprice = from_json(getgasprice())->{'standard'};
+    my $gasprice = 0;
+    my $getgas = getgasprice();
+    if ( $getgas ne '' ) { $gasprice = from_json($getgas)->{'standard'}; }
     my $json = read_file("$cwd/mpm.conf.dex");
     $marginsconf = decode_json($json);
     foreach my $coin ( keys %{$marginsconf} ) {
