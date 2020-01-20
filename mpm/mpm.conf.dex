@@ -160,11 +160,6 @@
         "bidmargin": 0.20,
         "askmargin": 0.20
     },
-    "K64": {
-        "papid": "k64-komodore64",
-        "bidmargin": 0.50,
-        "askmargin": 0.20
-    },
     "LBC": {
         "papid": "lbc-lbry-credits",
         "bidmargin": 0.20,
@@ -234,11 +229,6 @@
         "papid": "oot-utrum",
         "bidmargin": 0.50,
         "askmargin": 0.20
-    },
-    "OURC": {
-        "papid": "gxe-crypto-union",
-        "bidmargin": 0.30,
-        "askmargin": 0.05
     },
     "PAX": {
         "papid": "pax-paxos-standard-token",
