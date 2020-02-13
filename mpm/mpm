@@ -3,12 +3,13 @@
 use warnings;
 use LWP::UserAgent;
 use JSON;
+use JSON::RPC::Legacy::Client;
 use File::Slurp qw(read_file);
 use File::Basename;
 use MIME::Base64;
 use Digest::SHA qw(hmac_sha256_hex hmac_sha512_base64);
 use Digest::MD5 qw(md5_hex);
-#use Data::Dumper;
+use Data::Dumper;
 
 
 my $base = "KMD";
@@ -20,6 +21,7 @@ my $crex24_seckey = decode_base64("");
 my $coinex_accessid = "";
 my $coinex_seckey = "";
 my $api = $ARGV[0];
+my $pubkey = $ARGV[1];
 my $cwd = dirname($0);
 
 
@@ -58,6 +60,25 @@ sub paprika_latest_price {
         }
 }
 
+sub paprika_price {
+    my $base = $_[0];
+    my $rel = $_[1];
+    my $amount = $_[2];
+    my $url = "https://api.coinpaprika.com/v1/price-converter?base_currency_id=".$base."&quote_currency_id=".$rel."&amount=".$amount;
+    my $ua = LWP::UserAgent->new;
+    $ua->agent("Mozilla");
+    $ua->timeout(5);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+        }
+}
 
 sub binance_latest_price {
     my $base = $_[0];
@@ -422,6 +443,76 @@ sub dex_setprice {
     }
 }
 
+sub dexp2p_setprice {
+    my $base = $_[0];
+    my $rel = $_[1];
+    my $base_price = $_[2];
+    my $rel_price = $_[3];
+    my $base_balance = $_[4];
+    my $rel_balance = $_[5];
+
+    if ( defined $marginsconf->{$_[1]}{'askmargin'} ) {
+        $ask = sprintf("%.8f", $base_price + $base_price * $marginsconf->{$_[1]}{'askmargin'});
+    }
+    if ( defined $marginsconf->{$_[1]}{'bidmargin'} ) {
+        $bid = sprintf("%.8f", $rel_price + $rel_price * $marginsconf->{$_[1]}{'bidmargin'});
+    }
+
+    my $client = new JSON::RPC::Legacy::Client;
+    $client->ua->credentials('localhost:14869', 'jsonrpc', 'user647284147' => 'passd6a72576739f71eb19874ca24f87679409115659ea0a5d637cc1fb063e60c5766d');
+    my $uri = 'http://localhost:14869/';
+
+    if ( defined $ask ) {
+        my $obj = { method => 'DEX_broadcast', params => ['hello','0',$rel,$base,$pubkey,''.$rel_balance,''.$ask] };
+        my $res = $client->call( $uri, $obj );
+        if ($res){
+           if ($res->is_error) { print "Error : ", Dumper($res->error_message); }
+           #else { print Dumper($res->result); }
+           else { print $rel."/".$base." ".$rel_balance." ".$ask."\n"; }
+        } else {
+           print $client->status_line;
+        }
+    }
+
+    if ( defined $bid ) {
+        my $obj = { method => 'DEX_broadcast', params => ['hello','0',$base,$rel,$pubkey,''.$base_balance,''.$bid] };
+        my $res = $client->call( $uri, $obj );
+        if ($res){
+           if ($res->is_error) { print "Error : ", Dumper($res->error_message); }
+           #else { print Dumper($res->result); }
+           else { print $base."/".$rel." ".$base_balance." ".$bid."\n"; }
+        } else {
+           print $client->status_line;
+        }
+    }
+}
+
+sub dexp2p_deleteprice {
+    my $base = $_[0];
+    my $rel = $_[1];
+
+    my $client = new JSON::RPC::Legacy::Client;
+    $client->ua->credentials('localhost:14869', 'jsonrpc', 'user647284147' => 'passd6a72576739f71eb19874ca24f87679409115659ea0a5d637cc1fb063e60c5766d');
+    my $uri = 'http://localhost:14869/';
+
+    my $obj = { method => 'DEX_cancel', params => ['','',$base,$rel] };
+    my $res = $client->call( $uri, $obj );
+    if ($res){
+       if ($res->is_error) { print "Error : ", Dumper($res->error_message); }
+       #else { print Dumper($res->result); }
+    } else {
+       print $client->status_line;
+    }
+
+    $obj = { method => 'DEX_cancel', params => ['','',$rel,$base] };
+    $res = $client->call( $uri, $obj );
+    if ($res){
+       if ($res->is_error) { print "Error : ", Dumper($res->error_message); }
+       #else { print Dumper($res->result); }
+    } else {
+       print $client->status_line;
+    }
+}
 
 sub dex_deleteprice {
     my $ua = LWP::UserAgent->new;
@@ -505,6 +596,18 @@ if ( $api eq "dex" ) {
         } else {
             dex_deleteprice($base,$coin);
         }
+    }
+} elsif ( $api eq "dexp2p" ) {
+    my $json = read_file("$cwd/mpm.conf.dexp2p");
+    my $relamount = 0.07;
+    my $baseamount = 1000;
+    $marginsconf = decode_json($json);
+    foreach my $coin ( keys %{$marginsconf} ) {
+        my $papid = $marginsconf->{$coin}{'papid'};
+        my $baseprice = from_json(paprika_price($papid,$basepapid,$relamount))->{'price'};
+        my $relprice = from_json(paprika_price($basepapid,$papid,$baseamount))->{'price'};
+        dexp2p_deleteprice("KMD",$coin);
+        dexp2p_setprice("KMD",$coin,$baseprice,$relprice,$baseamount,$relamount);
     }
 } elsif ( $api eq "binance" ) {
     my $json = read_file("$cwd/mpm.conf.binance");
