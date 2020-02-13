@@ -1,7 +1,7 @@
 ## mpm
 
 ```
-sudo apt-get install libjson-perl libfile-slurp-perl
+sudo apt-get install libjson-perl libjson-rpc-perl libfile-slurp-perl liblwp-protocol-https-perl
 cd && git clone https://github.com/cipig/mmtools
 ```
 
@@ -13,4 +13,3 @@ If `bidmargin` or `askmargin` is not set, bid/ask will not be set
 
 can be started with `stdbuf -oL nohup ~/mmtools/mpm/mpm.sh.dex > /tmp/mpm.log &` in the background and will update the prices every minute  
 `tail -f /tmp/mpm.log` to watch mpm TV  
-config file `~/mmtools/mpm/mpm.conf.dex` can be edited and prices will be updated without the need to restart  
