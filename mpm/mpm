@@ -29,7 +29,7 @@ sub getgasprice {
     my $gaspriceurl = "https://www.etherchain.org/api/gasPriceOracle";
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
-    $ua->timeout(5);
+    $ua->timeout(10);
     my $req = HTTP::Request->new(GET => $gaspriceurl);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -47,7 +47,7 @@ sub paprika_latest_price {
     my $url = "https://api.coinpaprika.com/v1/price-converter?base_currency_id=".$_[1]."&quote_currency_id=".$_[0]."&amount=1";
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
-    $ua->timeout(5);
+    $ua->timeout(10);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -67,7 +67,7 @@ sub paprika_price {
     my $url = "https://api.coinpaprika.com/v1/price-converter?base_currency_id=".$base."&quote_currency_id=".$rel."&amount=".$amount;
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
-    $ua->timeout(5);
+    $ua->timeout(10);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -86,7 +86,7 @@ sub binance_latest_price {
     my $url = "https://api.binance.com/api/v3/ticker/price?symbol=".$base.$coin;
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
-    $ua->timeout(5);
+    $ua->timeout(10);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -106,7 +106,7 @@ sub binance_book_price {
     my $url = "https://api.binance.com/api/v3/ticker/bookTicker?symbol=".$base.$coin;
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
-    $ua->timeout(5);
+    $ua->timeout(10);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -126,7 +126,7 @@ sub coinex_latest_price {
     my $url = "https://api.coinex.com/v1/market/ticker?market=".$base.$coin;
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
-    $ua->timeout(5);
+    $ua->timeout(10);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -146,7 +146,7 @@ sub binance_depth {
     my $url = "https://api.binance.com/api/v1/depth?symbol=".$base.$coin."&limit=100";
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
-    $ua->timeout(5);
+    $ua->timeout(10);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
