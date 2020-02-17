@@ -601,7 +601,7 @@ sub binance_volat {
     my $kline_2 = binance_kline("KMD","BTC","15m");
     my $marginadd_3 = from_json($kline_2)->[0][2] / from_json($kline_2)->[0][3] - 1;
     my $marginadd_4 = from_json($kline_2)->[1][2] / from_json($kline_2)->[1][3] - 1;
-    print "marginadd_1: ".sprintf("%.3f", $marginadd_1)."  marginadd_2: ".sprintf("%.3f", $marginadd_2)."  marginadd_3: ".sprintf("%.3f", $marginadd_3).."  marginadd_4: ".sprintf("%.3f", $marginadd_4)."\n";
+    print "marginadd_1: ".sprintf("%.3f", $marginadd_1)."  marginadd_2: ".sprintf("%.3f", $marginadd_2)."  marginadd_3: ".sprintf("%.3f", $marginadd_3)."  marginadd_4: ".sprintf("%.3f", $marginadd_4)."\n";
     return max($marginadd_1,$marginadd_2,$marginadd_3,$marginadd_4);
 }
 
