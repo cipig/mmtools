@@ -607,7 +607,7 @@ if ( $api eq "dex" ) {
     my $kline_15m = binance_kline("KMD","BTC","15m");
     my $marginadd_15m = from_json($kline_15m)->[0][2] / from_json($kline_15m)->[0][3] - 1;
     my $marginadd = max($marginadd_3m,$marginadd_15m);
-    print "marginadd_3m: ".sprintf("%.3f", $marginadd_3m)."marginadd_15m: ".sprintf("%.3f", $marginadd_15m)."marginadd: ".sprintf("%.3f", $marginadd)."\n";
+    print "marginadd_3m: ".sprintf("%.3f", $marginadd_3m)."  marginadd_15m: ".sprintf("%.3f", $marginadd_15m)."  marginadd: ".sprintf("%.3f", $marginadd)."\n";
     foreach my $coin ( keys %{$marginsconf} ) {
         my $price = undef;
         my $papid = $marginsconf->{$coin}{'papid'};
