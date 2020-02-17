@@ -602,12 +602,14 @@ if ( $api eq "dex" ) {
     if ( $getgas ne '' ) { $gasprice = from_json($getgas)->{'standard'}; }
     my $json = read_file("$cwd/mpm.conf.dex");
     $marginsconf = decode_json($json);
-    my $kline_3m = binance_kline("KMD","BTC","3m");
-    my $marginadd_3m = from_json($kline_3m)->[0][2] / from_json($kline_3m)->[0][3] - 1;
-    my $kline_15m = binance_kline("KMD","BTC","15m");
-    my $marginadd_15m = from_json($kline_15m)->[0][2] / from_json($kline_15m)->[0][3] - 1;
-    my $marginadd = max($marginadd_3m,$marginadd_15m);
-    print "marginadd_3m: ".sprintf("%.3f", $marginadd_3m)."  marginadd_15m: ".sprintf("%.3f", $marginadd_15m)."  marginadd: ".sprintf("%.3f", $marginadd)."\n";
+    my $kline_1m = binance_kline("KMD","BTC","1m");
+    my $marginadd_1m = from_json($kline_1m)->[0][2] / from_json($kline_1m)->[0][3] - 1;
+    my $kline_5m = binance_kline("KMD","BTC","5m");
+    my $marginadd_5m = from_json($kline_5m)->[0][2] / from_json($kline_5m)->[0][3] - 1;
+    my $kline_30m = binance_kline("KMD","BTC","30m");
+    my $marginadd_30m = from_json($kline_30m)->[0][2] / from_json($kline_30m)->[0][3] - 1;
+    print "marginadd_1m: ".sprintf("%.3f", $marginadd_1m)."  marginadd_5m: ".sprintf("%.3f", $marginadd_5m)."  marginadd_30m: ".sprintf("%.3f", $marginadd_30m)."\n";
+    my $marginadd = max($marginadd_1m,$marginadd_5m,$marginadd_30m);
     foreach my $coin ( keys %{$marginsconf} ) {
         my $price = undef;
         my $papid = $marginsconf->{$coin}{'papid'};
