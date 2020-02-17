@@ -6,6 +6,7 @@ use JSON;
 use JSON::RPC::Legacy::Client;
 use File::Slurp qw(read_file);
 use File::Basename;
+use List::Util qw[min max];
 use MIME::Base64;
 use Digest::SHA qw(hmac_sha256_hex hmac_sha512_base64);
 use Digest::MD5 qw(md5_hex);
@@ -54,9 +55,10 @@ sub paprika_latest_price {
         if ($resp->is_success) {
             return $resp->content;
         } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
+#            print "HTTP GET url: ", $url, "\n";
+#            print "HTTP GET error code: ", $resp->code, "\n";
+#            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
         }
 }
 
@@ -123,7 +125,8 @@ sub binance_book_price {
 sub binance_kline {
     my $base = $_[0];
     my $coin = $_[1];
-    my $url = "https://api.binance.com/api/v3/klines?symbol=".$base.$coin."&interval=3m&limit=2";
+    my $interval = $_[2];
+    my $url = "https://api.binance.com/api/v3/klines?symbol=".$base.$coin."&interval=".$interval."&limit=2";
     my $ua = LWP::UserAgent->new;
     $ua->agent("Mozilla");
     $ua->timeout(10);
@@ -599,9 +602,12 @@ if ( $api eq "dex" ) {
     if ( $getgas ne '' ) { $gasprice = from_json($getgas)->{'standard'}; }
     my $json = read_file("$cwd/mpm.conf.dex");
     $marginsconf = decode_json($json);
-    my $klinejson = binance_kline("KMD","BTC");
-    my $marginadd = from_json($klinejson)->[0][2] / from_json($klinejson)->[0][3] - 1;
-    print "marginadd: ".sprintf("%.3f", $marginadd)."\n";
+    my $kline_3m = binance_kline("KMD","BTC","3m");
+    my $marginadd_3m = from_json($kline_3m)->[0][2] / from_json($kline_3m)->[0][3] - 1;
+    my $kline_15m = binance_kline("KMD","BTC","15m");
+    my $marginadd_15m = from_json($kline_15m)->[0][2] / from_json($kline_15m)->[0][3] - 1;
+    my $marginadd = max($marginadd_3m,$marginadd_15m);
+    print "marginadd_3m: ".sprintf("%.3f", $marginadd_3m)."marginadd_15m: ".sprintf("%.3f", $marginadd_15m)."marginadd: ".sprintf("%.3f", $marginadd)."\n";
     foreach my $coin ( keys %{$marginsconf} ) {
         my $price = undef;
         my $papid = $marginsconf->{$coin}{'papid'};
