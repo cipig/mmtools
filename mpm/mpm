@@ -84,6 +84,7 @@ sub paprika_price {
         }
 }
 
+
 sub binance_latest_price {
     my $base = $_[0];
     my $coin = $_[1];
@@ -244,15 +245,16 @@ sub coinex_cancelorders {
 sub vcc_cancelorders {
     my $tonce = time()*1000;
     my $url = "https://vcc.exchange/api/v2/orders/cancel-all";
-    my $payload = "PUT"."/api/v2/orders/cancel-all";
+    my $payload = "PUT api/v2/orders/cancel-all";
     my $signature = hmac_sha256_hex($payload, $vcc_seckey);
 
     my $ua = LWP::UserAgent->new;
-    $req = HTTP::Request->new(PUT => $url.$params);
+    $req = HTTP::Request->new(PUT => $url);
     $ua->agent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
+    $req->header('Authorization' => 'Bearer '.$vcc_apikey);
     $req->header('timestamp' => $tonce);
     $req->header('signature' => $signature);
-    $req->header('content-type' => 'application/json');
+    #$req->header('content-type' => 'application/json');
     $req->content();
     $resp = $ua->request($req);
     #print $resp->content;
@@ -390,6 +392,62 @@ sub crex24_setprice {
             #print " ".$resp->content."\n";
         }
         sleep(1);
+    }
+}
+
+
+sub vcc_setprice {
+    my $base = lc($_[1]);
+    my $coin = lc($_[0]);
+    my $bid = $_[2];
+    my $ask = $_[3];
+    my $quantity = sprintf("%u",$_[4]);
+    my $url = "https://vcc.exchange/api/v2/orders";
+
+    print "$_[0]/$_[1] size ".sprintf("%03d",$quantity);
+
+    if ( defined $bid ) {
+        my $tonce = time()*1000;
+        my $params = '?currency='.$base.'&coin='.$coin.'&trade_type=buy&type=limit&quantity='.$quantity.'&price='.$bid;
+        my $payload = "POST api/v2/orders".$params;
+        my $signature = hmac_sha256_hex($payload, $vcc_seckey);
+        my $ua = LWP::UserAgent->new;
+        $req = HTTP::Request->new(POST => $url.$params);
+        $ua->agent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
+        $req->header('Authorization' => 'Bearer '.$vcc_apikey);
+        $req->header('timestamp' => $tonce);
+        $req->header('signature' => $signature);
+        $req->header('content-type' => 'application/json');
+        $req->content();
+        my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            print " bid ".$bid;
+        } else {
+            print " bid 0.0000000";
+            #print " ".$resp->content;
+        }
+    }
+
+    if ( defined $ask ) {
+        my $tonce = time()*1000;
+        my $params = '?currency='.$base.'&coin='.$coin.'&trade_type=sell&type=limit&quantity='.$quantity.'&price='.$ask;
+        my $payload = "POST api/v2/orders".$params;
+        my $signature = hmac_sha256_hex($payload, $vcc_seckey);
+        my $ua = LWP::UserAgent->new;
+        $req = HTTP::Request->new(POST => $url.$params);
+        $ua->agent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
+        $req->header('Authorization' => 'Bearer '.$vcc_apikey);
+        $req->header('timestamp' => $tonce);
+        $req->header('signature' => $signature);
+        $req->header('content-type' => 'application/json');
+        $req->content();
+        my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            print " ask ".$ask."\n";
+        } else {
+            print " ask 0.0000000\n";
+            #print " ".$resp->content."\n";
+        }
     }
 }
 
@@ -532,6 +590,7 @@ sub dexp2p_setprice {
     }
 }
 
+
 sub dexp2p_deleteprice {
     my $base = $_[0];
     my $rel = $_[1];
@@ -558,6 +617,7 @@ sub dexp2p_deleteprice {
        print $client->status_line;
     }
 }
+
 
 sub dex_deleteprice {
     my $ua = LWP::UserAgent->new;
@@ -655,6 +715,7 @@ if ( $api eq "dex" ) {
             dex_deleteprice($base,$coin);
         }
     }
+
 } elsif ( $api eq "dexp2p" ) {
     my $json = read_file("$cwd/mpm.conf.dexp2p");
     my $relamount = 0.07;
@@ -667,6 +728,7 @@ if ( $api eq "dex" ) {
         dexp2p_deleteprice("KMD",$coin);
         dexp2p_setprice("KMD",$coin,$baseprice,$relprice,$baseamount,$relamount);
     }
+
 } elsif ( $api eq "binance" ) {
     my $json = read_file("$cwd/mpm.conf.binance");
     my $marginsconf = decode_json($json);
@@ -706,6 +768,7 @@ if ( $api eq "dex" ) {
         if ( $cex_bid_price_3 < $cex_bid_price_2 ) { $cex_bid_price_3 = $cex_bid_price_2; }
         binance_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity/6);
     }
+
 } elsif ( $api eq "crex24" ) {
     my $json = read_file("$cwd/mpm.conf.crex24");
     my $marginsconf = decode_json($json);
@@ -721,6 +784,7 @@ if ( $api eq "dex" ) {
         my $cex_ask_price = sprintf("%.7f", ($cex_price + $cex_price * $askmargin));
         crex24_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity);
     }
+
 } elsif ( $api eq "coinex" ) {
     my $json = read_file("$cwd/mpm.conf.coinex");
     my $marginsconf = decode_json($json);
@@ -743,6 +807,7 @@ if ( $api eq "dex" ) {
         my $cex_ask_price = sprintf("%.8f", ($cex_price + $cex_price * $askmargin));
         coinex_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity);
     }
+
 } elsif ( $api eq "vcc" ) {
     my $json = read_file("$cwd/mpm.conf.vcc");
     my $marginsconf = decode_json($json);
@@ -756,8 +821,9 @@ if ( $api eq "dex" ) {
 
         my $cex_bid_price = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin));
         my $cex_ask_price = sprintf("%.7f", ($cex_price + $cex_price * $askmargin));
-        #vcc_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity);
+        vcc_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity);
     }
+
 } else {
     print "API not found\n";
 }
