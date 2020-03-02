@@ -242,7 +242,57 @@ sub coinex_cancelorders {
 }
 
 
+sub vcc_getorders {
+    my $base = lc($_[1]);
+    my $coin = lc($_[0]);
+    my $tonce = time()*1000;
+    my $url = "https://vcc.exchange/api/v2/orders/open";
+    my $params = '?currency='.$base.'&coin='.$coin;
+    my $payload = "GET api/v2/orders/open".$params;
+    my $signature = hmac_sha256_hex($payload, $vcc_seckey);
+
+    my $ua = LWP::UserAgent->new;
+    $req = HTTP::Request->new(GET => $url.$params);
+    $ua->agent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
+    $req->header('Authorization' => 'Bearer '.$vcc_apikey);
+    $req->header('timestamp' => $tonce);
+    $req->header('signature' => $signature);
+    $req->content();
+    $resp = $ua->request($req);
+    return $resp->content;
+}
+
+
+sub vcc_cancelorder {
+    my $order_id = $_[0];
+    my $tonce = time()*1000;
+    my $url = "https://vcc.exchange/api/v2/orders/".$order_id."/cancel";
+    my $payload = "PUT api/v2/orders/".$order_id."/cancel";
+    my $signature = hmac_sha256_hex($payload, $vcc_seckey);
+
+    my $ua = LWP::UserAgent->new;
+    $req = HTTP::Request->new(PUT => $url);
+    $ua->agent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
+    $req->header('Authorization' => 'Bearer '.$vcc_apikey);
+    $req->header('timestamp' => $tonce);
+    $req->header('signature' => $signature);
+    $req->content();
+    $resp = $ua->request($req);
+    #print $resp->content;
+}
+
+
 sub vcc_cancelorders {
+    my $base = lc($_[1]);
+    my $coin = lc($_[0]);
+    my $orders = decode_json(vcc_getorders($coin,$base));
+    for my $order( @{$orders->{data}{data}} ){
+        vcc_cancelorder($order->{id});
+    }
+}
+
+
+sub vcc_cancelallorders {
     my $tonce = time()*1000;
     my $url = "https://vcc.exchange/api/v2/orders/cancel-all";
     my $payload = "PUT api/v2/orders/cancel-all";
@@ -254,7 +304,6 @@ sub vcc_cancelorders {
     $req->header('Authorization' => 'Bearer '.$vcc_apikey);
     $req->header('timestamp' => $tonce);
     $req->header('signature' => $signature);
-    #$req->header('content-type' => 'application/json');
     $req->content();
     $resp = $ua->request($req);
     #print $resp->content;
@@ -815,7 +864,7 @@ if ( $api eq "dex" ) {
     my $askmargin = $marginsconf->{$base}{'askmargin'};
     my $quantity = $marginsconf->{$base}{'quantity'};
     foreach my $coin ( "BTC" ) {
-        vcc_cancelorders();
+        vcc_cancelorders($base,$coin);
         my $binance_book_price = decode_json(binance_book_price($base,$coin));
         my $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
 
