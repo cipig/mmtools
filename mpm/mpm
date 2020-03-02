@@ -21,6 +21,8 @@ my $crex24_apikey = "";
 my $crex24_seckey = decode_base64("");
 my $coinex_accessid = "";
 my $coinex_seckey = "";
+my $vcc_apikey = "";
+my $vcc_seckey = "";
 my $api = $ARGV[0];
 my $pubkey = $ARGV[1];
 my $cwd = dirname($0);
@@ -232,6 +234,24 @@ sub coinex_cancelorders {
     $req = HTTP::Request->new(DELETE => $url.$params);
     $ua->agent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
     $req->header('authorization' => $authorization);
+    $req->header('content-type' => 'application/json');
+    $req->content();
+    $resp = $ua->request($req);
+    #print $resp->content;
+}
+
+
+sub vcc_cancelorders {
+    my $tonce = time()*1000;
+    my $url = "https://vcc.exchange/api/v2/orders/cancel-all";
+    my $payload = "PUT"."/api/v2/orders/cancel-all";
+    my $signature = hmac_sha256_hex($payload, $vcc_seckey);
+
+    my $ua = LWP::UserAgent->new;
+    $req = HTTP::Request->new(PUT => $url.$params);
+    $ua->agent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
+    $req->header('timestamp' => $tonce);
+    $req->header('signature' => $signature);
     $req->header('content-type' => 'application/json');
     $req->content();
     $resp = $ua->request($req);
@@ -664,27 +684,27 @@ if ( $api eq "dex" ) {
         my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin));
         my $binance_depth = decode_json(binance_depth($base,$coin));
 
-        $cex_bid_price_full = calc_bestbidprice($binance_depth->{'bids'},$quantity*2,$coin);
-        $cex_ask_price_full = calc_bestaskprice($binance_depth->{'asks'},$quantity*2,$coin);
-        if ( ( $cex_bid_price_full eq "" ) || ( $cex_bid_price_full > $maxbidprice ) ) { $cex_bid_price_full = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
-        if ( ( $cex_ask_price_full eq "" ) || ( $cex_ask_price_full < $minaskprice ) ) { $cex_ask_price_full = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
-        binance_setprice($base,$coin,$cex_bid_price_full,$cex_ask_price_full,$quantity);
+        $cex_bid_price_1 = calc_bestbidprice($binance_depth->{'bids'},$quantity*2,$coin);
+        $cex_ask_price_1 = calc_bestaskprice($binance_depth->{'asks'},$quantity*2,$coin);
+        if ( ( $cex_bid_price_1 eq "" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
+        if ( ( $cex_ask_price_1 eq "" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
+        binance_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity);
 
-        $cex_bid_price_half = calc_bestbidprice($binance_depth->{'bids'},$quantity/2*1.5,$coin);
-        $cex_ask_price_half = calc_bestaskprice($binance_depth->{'asks'},$quantity/2*1.5,$coin);
-        if ( ( $cex_bid_price_half eq "" ) || ( $cex_bid_price_half > $maxbidprice ) ) { $cex_bid_price_half = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
-        if ( ( $cex_ask_price_half eq "" ) || ( $cex_ask_price_half < $minaskprice ) ) { $cex_ask_price_half = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
-        if ( $cex_ask_price_half > $cex_ask_price_full ) { $cex_ask_price_half = $cex_ask_price_full; }
-        if ( $cex_bid_price_half < $cex_bid_price_full ) { $cex_bid_price_half = $cex_bid_price_full; }
-        binance_setprice($base,$coin,$cex_bid_price_half,$cex_ask_price_half,$quantity/2);
+        $cex_bid_price_2 = calc_bestbidprice($binance_depth->{'bids'},$quantity/2*1.5,$coin);
+        $cex_ask_price_2 = calc_bestaskprice($binance_depth->{'asks'},$quantity/2*1.5,$coin);
+        if ( ( $cex_bid_price_2 eq "" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
+        if ( ( $cex_ask_price_2 eq "" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
+        if ( $cex_ask_price_2 > $cex_ask_price_1 ) { $cex_ask_price_2 = $cex_ask_price_1; }
+        if ( $cex_bid_price_2 < $cex_bid_price_1 ) { $cex_bid_price_2 = $cex_bid_price_1; }
+        binance_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity/2);
 
-        $cex_bid_price_quarter = calc_bestbidprice($binance_depth->{'bids'},$quantity/6*1.25,$coin);
-        $cex_ask_price_quarter = calc_bestaskprice($binance_depth->{'asks'},$quantity/6*1.25,$coin);
-        if ( ( $cex_bid_price_quarter eq "" ) || ( $cex_bid_price_quarter > $maxbidprice ) ) { $cex_bid_price_quarter = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin)); }
-        if ( ( $cex_ask_price_quarter eq "" ) || ( $cex_ask_price_quarter < $minaskprice ) ) { $cex_ask_price_quarter = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin)); }
-        if ( $cex_ask_price_quarter > $cex_ask_price_half ) { $cex_ask_price_quarter = $cex_ask_price_half; }
-        if ( $cex_bid_price_quarter < $cex_bid_price_half ) { $cex_bid_price_quarter = $cex_bid_price_half; }
-        binance_setprice($base,$coin,$cex_bid_price_quarter,$cex_ask_price_quarter,$quantity/6);
+        $cex_bid_price_3 = calc_bestbidprice($binance_depth->{'bids'},$quantity/6*1.25,$coin);
+        $cex_ask_price_3 = calc_bestaskprice($binance_depth->{'asks'},$quantity/6*1.25,$coin);
+        if ( ( $cex_bid_price_3 eq "" ) || ( $cex_bid_price_3 > $maxbidprice ) ) { $cex_bid_price_3 = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin)); }
+        if ( ( $cex_ask_price_3 eq "" ) || ( $cex_ask_price_3 < $minaskprice ) ) { $cex_ask_price_3 = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin)); }
+        if ( $cex_ask_price_3 > $cex_ask_price_2 ) { $cex_ask_price_3 = $cex_ask_price_2; }
+        if ( $cex_bid_price_3 < $cex_bid_price_2 ) { $cex_bid_price_3 = $cex_bid_price_2; }
+        binance_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity/6);
     }
 } elsif ( $api eq "crex24" ) {
     my $json = read_file("$cwd/mpm.conf.crex24");
@@ -714,10 +734,6 @@ if ( $api eq "dex" ) {
         my $cex_price = undef;
         if ( $coin eq "BTC" ) {
             $cex_price = $binance_latest_price;
-#        } elsif ( $coin eq "BCH" ) {
-#            my $papid = "bch-bitcoin-cash";
-#            $cex_price = decode_json(paprika_latest_price($papid,$basepapid))->{'price'};
-#            $quantity = $quantity/3;
         } else {
             $cex_price = decode_json(coinex_latest_price($base,$coin))->{'data'}{'ticker'}{'last'};
             $quantity = $quantity/3;
@@ -726,6 +742,21 @@ if ( $api eq "dex" ) {
         my $cex_bid_price = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin));
         my $cex_ask_price = sprintf("%.8f", ($cex_price + $cex_price * $askmargin));
         coinex_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity);
+    }
+} elsif ( $api eq "vcc" ) {
+    my $json = read_file("$cwd/mpm.conf.vcc");
+    my $marginsconf = decode_json($json);
+    my $bidmargin = $marginsconf->{$base}{'bidmargin'};
+    my $askmargin = $marginsconf->{$base}{'askmargin'};
+    my $quantity = $marginsconf->{$base}{'quantity'};
+    foreach my $coin ( "BTC" ) {
+        vcc_cancelorders();
+        my $binance_book_price = decode_json(binance_book_price($base,$coin));
+        my $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
+
+        my $cex_bid_price = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin));
+        my $cex_ask_price = sprintf("%.7f", ($cex_price + $cex_price * $askmargin));
+        #vcc_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity);
     }
 } else {
     print "API not found\n";
