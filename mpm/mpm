@@ -12,9 +12,12 @@ use Digest::SHA qw(hmac_sha256_hex hmac_sha512_base64);
 use Digest::MD5 qw(md5_hex);
 use Data::Dumper;
 
-
 my $base = "KMD";
 my $basepapid = "kmd-komodo";
+my $api = $ARGV[0];
+my $pubkey = $ARGV[1];
+my $cwd = dirname($0);
+
 my $binance_apikey = "";
 my $binance_seckey = "";
 my $crex24_apikey = "";
@@ -23,9 +26,6 @@ my $coinex_accessid = "";
 my $coinex_seckey = "";
 my $vcc_apikey = "";
 my $vcc_seckey = "";
-my $api = $ARGV[0];
-my $pubkey = $ARGV[1];
-my $cwd = dirname($0);
 
 
 sub getgasprice {
@@ -787,35 +787,41 @@ if ( $api eq "dex" ) {
     my $askminmargin = $marginsconf->{$base}{'askminmargin'};
     my $quantity = $marginsconf->{$base}{'quantity'};
     foreach my $coin ( "BTC", "ETH" ) {
-        if ($coin eq "ETH") {$quantity = $quantity/2;}
         binance_cancelorders($base,$coin);
+
         my $binance_book_price = decode_json(binance_book_price($base,$coin));
         my $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
         my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin));
         my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin));
         my $binance_depth = decode_json(binance_depth($base,$coin));
 
-        $cex_bid_price_1 = calc_bestbidprice($binance_depth->{'bids'},$quantity*2,$coin);
-        $cex_ask_price_1 = calc_bestaskprice($binance_depth->{'asks'},$quantity*2,$coin);
+        if ($coin eq "ETH") {$quantity = $quantity/3;}
+        my $quantity_1 = $quantity;
+        my $quantity_2 = $quantity/3;
+        my $quantity_3 = $quantity/9;
+
+        $cex_bid_price_1 = calc_bestbidprice($binance_depth->{'bids'},$quantity_1,$coin);
+        $cex_ask_price_1 = calc_bestaskprice($binance_depth->{'asks'},$quantity_1,$coin);
         if ( ( $cex_bid_price_1 eq "" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
         if ( ( $cex_ask_price_1 eq "" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
-        binance_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity);
 
-        $cex_bid_price_2 = calc_bestbidprice($binance_depth->{'bids'},$quantity/2*1.5,$coin);
-        $cex_ask_price_2 = calc_bestaskprice($binance_depth->{'asks'},$quantity/2*1.5,$coin);
+        $cex_bid_price_2 = calc_bestbidprice($binance_depth->{'bids'},$quantity_2,$coin);
+        $cex_ask_price_2 = calc_bestaskprice($binance_depth->{'asks'},$quantity_2,$coin);
         if ( ( $cex_bid_price_2 eq "" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
         if ( ( $cex_ask_price_2 eq "" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
         if ( $cex_ask_price_2 > $cex_ask_price_1 ) { $cex_ask_price_2 = $cex_ask_price_1; }
         if ( $cex_bid_price_2 < $cex_bid_price_1 ) { $cex_bid_price_2 = $cex_bid_price_1; }
-        binance_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity/2);
 
-        $cex_bid_price_3 = calc_bestbidprice($binance_depth->{'bids'},$quantity/6*1.25,$coin);
-        $cex_ask_price_3 = calc_bestaskprice($binance_depth->{'asks'},$quantity/6*1.25,$coin);
+        $cex_bid_price_3 = calc_bestbidprice($binance_depth->{'bids'},$quantity_3,$coin);
+        $cex_ask_price_3 = calc_bestaskprice($binance_depth->{'asks'},$quantity_3,$coin);
         if ( ( $cex_bid_price_3 eq "" ) || ( $cex_bid_price_3 > $maxbidprice ) ) { $cex_bid_price_3 = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin)); }
         if ( ( $cex_ask_price_3 eq "" ) || ( $cex_ask_price_3 < $minaskprice ) ) { $cex_ask_price_3 = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin)); }
         if ( $cex_ask_price_3 > $cex_ask_price_2 ) { $cex_ask_price_3 = $cex_ask_price_2; }
         if ( $cex_bid_price_3 < $cex_bid_price_2 ) { $cex_bid_price_3 = $cex_bid_price_2; }
-        binance_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity/6);
+
+        binance_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
+        binance_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
+        binance_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity_3);
     }
 
 } elsif ( $api eq "crex24" ) {
@@ -825,12 +831,11 @@ if ( $api eq "dex" ) {
     my $askmargin = $marginsconf->{$base}{'askmargin'};
     my $quantity = $marginsconf->{$base}{'quantity'};
     foreach my $coin ( "BTC" ) {
-        crex24_cancelorders($base,$coin);
         my $binance_book_price = decode_json(binance_book_price($base,$coin));
         my $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
-
         my $cex_bid_price = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin));
         my $cex_ask_price = sprintf("%.7f", ($cex_price + $cex_price * $askmargin));
+        crex24_cancelorders($base,$coin);
         crex24_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity);
     }
 
@@ -843,7 +848,6 @@ if ( $api eq "dex" ) {
     my $binance_book_price = decode_json(binance_book_price("KMD","BTC"));
     my $binance_latest_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
     foreach my $coin ( "BTC", "BCH" ) {
-        coinex_cancelorders($base,$coin);
         my $cex_price = undef;
         if ( $coin eq "BTC" ) {
             $cex_price = $binance_latest_price;
@@ -851,9 +855,9 @@ if ( $api eq "dex" ) {
             $cex_price = decode_json(coinex_latest_price($base,$coin))->{'data'}{'ticker'}{'last'};
             $quantity = $quantity/3;
         }
-
         my $cex_bid_price = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin));
         my $cex_ask_price = sprintf("%.8f", ($cex_price + $cex_price * $askmargin));
+        coinex_cancelorders($base,$coin);
         coinex_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity);
     }
 
@@ -864,12 +868,11 @@ if ( $api eq "dex" ) {
     my $askmargin = $marginsconf->{$base}{'askmargin'};
     my $quantity = $marginsconf->{$base}{'quantity'};
     foreach my $coin ( "BTC" ) {
-        vcc_cancelorders($base,$coin);
         my $binance_book_price = decode_json(binance_book_price($base,$coin));
         my $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
-
         my $cex_bid_price = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin));
         my $cex_ask_price = sprintf("%.7f", ($cex_price + $cex_price * $askmargin));
+        vcc_cancelorders($base,$coin);
         vcc_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity);
     }
 
