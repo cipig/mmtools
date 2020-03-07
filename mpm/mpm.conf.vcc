@@ -1,7 +1,9 @@
 {
     "KMD": {
         "bidmargin": 0.005,
+        "bidminmargin": 0.0025,
         "askmargin": 0.005,
+        "askminmargin": 0.0025,
         "quantity": 500
     }
 }

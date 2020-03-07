@@ -17,6 +17,8 @@ my $basepapid = "kmd-komodo";
 my $api = $ARGV[0];
 my $pubkey = $ARGV[1];
 my $cwd = dirname($0);
+my $useragent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
+my $timeout = 10;
 
 my $binance_apikey = "";
 my $binance_seckey = "";
@@ -31,8 +33,8 @@ my $vcc_seckey = "";
 sub getgasprice {
     my $gaspriceurl = "https://www.etherchain.org/api/gasPriceOracle";
     my $ua = LWP::UserAgent->new;
-    $ua->agent("Mozilla");
-    $ua->timeout(10);
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
     my $req = HTTP::Request->new(GET => $gaspriceurl);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -49,8 +51,8 @@ sub getgasprice {
 sub paprika_latest_price {
     my $url = "https://api.coinpaprika.com/v1/price-converter?base_currency_id=".$_[1]."&quote_currency_id=".$_[0]."&amount=1";
     my $ua = LWP::UserAgent->new;
-    $ua->agent("Mozilla");
-    $ua->timeout(10);
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -70,8 +72,8 @@ sub paprika_price {
     my $amount = $_[2];
     my $url = "https://api.coinpaprika.com/v1/price-converter?base_currency_id=".$base."&quote_currency_id=".$rel."&amount=".$amount;
     my $ua = LWP::UserAgent->new;
-    $ua->agent("Mozilla");
-    $ua->timeout(10);
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -90,8 +92,8 @@ sub binance_latest_price {
     my $coin = $_[1];
     my $url = "https://api.binance.com/api/v3/ticker/price?symbol=".$base.$coin;
     my $ua = LWP::UserAgent->new;
-    $ua->agent("Mozilla");
-    $ua->timeout(10);
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -110,8 +112,8 @@ sub binance_book_price {
     my $coin = $_[1];
     my $url = "https://api.binance.com/api/v3/ticker/bookTicker?symbol=".$base.$coin;
     my $ua = LWP::UserAgent->new;
-    $ua->agent("Mozilla");
-    $ua->timeout(10);
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -131,8 +133,8 @@ sub binance_kline {
     my $interval = $_[2];
     my $url = "https://api.binance.com/api/v3/klines?symbol=".$base.$coin."&interval=".$interval."&limit=2";
     my $ua = LWP::UserAgent->new;
-    $ua->agent("Mozilla");
-    $ua->timeout(10);
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -151,8 +153,8 @@ sub coinex_latest_price {
     my $coin = $_[1];
     my $url = "https://api.coinex.com/v1/market/ticker?market=".$base.$coin;
     my $ua = LWP::UserAgent->new;
-    $ua->agent("Mozilla");
-    $ua->timeout(10);
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -169,15 +171,35 @@ sub coinex_latest_price {
 sub binance_depth {
     my $base = $_[0];
     my $coin = $_[1];
-    my $url = "https://api.binance.com/api/v1/depth?symbol=".$base.$coin."&limit=100";
+    my $url = "https://api.binance.com/api/v3/depth?symbol=".$base.$coin."&limit=20";
     my $ua = LWP::UserAgent->new;
-    $ua->agent("Mozilla");
-    $ua->timeout(10);
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
         if ($resp->is_success) {
             return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+        }
+}
+
+
+sub vcc_depth {
+    my $base = $_[0];
+    my $coin = $_[1];
+    my $url = "https://vcc.exchange/api/v2/orderbook/".$base."_".$coin."?depth=20";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return decode_json($resp->content)->{'data'};
         } else {
             print "HTTP GET url: ", $url, "\n";
             print "HTTP GET error code: ", $resp->code, "\n";
@@ -233,7 +255,7 @@ sub coinex_cancelorders {
 
     my $ua = LWP::UserAgent->new;
     $req = HTTP::Request->new(DELETE => $url.$params);
-    $ua->agent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
+    $ua->agent($useragent);
     $req->header('authorization' => $authorization);
     $req->header('content-type' => 'application/json');
     $req->content();
@@ -253,7 +275,7 @@ sub vcc_getorders {
 
     my $ua = LWP::UserAgent->new;
     $req = HTTP::Request->new(GET => $url.$params);
-    $ua->agent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
+    $ua->agent($useragent);
     $req->header('Authorization' => 'Bearer '.$vcc_apikey);
     $req->header('timestamp' => $tonce);
     $req->header('signature' => $signature);
@@ -272,7 +294,7 @@ sub vcc_cancelorder {
 
     my $ua = LWP::UserAgent->new;
     $req = HTTP::Request->new(PUT => $url);
-    $ua->agent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
+    $ua->agent($useragent);
     $req->header('Authorization' => 'Bearer '.$vcc_apikey);
     $req->header('timestamp' => $tonce);
     $req->header('signature' => $signature);
@@ -300,7 +322,7 @@ sub vcc_cancelallorders {
 
     my $ua = LWP::UserAgent->new;
     $req = HTTP::Request->new(PUT => $url);
-    $ua->agent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
+    $ua->agent($useragent);
     $req->header('Authorization' => 'Bearer '.$vcc_apikey);
     $req->header('timestamp' => $tonce);
     $req->header('signature' => $signature);
@@ -353,7 +375,7 @@ sub binance_setprice {
     my $req = HTTP::Request->new(POST => 'https://api.binance.com/api/v3/order');
     $req->header('X-MBX-APIKEY' => $binance_apikey);
 
-    print "$base/$coin size ".sprintf("%03d",$quantity);
+    print "$base/$coin size ".sprintf("%04d",$quantity);
 
     if ( defined $bid ) {
         my $command = "symbol=".$base.$coin."&side=BUY&type=LIMIT_MAKER&newOrderRespType=RESULT&quantity=".$quantity."&price=".$bid."&newClientOrderId=mybuyid".$quantity."&timestamp=".time()*1000;
@@ -462,7 +484,7 @@ sub vcc_setprice {
         my $signature = hmac_sha256_hex($payload, $vcc_seckey);
         my $ua = LWP::UserAgent->new;
         $req = HTTP::Request->new(POST => $url.$params);
-        $ua->agent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
+        $ua->agent($useragent);
         $req->header('Authorization' => 'Bearer '.$vcc_apikey);
         $req->header('timestamp' => $tonce);
         $req->header('signature' => $signature);
@@ -472,7 +494,7 @@ sub vcc_setprice {
         if ($resp->is_success) {
             print " bid ".$bid;
         } else {
-            print " bid 0.0000000";
+            print " bid 0.00000000";
             #print " ".$resp->content;
         }
     }
@@ -484,7 +506,7 @@ sub vcc_setprice {
         my $signature = hmac_sha256_hex($payload, $vcc_seckey);
         my $ua = LWP::UserAgent->new;
         $req = HTTP::Request->new(POST => $url.$params);
-        $ua->agent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
+        $ua->agent($useragent);
         $req->header('Authorization' => 'Bearer '.$vcc_apikey);
         $req->header('timestamp' => $tonce);
         $req->header('signature' => $signature);
@@ -494,7 +516,7 @@ sub vcc_setprice {
         if ($resp->is_success) {
             print " ask ".$ask."\n";
         } else {
-            print " ask 0.0000000\n";
+            print " ask 0.00000000\n";
             #print " ".$resp->content."\n";
         }
     }
@@ -519,7 +541,7 @@ sub coinex_setprice {
 
         my $ua = LWP::UserAgent->new;
         $req = HTTP::Request->new(POST => $url);
-        $ua->agent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
+        $ua->agent($useragent);
         $req->header('authorization' => $authorization);
         $req->header('content-type' => 'application/json');
         $req->content($body);
@@ -541,7 +563,7 @@ sub coinex_setprice {
 
         my $ua = LWP::UserAgent->new;
         $req = HTTP::Request->new(POST => $url);
-        $ua->agent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
+        $ua->agent($useragent);
         $req->header('authorization' => $authorization);
         $req->header('content-type' => 'application/json');
         $req->content($body);
@@ -685,7 +707,7 @@ sub dex_deleteprice {
 }
 
 
-sub calc_bestbidprice {
+sub calc_bestprice {
     my $quantity = $_[1];
     my $coin = $_[2];
     foreach (@{$_[0]}) {
@@ -693,30 +715,7 @@ sub calc_bestbidprice {
         my $price = $array[0][0];
         my $volume = $array[0][1];
         if ( $volume > $quantity ) {
-            if ( $coin eq "ETH" ) {
-                return $price + 0.00000100;
-            } else {
-                return $price + 0.00000010;
-            }
-            last;
-        }
-    }
-}
-
-
-sub calc_bestaskprice {
-    my $quantity = $_[1];
-    my $coin = $_[2];
-    foreach (@{$_[0]}) {
-        my @array = $_;
-        my $price = $array[0][0];
-        my $volume = $array[0][1];
-        if ( $volume > $quantity ) {
-            if ( $coin eq "ETH" ) {
-                return $price - 0.00000100;
-            } else {
-                return $price - 0.00000010;
-            }
+            return $price;
             last;
         }
     }
@@ -789,39 +788,40 @@ if ( $api eq "dex" ) {
     foreach my $coin ( "BTC", "ETH" ) {
         binance_cancelorders($base,$coin);
 
+        if ($coin eq "ETH") {$quantity = $quantity/5;}
+        my $quantity_1 = $quantity;
+        my $quantity_2 = $quantity/10;
+
         my $binance_book_price = decode_json(binance_book_price($base,$coin));
         my $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
         my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin));
         my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin));
         my $binance_depth = decode_json(binance_depth($base,$coin));
 
-        if ($coin eq "ETH") {$quantity = $quantity/3;}
-        my $quantity_1 = $quantity;
-        my $quantity_2 = $quantity/3;
-        my $quantity_3 = $quantity/9;
-
-        $cex_bid_price_1 = calc_bestbidprice($binance_depth->{'bids'},$quantity_1,$coin);
-        $cex_ask_price_1 = calc_bestaskprice($binance_depth->{'asks'},$quantity_1,$coin);
+        if ( $coin eq "ETH" ) {
+            $cex_bid_price_1 = calc_bestprice($binance_depth->{'bids'},$quantity_1,$coin) + 0.00000100;
+            $cex_ask_price_1 = calc_bestprice($binance_depth->{'asks'},$quantity_1,$coin) - 0.00000100;
+        } else {
+            $cex_bid_price_1 = calc_bestprice($binance_depth->{'bids'},$quantity_1,$coin) + 0.00000010;
+            $cex_ask_price_1 = calc_bestprice($binance_depth->{'asks'},$quantity_1,$coin) - 0.00000010;
+        }
         if ( ( $cex_bid_price_1 eq "" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
         if ( ( $cex_ask_price_1 eq "" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
 
-        $cex_bid_price_2 = calc_bestbidprice($binance_depth->{'bids'},$quantity_2,$coin);
-        $cex_ask_price_2 = calc_bestaskprice($binance_depth->{'asks'},$quantity_2,$coin);
-        if ( ( $cex_bid_price_2 eq "" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
-        if ( ( $cex_ask_price_2 eq "" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
+        if ( $coin eq "ETH" ) {
+            $cex_bid_price_2 = calc_bestprice($binance_depth->{'bids'},$quantity_2,$coin) + 0.00000100;
+            $cex_ask_price_2 = calc_bestprice($binance_depth->{'asks'},$quantity_2,$coin) - 0.00000100;
+        } else {
+            $cex_bid_price_2 = calc_bestprice($binance_depth->{'bids'},$quantity_2,$coin) + 0.00000010;
+            $cex_ask_price_2 = calc_bestprice($binance_depth->{'asks'},$quantity_2,$coin) - 0.00000010;
+        }
+        if ( ( $cex_bid_price_2 eq "" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
+        if ( ( $cex_ask_price_2 eq "" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = $minaskprice; }
         if ( $cex_ask_price_2 > $cex_ask_price_1 ) { $cex_ask_price_2 = $cex_ask_price_1; }
         if ( $cex_bid_price_2 < $cex_bid_price_1 ) { $cex_bid_price_2 = $cex_bid_price_1; }
 
-        $cex_bid_price_3 = calc_bestbidprice($binance_depth->{'bids'},$quantity_3,$coin);
-        $cex_ask_price_3 = calc_bestaskprice($binance_depth->{'asks'},$quantity_3,$coin);
-        if ( ( $cex_bid_price_3 eq "" ) || ( $cex_bid_price_3 > $maxbidprice ) ) { $cex_bid_price_3 = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin)); }
-        if ( ( $cex_ask_price_3 eq "" ) || ( $cex_ask_price_3 < $minaskprice ) ) { $cex_ask_price_3 = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin)); }
-        if ( $cex_ask_price_3 > $cex_ask_price_2 ) { $cex_ask_price_3 = $cex_ask_price_2; }
-        if ( $cex_bid_price_3 < $cex_bid_price_2 ) { $cex_bid_price_3 = $cex_bid_price_2; }
-
         binance_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
         binance_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
-        binance_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity_3);
     }
 
 } elsif ( $api eq "crex24" ) {
@@ -853,7 +853,7 @@ if ( $api eq "dex" ) {
             $cex_price = $binance_latest_price;
         } else {
             $cex_price = decode_json(coinex_latest_price($base,$coin))->{'data'}{'ticker'}{'last'};
-            $quantity = $quantity/3;
+            $quantity = $quantity/5;
         }
         my $cex_bid_price = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin));
         my $cex_ask_price = sprintf("%.8f", ($cex_price + $cex_price * $askmargin));
@@ -866,14 +866,35 @@ if ( $api eq "dex" ) {
     my $marginsconf = decode_json($json);
     my $bidmargin = $marginsconf->{$base}{'bidmargin'};
     my $askmargin = $marginsconf->{$base}{'askmargin'};
+    my $bidminmargin = $marginsconf->{$base}{'bidminmargin'};
+    my $askminmargin = $marginsconf->{$base}{'askminmargin'};
     my $quantity = $marginsconf->{$base}{'quantity'};
     foreach my $coin ( "BTC" ) {
+        vcc_cancelorders($base,$coin);
+
+        my $quantity_1 = $quantity;
+        my $quantity_2 = $quantity/10;
+
         my $binance_book_price = decode_json(binance_book_price($base,$coin));
         my $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
-        my $cex_bid_price = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin));
-        my $cex_ask_price = sprintf("%.7f", ($cex_price + $cex_price * $askmargin));
-        vcc_cancelorders($base,$coin);
-        vcc_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity);
+        my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin));
+        my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin));
+        my $vcc_depth = vcc_depth($base,$coin);
+
+        $cex_bid_price_1 = sprintf("%.8f", (calc_bestprice($vcc_depth->{'bids'},$quantity_1,$coin) + 0.00000001));
+        $cex_ask_price_1 = sprintf("%.8f", (calc_bestprice($vcc_depth->{'asks'},$quantity_1,$coin) - 0.00000001));
+        if ( ( $cex_bid_price_1 eq "" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
+        if ( ( $cex_ask_price_1 eq "" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
+
+        $cex_bid_price_2 = sprintf("%.8f", (calc_bestprice($vcc_depth->{'bids'},$quantity_2,$coin) + 0.00000001));
+        $cex_ask_price_2 = sprintf("%.8f", (calc_bestprice($vcc_depth->{'asks'},$quantity_2,$coin) - 0.00000001));
+        if ( ( $cex_bid_price_2 eq "" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
+        if ( ( $cex_ask_price_2 eq "" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = $minaskprice; }
+        if ( $cex_ask_price_2 > $cex_ask_price_1 ) { $cex_ask_price_2 = $cex_ask_price_1; }
+        if ( $cex_bid_price_2 < $cex_bid_price_1 ) { $cex_bid_price_2 = $cex_bid_price_1; }
+
+        vcc_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
+        vcc_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
     }
 
 } else {
