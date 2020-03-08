@@ -633,7 +633,7 @@ sub dexp2p_setprice {
     }
 
     my $client = new JSON::RPC::Legacy::Client;
-    $client->ua->credentials('localhost:14869', 'jsonrpc', 'user647284147' => 'passd6a72576739f71eb19874ca24f87679409115659ea0a5d637cc1fb063e60c5766d');
+    $client->ua->credentials('localhost:14869', 'jsonrpc', 'dexp2p' => 'KeWt2phRPXUPGX');
     my $uri = 'http://localhost:14869/';
 
     if ( defined $ask ) {
@@ -667,7 +667,7 @@ sub dexp2p_deleteprice {
     my $rel = $_[1];
 
     my $client = new JSON::RPC::Legacy::Client;
-    $client->ua->credentials('localhost:14869', 'jsonrpc', 'user647284147' => 'passd6a72576739f71eb19874ca24f87679409115659ea0a5d637cc1fb063e60c5766d');
+    $client->ua->credentials('localhost:14869', 'jsonrpc', 'dexp2p' => 'KeWt2phRPXUPGX');
     my $uri = 'http://localhost:14869/';
 
     my $obj = { method => 'DEX_cancel', params => ['','',$base,$rel] };
