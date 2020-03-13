@@ -30,24 +30,6 @@ my $vcc_apikey = "";
 my $vcc_seckey = "";
 
 
-sub getgasprice {
-    my $gaspriceurl = "https://www.etherchain.org/api/gasPriceOracle";
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    my $req = HTTP::Request->new(GET => $gaspriceurl);
-    $req->header('content-type' => 'application/json');
-    my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $gaspriceurl, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-        }
-}
-
-
 sub paprika_latest_price {
     my $url = "https://api.coinpaprika.com/v1/price-converter?base_currency_id=".$_[1]."&quote_currency_id=".$_[0]."&amount=1";
     my $ua = LWP::UserAgent->new;
@@ -774,10 +756,6 @@ sub binance_volat {
 
 if ( $api eq "dex" ) {
     $userpass =  $ENV{'userpass'};
-    my $maxgasprice = 16;
-    my $gasprice = 0;
-    my $getgas = getgasprice();
-    if ( $getgas ne '' ) { $gasprice = from_json($getgas)->{'standard'}; }
     my $json = read_file("$cwd/mpm.conf.dex");
     $marginsconf = decode_json($json);
     my $marginadd = binance_volat();
