@@ -211,7 +211,7 @@ sub vcc_depth {
 sub coinex_depth {
     my $base = $_[0];
     my $coin = $_[1];
-    my $url = "https://api.coinex.com/v1/market/depth?market=".$base.$coin."&limit=20&merge=0";
+    my $url = "https://api.coinex.com/v1/market/depth?market=".$base.$coin."&limit=50&merge=0";
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -224,6 +224,7 @@ sub coinex_depth {
             print "HTTP GET url: ", $url, "\n";
             print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
         }
 }
 
@@ -562,6 +563,7 @@ sub coinex_setprice {
         my $ua = LWP::UserAgent->new;
         $req = HTTP::Request->new(POST => $url);
         $ua->agent($useragent);
+        $ua->timeout($timeout);
         $req->header('authorization' => $authorization);
         $req->header('content-type' => 'application/json');
         $req->content($body);
@@ -584,6 +586,7 @@ sub coinex_setprice {
         my $ua = LWP::UserAgent->new;
         $req = HTTP::Request->new(POST => $url);
         $ua->agent($useragent);
+        $ua->timeout($timeout);
         $req->header('authorization' => $authorization);
         $req->header('content-type' => 'application/json');
         $req->content($body);
@@ -734,7 +737,7 @@ sub calc_bestprice {
         my @array = $_;
         my $price = $array[0][0];
         my $volume = $array[0][1];
-        if ( $volume > $quantity ) {
+        if ( $volume >= $quantity ) {
             return $price;
             last;
         }
@@ -875,32 +878,34 @@ if ( $api eq "dex" ) {
             $cex_price = $binance_latest_price;
         } else {
             $cex_price = decode_json(coinex_latest_price($base,$coin))->{'data'}{'ticker'}{'last'};
-            $quantity = $quantity/5;
+#            $quantity = $quantity/3;
         }
 
         coinex_cancelorders($base,$coin);
 
         my $quantity_1 = $quantity;
-        my $quantity_2 = $quantity/5;
+        my $quantity_2 = $quantity/10;
 
         my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin));
         my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin));
         my $coinex_depth = coinex_depth($base,$coin);
 
-        $cex_bid_price_1 = sprintf("%.8f", (calc_bestprice($coinex_depth->{'bids'},$quantity_1,$coin) + 0.00000001));
-        $cex_ask_price_1 = sprintf("%.8f", (calc_bestprice($coinex_depth->{'asks'},$quantity_1,$coin) - 0.00000001));
-        if ( ( $cex_bid_price_1 eq "" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
-        if ( ( $cex_ask_price_1 eq "" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
+        if ( $coinex_depth ne "1" ) {
+            $cex_bid_price_1 = sprintf("%.8f", (calc_bestprice($coinex_depth->{'bids'},$quantity_1,$coin) + 0.00000001));
+            $cex_ask_price_1 = sprintf("%.8f", (calc_bestprice($coinex_depth->{'asks'},$quantity_1,$coin) - 0.00000001));
+            if ( ( $cex_bid_price_1 eq "" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
+            if ( ( $cex_ask_price_1 eq "" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
 
-        $cex_bid_price_2 = sprintf("%.8f", (calc_bestprice($coinex_depth->{'bids'},$quantity_2,$coin) + 0.00000001));
-        $cex_ask_price_2 = sprintf("%.8f", (calc_bestprice($coinex_depth->{'asks'},$quantity_2,$coin) - 0.00000001));
-        if ( ( $cex_bid_price_2 eq "" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
-        if ( ( $cex_ask_price_2 eq "" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = $minaskprice; }
-        if ( $cex_ask_price_2 > $cex_ask_price_1 ) { $cex_ask_price_2 = $cex_ask_price_1; }
-        if ( $cex_bid_price_2 < $cex_bid_price_1 ) { $cex_bid_price_2 = $cex_bid_price_1; }
+            $cex_bid_price_2 = sprintf("%.8f", (calc_bestprice($coinex_depth->{'bids'},$quantity_2,$coin) + 0.00000001));
+            $cex_ask_price_2 = sprintf("%.8f", (calc_bestprice($coinex_depth->{'asks'},$quantity_2,$coin) - 0.00000001));
+            if ( ( $cex_bid_price_2 eq "" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
+            if ( ( $cex_ask_price_2 eq "" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = $minaskprice; }
+            if ( $cex_ask_price_2 > $cex_ask_price_1 ) { $cex_ask_price_2 = $cex_ask_price_1; }
+            if ( $cex_bid_price_2 < $cex_bid_price_1 ) { $cex_bid_price_2 = $cex_bid_price_1; }
 
-        coinex_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
-        coinex_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
+            coinex_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
+            coinex_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
+        }
     }
 
 } elsif ( $api eq "vcc" ) {
