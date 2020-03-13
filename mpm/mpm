@@ -66,6 +66,7 @@ sub paprika_latest_price {
         }
 }
 
+
 sub paprika_price {
     my $base = $_[0];
     my $rel = $_[1];
@@ -640,6 +641,7 @@ sub dex_setprice {
     }
 }
 
+
 sub dexp2p_setprice {
     my $base = $_[0];
     my $rel = $_[1];
@@ -730,6 +732,19 @@ sub dex_deleteprice {
 }
 
 
+sub dex_gettradefee {
+    my $coin = $_[0];
+    my $ua = LWP::UserAgent->new;
+    my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
+    $req->content_type('application/x-www-form-urlencoded');
+
+    $command = '{"userpass":"'.$userpass.'","method":"get_trade_fee","coin":"'.$coin.'"}';
+    $req->content($command);
+    my $resp = $ua->request($req);
+    return from_json($resp->content)->{'result'}{'amount'};
+}
+
+
 sub calc_bestprice {
     my $quantity = $_[1];
     my $coin = $_[2];
@@ -769,8 +784,10 @@ if ( $api eq "dex" ) {
     foreach my $coin ( keys %{$marginsconf} ) {
         my $price = undef;
         my $papid = $marginsconf->{$coin}{'papid'};
-        my $erc20 = $marginsconf->{$coin}{'erc20'};
-        if ( !defined $erc20 ) { $erc20 = "0"; }
+        my $tradefee = dex_gettradefee($coin);
+        my $maxfee = $marginsconf->{$coin}{'maxfee'};
+        if ( !defined $maxfee ) { $maxfee = "100"; }
+
         if ( ( $coin eq "BTC" ) || ( $coin eq "ETH" ) ) {
             my $cex_price = decode_json(binance_latest_price($base,$coin))->{'price'};
             $price = 1 / $cex_price;
@@ -778,9 +795,8 @@ if ( $api eq "dex" ) {
             my $coinprice = paprika_latest_price($basepapid,$papid);
             if ( $coinprice ne "1" ) { $price = from_json($coinprice)->{'price'}; }
         }
-        if ( ($erc20 eq "0") && (defined $price) ) {
-            dex_setprice($base,$coin,$price,$marginadd);
-        } elsif ( ($erc20 eq "1") && ($gasprice < $maxgasprice) && (defined $price) ) {
+
+        if ( (defined $price) && ($tradefee < $maxfee) ) {
             dex_setprice($base,$coin,$price,$marginadd);
         } else {
             dex_deleteprice($base,$coin);
