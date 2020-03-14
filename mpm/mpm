@@ -558,6 +558,7 @@ sub coinex_setprice {
             print " bid 0.00000000";
             #print " ".$resp->content;
         }
+        sleep 1;
     }
 
     if ( defined $ask ) {
@@ -874,13 +875,12 @@ if ( $api eq "dex" ) {
             $cex_price = $binance_latest_price;
         } else {
             $cex_price = decode_json(coinex_latest_price($base,$coin))->{'data'}{'ticker'}{'last'};
-#            $quantity = $quantity/3;
         }
 
         coinex_cancelorders($base,$coin);
 
         my $quantity_1 = $quantity;
-        my $quantity_2 = $quantity/10;
+        my $quantity_2 = $quantity/9;
 
         my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin));
         my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin));
