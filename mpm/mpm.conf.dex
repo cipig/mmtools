@@ -7,7 +7,7 @@
     },
     "DAI": {
         "papid": "dai-dai",
-        "bidmargin": 0.09,
+        "bidmargin": 0.03,
         "askmargin": 0.02,
         "maxfee": 0.0025
     },
@@ -32,7 +32,6 @@
     "AWC": {
         "papid": "awc-atomic-wallet-coin",
         "bidmargin": 0.90,
-        "askmargin": 0.10,
         "maxfee": 0.0025
     },
     "BAT": {
@@ -55,7 +54,7 @@
         "papid": "btc-bitcoin",
         "bidmargin": 0.03,
         "askmargin": 0.03,
-        "maxfee": 0.0006
+        "maxfee": 0.0008
     },
     "DASH": {
         "papid": "dash-dash",
@@ -120,7 +119,7 @@
     "VRSC": {
         "papid": "vrsc-verus-coin",
         "bidmargin": 0.50,
-        "askmargin": 0.15
+        "askmargin": 0.20
     },
     "ZEC": {
         "papid": "zec-zcash",

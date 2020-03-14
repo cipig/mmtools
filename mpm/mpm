@@ -587,16 +587,16 @@ sub coinex_setprice {
 
 sub dex_setprice {
     my $price = $_[2];
-    my $askmargin = $marginsconf->{$_[1]}{'askmargin'} + $_[3];
-    my $bidmargin = $marginsconf->{$_[1]}{'bidmargin'} + $_[3];
     my $bid = undef;
     my $ask = undef;
     my $command = undef;
 
     if ( defined $marginsconf->{$_[1]}{'askmargin'} ) {
+        my $askmargin = $marginsconf->{$_[1]}{'askmargin'} + $_[3];
         $ask = sprintf("%.8f", $price + $price * $askmargin);
     }
     if ( defined $marginsconf->{$_[1]}{'bidmargin'} ) {
+        my $bidmargin = $marginsconf->{$_[1]}{'bidmargin'} + $_[3];
         $bid = sprintf("%.8f", 1 / ($price - $price * $bidmargin));
     }
 
@@ -604,13 +604,14 @@ sub dex_setprice {
     my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
     $req->content_type('application/x-www-form-urlencoded');
 
+    print "$_[1]/$_[0] ";
     if ( defined $ask ) {
 	$command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[1].'","rel":"'.$_[0].'","price":'.$ask.',"max":true}';
         $req->content($command);
         my $resp = $ua->request($req);
         my $uuid = from_json($resp->content)->{'result'}{'uuid'};
         if ( !defined $uuid ) { $uuid = "error"; }
-        print "$_[1]/$_[0] ask ".sprintf("%.8f",$ask)." ";
+        print "ask ".sprintf("%.8f",$ask)." ";
     }
 
     if ( defined $bid ) {
@@ -619,8 +620,9 @@ sub dex_setprice {
         $resp = $ua->request($req);
         my $uuid = from_json($resp->content)->{'result'}{'uuid'};
         if ( !defined $uuid ) { $uuid = "error"; }
-        print "bid ".sprintf("%.8f",1/$bid)."\n";
+        print "bid ".sprintf("%.8f",1/$bid);
     }
+    print "\n";
 }
 
 
