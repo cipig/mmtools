@@ -42,7 +42,7 @@ sub paprika_latest_price {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
             return 1;
         }
@@ -64,7 +64,7 @@ sub paprika_price {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
         }
 }
@@ -84,7 +84,7 @@ sub binance_latest_price {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
         }
 }
@@ -104,8 +104,9 @@ sub binance_book_price {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
         }
 }
 
@@ -125,7 +126,7 @@ sub binance_kline {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
             return 1;
         }
@@ -146,7 +147,7 @@ sub coinex_latest_price {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
         }
 }
@@ -166,7 +167,7 @@ sub binance_depth {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
         }
 }
@@ -186,7 +187,7 @@ sub vcc_depth {
             return decode_json($resp->content)->{'data'};
         } else {
             print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
         }
 }
@@ -206,7 +207,7 @@ sub coinex_depth {
             return decode_json($resp->content)->{'data'};
         } else {
             print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
             return 1;
         }
@@ -751,18 +752,13 @@ sub binance_volat {
     my $marginadd_2 = 0.01;
     my $marginadd_3 = 0.01;
     my $marginadd_4 = 0.01;
-    my $kline_1 = binance_kline("KMD","BTC","3m");
+    my $kline_1 = binance_kline("KMD","BTC","15m");
     if ( $kline_1 ne "1" ) {
         $marginadd_2 = from_json($kline_1)->[0][2] / from_json($kline_1)->[0][3] - 1;
         $marginadd_1 = from_json($kline_1)->[1][2] / from_json($kline_1)->[1][3] - 1;
     }
-    my $kline_2 = binance_kline("KMD","BTC","15m");
-    if ( $kline_2 ne "1" ) {
-        $marginadd_4 = from_json($kline_2)->[0][2] / from_json($kline_2)->[0][3] - 1;
-        $marginadd_3 = from_json($kline_2)->[1][2] / from_json($kline_2)->[1][3] - 1;
-    }
-    print "marginadd_1: ".sprintf("%.3f", $marginadd_1)."  marginadd_2: ".sprintf("%.3f", $marginadd_2)."  marginadd_3: ".sprintf("%.3f", $marginadd_3)."  marginadd_4: ".sprintf("%.3f", $marginadd_4)."\n";
-    return max($marginadd_1,$marginadd_2,$marginadd_3,$marginadd_4);
+    print "marginadd_1: ".sprintf("%.3f", $marginadd_1)."  marginadd_2: ".sprintf("%.3f", $marginadd_2)."\n";
+    return max($marginadd_1,$marginadd_2);
 }
 
 
@@ -779,9 +775,15 @@ if ( $api eq "dex" ) {
         if ( !defined $maxfee ) { $maxfee = "100"; }
 
         if ( ( $coin eq "BTC" ) || ( $coin eq "ETH" ) ) {
-            my $cex_price = decode_json(binance_latest_price($base,$coin))->{'price'};
-            $price = 1 / $cex_price;
-        } else {
+            my $binance_price = binance_book_price($base,$coin);
+            if ( $binance_price ne "1" ) {
+                my $binance_book_price = decode_json($binance_price);
+                my $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
+                $price = 1 / $cex_price;
+            }
+        }
+
+        if ( !defined $price ) {
             my $coinprice = paprika_latest_price($basepapid,$papid);
             if ( $coinprice ne "1" ) { $price = from_json($coinprice)->{'price'}; }
         }
