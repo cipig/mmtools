@@ -849,14 +849,20 @@ if ( $api eq "dex" ) {
     my $marginsconf = decode_json($json);
     my $bidmargin = $marginsconf->{$base}{'bidmargin'};
     my $askmargin = $marginsconf->{$base}{'askmargin'};
-    my $quantity = $marginsconf->{$base}{'quantity'};
+    my $bidminmargin = $marginsconf->{$base}{'bidminmargin'};
+    my $askminmargin = $marginsconf->{$base}{'askminmargin'};
+    my $quantity_1 = $marginsconf->{$base}{'quantity'};
+    my $quantity_2 = $quantity_1/10;
     foreach my $coin ( "BTC" ) {
         my $binance_book_price = decode_json(binance_book_price($base,$coin));
         my $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
-        my $cex_bid_price = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin));
-        my $cex_ask_price = sprintf("%.7f", ($cex_price + $cex_price * $askmargin));
+        my $cex_bid_price_1 = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin));
+        my $cex_ask_price_1 = sprintf("%.7f", ($cex_price + $cex_price * $askmargin));
+        my $cex_bid_price_2 = sprintf("%.7f", ($cex_price - $cex_price * $bidminmargin));
+        my $cex_ask_price_2 = sprintf("%.7f", ($cex_price + $cex_price * $askminmargin));
         crex24_cancelorders($base,$coin);
-        crex24_setprice($base,$coin,$cex_bid_price,$cex_ask_price,$quantity);
+        crex24_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
+        crex24_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
     }
 
 } elsif ( $api eq "coinex" ) {
