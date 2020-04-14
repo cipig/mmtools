@@ -752,7 +752,7 @@ sub binance_volat {
     my $marginadd_2 = 0.01;
     my $marginadd_3 = 0.01;
     my $marginadd_4 = 0.01;
-    my $kline_1 = binance_kline("KMD","BTC","15m");
+    my $kline_1 = binance_kline("KMD","BTC","3m");
     if ( $kline_1 ne "1" ) {
         $marginadd_2 = from_json($kline_1)->[0][2] / from_json($kline_1)->[0][3] - 1;
         $marginadd_1 = from_json($kline_1)->[1][2] / from_json($kline_1)->[1][3] - 1;
