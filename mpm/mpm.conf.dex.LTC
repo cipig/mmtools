@@ -1,0 +1,122 @@
+{
+    "BUSD": {
+        "papid": "busd-binance-usd",
+        "bidmargin": 0.03,
+        "askmargin": 0.03,
+        "maxfee": 0.0031
+    },
+    "DAI": {
+        "papid": "dai-dai",
+        "bidmargin": 0.03,
+        "askmargin": 0.03,
+        "maxfee": 0.0031
+    },
+    "PAX": {
+        "papid": "pax-paxos-standard-token",
+        "bidmargin": 0.03,
+        "askmargin": 0.03,
+        "maxfee": 0.0031
+    },
+    "TUSD": {
+        "papid": "tusd-trueusd",
+        "bidmargin": 0.03,
+        "askmargin": 0.03,
+        "maxfee": 0.0031
+    },
+    "USDC": {
+        "papid": "usdc-usd-coin",
+        "bidmargin": 0.03,
+        "askmargin": 0.03,
+        "maxfee": 0.0031
+    },
+    "AWC": {
+        "papid": "awc-atomic-wallet-coin",
+        "bidmargin": 0.70,
+        "maxfee": 0.0031
+    },
+    "BAT": {
+        "papid": "bat-basic-attention-token",
+        "bidmargin": 0.03,
+        "askmargin": 0.03,
+        "maxfee": 0.0031
+    },
+    "AXE": {
+        "papid": "axe-axe",
+        "bidmargin": 0.40,
+        "askmargin": 0.10
+    },
+    "BCH": {
+        "papid": "bch-bitcoin-cash",
+        "bidmargin": 0.03,
+        "askmargin": 0.03
+    },
+    "BTC": {
+        "papid": "btc-bitcoin",
+        "bidmargin": 0.03,
+        "maxfee": 0.00050
+    },
+    "DASH": {
+        "papid": "dash-dash",
+        "bidmargin": 0.03,
+        "askmargin": 0.03
+    },
+    "DGB": {
+        "papid": "dgb-digibyte",
+        "bidmargin": 0.03,
+        "askmargin": 0.03
+    },
+    "DOGE": {
+        "papid": "doge-dogecoin",
+        "bidmargin": 0.03,
+        "askmargin": 0.03
+    },
+    "ECA": {
+        "papid": "eca-electra",
+        "bidmargin": 0.50,
+        "askmargin": 0.10
+    },
+    "FTC": {
+        "papid": "ftc-feathercoin",
+        "bidmargin": 0.30,
+        "askmargin": 0.50
+    },
+    "HUSH": {
+        "papid": "hush-hush",
+        "bidmargin": 0.60,
+        "askmargin": 0.20
+    },
+    "NAV": {
+        "papid": "nav-navcoin",
+        "bidmargin": 0.05,
+        "askmargin": 0.05
+    },
+    "OOT": {
+        "papid": "oot-utrum",
+        "bidmargin": 0.80,
+        "askmargin": 0.20
+    },
+    "QTUM": {
+        "papid": "qtum-qtum",
+        "bidmargin": 0.03,
+        "askmargin": 0.03
+    },
+    "RFOX": {
+        "papid": "rfox-redfox-labs",
+        "bidmargin": 0.60
+    },
+    "RVN": {
+        "papid": "rvn-ravencoin",
+        "bidmargin": 0.03,
+        "askmargin": 0.03
+    },
+    "VRSC": {
+        "papid": "vrsc-verus-coin",
+        "bidmargin": 0.20,
+        "askmargin": 0.20
+    },
+    "ZEC": {
+        "papid": "zec-zcash",
+        "bidmargin": 0.03,
+        "askmargin": 0.03
+    }
+}

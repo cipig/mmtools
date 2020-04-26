@@ -14,6 +14,9 @@ use Data::Dumper;
 
 my $base = "KMD";
 my $basepapid = "kmd-komodo";
+#my $base = "LTC";
+#my $basepapid = "ltc-litecoin";
+
 my $api = $ARGV[0];
 my $pubkey = $ARGV[1];
 my $cwd = dirname($0);
@@ -764,9 +767,10 @@ sub binance_volat {
 
 if ( $api eq "dex" ) {
     $userpass =  $ENV{'userpass'};
-    my $json = read_file("$cwd/mpm.conf.dex");
+    my $json = read_file("$cwd/mpm.conf.dex.$base");
     $marginsconf = decode_json($json);
-    my $marginadd = binance_volat();
+#    my $marginadd = binance_volat();
+    my $marginadd = 0;
     foreach my $coin ( keys %{$marginsconf} ) {
         my $price = undef;
         my $papid = $marginsconf->{$coin}{'papid'};
