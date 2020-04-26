@@ -1,9 +1,16 @@
 {
-    "KMD": {
-        "bidmargin": 0.007,
-        "bidminmargin": 0.003,
-        "askmargin": 0.007,
-        "askminmargin": 0.003,
-        "quantity": 90
+    "BTC": {
+        "bidmargin": 0.006,
+        "bidminmargin": 0.004,
+        "askmargin": 0.006,
+        "askminmargin": 0.004,
+        "quantity": 100
+    },
+    "BCH": {
+        "bidmargin": 0.006,
+        "bidminmargin": 0.004,
+        "askmargin": 0.006,
+        "askminmargin": 0.004,
+        "quantity": 100
     }
 }
