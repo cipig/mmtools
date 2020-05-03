@@ -31,6 +31,8 @@ my $coinex_accessid = "";
 my $coinex_seckey = "";
 my $vcc_apikey = "";
 my $vcc_seckey = "";
+my $bitvavo_apikey = "";
+my $bitvavo_seckey = "";
 
 
 sub paprika_latest_price {
@@ -97,6 +99,27 @@ sub binance_book_price {
     my $base = $_[0];
     my $coin = $_[1];
     my $url = "https://api.binance.com/api/v3/ticker/bookTicker?symbol=".$base.$coin;
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
+sub bitvavo_book_price {
+    my $base = $_[0];
+    my $coin = $_[1];
+    my $url = "https://api.bitvavo.com/v2/ticker/book?market=".$base."-".$coin;
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -254,6 +277,28 @@ sub binance_cancelorders {
 }
 
 
+sub bitvavo_cancelorders {
+    my $base = $_[0];
+    my $coin = $_[1];
+
+    my $timestamp = time()*1000;
+    my $url = "https://api.bitvavo.com/v2/orders";
+    my $params = "?market=".$base."-".$coin;
+    my $command = $timestamp."DELETE/v2/orders".$params;
+    my $signature = hmac_sha256_hex($command, $bitvavo_seckey);
+    my $ua = LWP::UserAgent->new;
+    $req = HTTP::Request->new(DELETE => $url.$params);
+    $ua->agent($useragent);
+    $req->header('BITVAVO-ACCESS-KEY' => $bitvavo_apikey);
+    $req->header('BITVAVO-ACCESS-SIGNATURE' => $signature);
+    $req->header('BITVAVO-ACCESS-TIMESTAMP' => $timestamp);
+    $req->header('content-type' => 'application/json');
+    $req->content();
+    $resp = $ua->request($req);
+    #print $resp->content."\n";
+}
+
+
 sub coinex_cancelorders {
     my $base = $_[0];
     my $coin = $_[1];
@@ -404,6 +449,66 @@ sub binance_setprice {
 	my $command = "symbol=".$base.$coin."&side=SELL&type=LIMIT_MAKER&newOrderRespType=RESULT&quantity=".$quantity."&price=".$ask."&newClientOrderId=mysellid".$quantity."&timestamp=".time()*1000;
 	my $signature = hmac_sha256_hex($command, $binance_seckey);
         my $body = $command."&signature=".$signature;
+        $req->content($body);
+        my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            print " ask ".$ask."\n";
+        } else {
+            print " ask 0.0000000\n";
+            #print " ".$resp->content."\n";
+        }
+    }
+}
+
+
+sub bitvavo_setprice {
+    my $base = $_[0];
+    my $coin = $_[1];
+    my $bid = undef;
+    my $ask = undef;
+    if ( $coin eq "EUR" ) {
+        $bid = sprintf("%.5f",$_[2]);
+        $ask = sprintf("%.5f",$_[3]);
+    } else {
+        $bid = sprintf("%.8f",$_[2]);
+        $ask = sprintf("%.8f",$_[3]);
+    }
+    my $quantity = sprintf("%u",$_[4]);
+
+    my $timestamp = time()*1000;
+    my $url = "https://api.bitvavo.com/v2/order";
+    my $ua = LWP::UserAgent->new;
+    my $req = HTTP::Request->new(POST => $url);
+    $ua->agent($useragent);
+
+    print "$base/$coin size ".sprintf("%04d",$quantity);
+
+    if ( defined $bid ) {
+        my $body = '{"market":"'.$base.'-'.$coin.'","side":"buy","price":"'.$bid.'","amount":"'.$quantity.'","orderType":"limit","postOnly":true,"responseRequired":false}';
+        my $command = $timestamp."POST/v2/order".$body;
+        my $signature = hmac_sha256_hex($command, $bitvavo_seckey);
+        $req->header('BITVAVO-ACCESS-KEY' => $bitvavo_apikey);
+        $req->header('BITVAVO-ACCESS-SIGNATURE' => $signature);
+        $req->header('BITVAVO-ACCESS-TIMESTAMP' => $timestamp);
+        $req->header('content-type' => 'application/json');
+        $req->content($body);
+        my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            print " bid ".$bid;
+        } else {
+            print " bid 0.0000000";
+            #print " ".$resp->content;
+        }
+    }
+
+    if ( defined $ask ) {
+        my $body = '{"market":"'.$base.'-'.$coin.'","side":"sell","price":"'.$ask.'","amount":"'.$quantity.'","orderType":"limit","postOnly":true,"responseRequired":false}';
+        my $command = $timestamp."POST/v2/order".$body;
+        my $signature = hmac_sha256_hex($command, $bitvavo_seckey);
+        $req->header('BITVAVO-ACCESS-KEY' => $bitvavo_apikey);
+        $req->header('BITVAVO-ACCESS-SIGNATURE' => $signature);
+        $req->header('BITVAVO-ACCESS-TIMESTAMP' => $timestamp);
+        $req->header('content-type' => 'application/json');
         $req->content($body);
         my $resp = $ua->request($req);
         if ($resp->is_success) {
@@ -882,6 +987,32 @@ if ( $api eq "dex" ) {
         crex24_cancelorders($base,$coin);
         crex24_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
         crex24_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
+    }
+
+} elsif ( $api eq "bitvavo" ) {
+    my $json = read_file("$cwd/mpm.conf.bitvavo");
+    my $marginsconf = decode_json($json);
+
+    foreach my $coin ( keys %{$marginsconf} ) {
+        my $bidmargin = $marginsconf->{$coin}{'bidmargin'};
+        my $askmargin = $marginsconf->{$coin}{'askmargin'};
+        my $bidminmargin = $marginsconf->{$coin}{'bidminmargin'};
+        my $askminmargin = $marginsconf->{$coin}{'askminmargin'};
+        my $quantity_1 = $marginsconf->{$coin}{'quantity'};
+        my $quantity_2 = $quantity_1/5;
+
+        my $bitvavo_book_price = decode_json(bitvavo_book_price($base,$coin));
+        if ( $bitvavo_book_price ne "1" ) {
+            my $cex_price = sprintf("%.8f", ($bitvavo_book_price->{'bid'} + $bitvavo_book_price->{'ask'})/2);
+            my $cex_bid_price_1 = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin));
+            my $cex_ask_price_1 = sprintf("%.8f", ($cex_price + $cex_price * $askmargin));
+            my $cex_bid_price_2 = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin));
+            my $cex_ask_price_2 = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin));
+
+            bitvavo_cancelorders($base,$coin);
+            bitvavo_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
+            bitvavo_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
+        }
     }
 
 } elsif ( $api eq "coinex" ) {
