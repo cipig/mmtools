@@ -797,6 +797,8 @@ if ( $api eq "dex" ) {
         } else {
             dex_deleteprice($base,$coin);
         }
+
+        sleep(1);
     }
 
 } elsif ( $api eq "dexp2p" ) {
