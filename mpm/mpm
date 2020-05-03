@@ -1001,6 +1001,8 @@ if ( $api eq "dex" ) {
         my $quantity_1 = $marginsconf->{$coin}{'quantity'};
         my $quantity_2 = $quantity_1/5;
 
+        bitvavo_cancelorders($base,$coin);
+
         my $bitvavo_book_price = decode_json(bitvavo_book_price($base,$coin));
         if ( $bitvavo_book_price ne "1" ) {
             my $cex_price = sprintf("%.8f", ($bitvavo_book_price->{'bid'} + $bitvavo_book_price->{'ask'})/2);
@@ -1009,7 +1011,6 @@ if ( $api eq "dex" ) {
             my $cex_bid_price_2 = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin));
             my $cex_ask_price_2 = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin));
 
-            bitvavo_cancelorders($base,$coin);
             bitvavo_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
             bitvavo_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
         }
