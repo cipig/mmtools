@@ -1002,6 +1002,7 @@ if ( $api eq "dex" ) {
         my $quantity_2 = $quantity_1/5;
 
         bitvavo_cancelorders($base,$coin);
+        sleep(1);
 
         my $bitvavo_book_price = decode_json(bitvavo_book_price($base,$coin));
         if ( $bitvavo_book_price ne "1" ) {
