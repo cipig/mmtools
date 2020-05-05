@@ -199,6 +199,27 @@ sub binance_depth {
 }
 
 
+sub bitvavo_depth {
+    my $base = $_[0];
+    my $coin = $_[1];
+    my $url = "https://api.bitvavo.com/v2/".$base."-".$coin."/book";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub vcc_depth {
     my $base = $_[0];
     my $coin = $_[1];
@@ -999,18 +1020,28 @@ if ( $api eq "dex" ) {
         my $bidminmargin = $marginsconf->{$coin}{'bidminmargin'};
         my $askminmargin = $marginsconf->{$coin}{'askminmargin'};
         my $quantity_1 = $marginsconf->{$coin}{'quantity'};
-        my $quantity_2 = $quantity_1/5;
+        my $quantity_2 = $quantity_1/10;
 
         bitvavo_cancelorders($base,$coin);
-        sleep(1);
 
         my $bitvavo_book_price = decode_json(bitvavo_book_price($base,$coin));
-        if ( $bitvavo_book_price ne "1" ) {
-            my $cex_price = sprintf("%.8f", ($bitvavo_book_price->{'bid'} + $bitvavo_book_price->{'ask'})/2);
-            my $cex_bid_price_1 = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin));
-            my $cex_ask_price_1 = sprintf("%.8f", ($cex_price + $cex_price * $askmargin));
-            my $cex_bid_price_2 = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin));
-            my $cex_ask_price_2 = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin));
+        my $cex_price = sprintf("%.8f", ($bitvavo_book_price->{'bid'} + $bitvavo_book_price->{'ask'})/2);
+        my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin));
+        my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin));
+        my $bitvavo_depth = decode_json(bitvavo_depth($base,$coin));
+
+        if ( $bitvavo_depth ne "1" ) {
+            $cex_bid_price_1 = sprintf("%.5f", (calc_bestprice($bitvavo_depth->{'bids'},$quantity_1,$coin) + 0.00001));
+            $cex_ask_price_1 = sprintf("%.5f", (calc_bestprice($bitvavo_depth->{'asks'},$quantity_1,$coin) - 0.00001));
+            if ( ( $cex_bid_price_1 eq "0.00001" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
+            if ( ( $cex_ask_price_1 eq "0.00001" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
+
+            $cex_bid_price_2 = sprintf("%.5f", (calc_bestprice($bitvavo_depth->{'bids'},$quantity_2,$coin) + 0.00001));
+            $cex_ask_price_2 = sprintf("%.5f", (calc_bestprice($bitvavo_depth->{'asks'},$quantity_2,$coin) - 0.00001));
+            if ( ( $cex_bid_price_2 eq "0.00001" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
+            if ( ( $cex_ask_price_2 eq "0.00001" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = $minaskprice; }
+            if ( $cex_ask_price_2 > $cex_ask_price_1 ) { $cex_ask_price_2 = $cex_ask_price_1; }
+            if ( $cex_bid_price_2 < $cex_bid_price_1 ) { $cex_bid_price_2 = $cex_bid_price_1; }
 
             bitvavo_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
             bitvavo_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);

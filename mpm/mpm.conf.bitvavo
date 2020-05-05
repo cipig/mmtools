@@ -1,9 +1,9 @@
 {
     "EUR": {
-        "bidmargin": 0.005,
-        "bidminmargin": 0.003,
-        "askmargin": 0.005,
-        "askminmargin": 0.003,
-        "quantity": 250
+        "bidmargin": 0.007,
+        "bidminmargin": 0.004,
+        "askmargin": 0.007,
+        "askminmargin": 0.004,
+        "quantity": 500
     }
 }
