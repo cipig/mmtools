@@ -220,6 +220,27 @@ sub bitvavo_depth {
 }
 
 
+sub crex24_depth {
+    my $base = $_[0];
+    my $coin = $_[1];
+    my $url = "https://api.crex24.com/v2/public/orderBook?instrument=".$base."-".$coin;
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub vcc_depth {
     my $base = $_[0];
     my $coin = $_[1];
@@ -876,6 +897,21 @@ sub calc_bestprice {
 }
 
 
+sub calc_bestprice_crex24 {
+    my $quantity = $_[1];
+    my $coin = $_[2];
+    foreach (@{$_[0]}) {
+        my @array = $_;
+        my $price = $array[0]{"price"};
+        my $volume = $array[0]{"volume"};
+        if ( $volume >= $quantity ) {
+            return $price;
+            last;
+        }
+    }
+}
+
+
 sub binance_volat {
     my $marginadd_1 = 0.01;
     my $marginadd_2 = 0.01;
@@ -998,16 +1034,30 @@ if ( $api eq "dex" ) {
         my $quantity_1 = $marginsconf->{$coin}{'quantity'};
         my $quantity_2 = $quantity_1/10;
 
-        my $binance_book_price = decode_json(binance_book_price($base,$coin));
-        my $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
-        my $cex_bid_price_1 = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin));
-        my $cex_ask_price_1 = sprintf("%.7f", ($cex_price + $cex_price * $askmargin));
-        my $cex_bid_price_2 = sprintf("%.7f", ($cex_price - $cex_price * $bidminmargin));
-        my $cex_ask_price_2 = sprintf("%.7f", ($cex_price + $cex_price * $askminmargin));
-
         crex24_cancelorders($base,$coin);
-        crex24_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
-        crex24_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
+
+        my $binance_book_price = decode_json(binance_book_price($base,$coin));
+        my $cex_price = sprintf("%.7f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
+        my $maxbidprice = sprintf("%.7f", ($cex_price - $cex_price * $bidminmargin));
+        my $minaskprice = sprintf("%.7f", ($cex_price + $cex_price * $askminmargin));
+        my $crex24_depth = decode_json(crex24_depth($base,$coin));
+
+        if ( $crex24_depth ne "1" ) {
+            $cex_bid_price_1 = sprintf("%.7f", (calc_bestprice_crex24($crex24_depth->{'buyLevels'},$quantity_1,$coin) + 0.0000001));
+            $cex_ask_price_1 = sprintf("%.7f", (calc_bestprice_crex24($crex24_depth->{'sellLevels'},$quantity_1,$coin) - 0.0000001));
+            if ( ( $cex_bid_price_1 eq "0.0000001" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = sprintf("%.7f", ($cex_price - $cex_price * $bidmargin)); }
+            if ( ( $cex_ask_price_1 eq "0.0000001" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = sprintf("%.7f", ($cex_price + $cex_price * $askmargin)); }
+
+            $cex_bid_price_2 = sprintf("%.7f", (calc_bestprice_crex24($crex24_depth->{'buyLevels'},$quantity_2,$coin) + 0.0000001));
+            $cex_ask_price_2 = sprintf("%.7f", (calc_bestprice_crex24($crex24_depth->{'sellLevels'},$quantity_2,$coin) - 0.0000001));
+            if ( ( $cex_bid_price_2 eq "0.0000001" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
+            if ( ( $cex_ask_price_2 eq "0.0000001" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = $minaskprice; }
+            if ( $cex_ask_price_2 > $cex_ask_price_1 ) { $cex_ask_price_2 = $cex_ask_price_1; }
+            if ( $cex_bid_price_2 < $cex_bid_price_1 ) { $cex_bid_price_2 = $cex_bid_price_1; }
+
+            crex24_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
+            crex24_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
+        }
     }
 
 } elsif ( $api eq "bitvavo" ) {
