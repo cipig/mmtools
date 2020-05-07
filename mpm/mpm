@@ -1037,7 +1037,7 @@ if ( $api eq "dex" ) {
         crex24_cancelorders($base,$coin);
 
         my $binance_book_price = decode_json(binance_book_price($base,$coin));
-        my $cex_price = sprintf("%.7f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
+        my $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
         my $maxbidprice = sprintf("%.7f", ($cex_price - $cex_price * $bidminmargin));
         my $minaskprice = sprintf("%.7f", ($cex_price + $cex_price * $askminmargin));
         my $crex24_depth = decode_json(crex24_depth($base,$coin));
@@ -1074,18 +1074,22 @@ if ( $api eq "dex" ) {
 
         bitvavo_cancelorders($base,$coin);
 
-        my $bitvavo_book_price = decode_json(bitvavo_book_price($base,$coin));
-        my $cex_price = sprintf("%.8f", ($bitvavo_book_price->{'bid'} + $bitvavo_book_price->{'ask'})/2);
-        my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidminmargin));
-        my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askminmargin));
+        my $binance_book_price = decode_json(binance_book_price($base,"BTC"));
+        my $pap_btc_eur_price = paprika_latest_price("btc-bitcoin","eur-euro");
+        my $btc_eur_price = from_json($pap_btc_eur_price)->{'price'};
+        my $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2*$btc_eur_price);
         my $bitvavo_depth = decode_json(bitvavo_depth($base,$coin));
 
         if ( $bitvavo_depth ne "1" ) {
+            my $maxbidprice = sprintf("%.5f", ($cex_price - $cex_price * $bidmargin));
+            my $minaskprice = sprintf("%.5f", ($cex_price + $cex_price * $askmargin));
             $cex_bid_price_1 = sprintf("%.5f", (calc_bestprice($bitvavo_depth->{'bids'},$quantity_1,$coin) + 0.00001));
             $cex_ask_price_1 = sprintf("%.5f", (calc_bestprice($bitvavo_depth->{'asks'},$quantity_1,$coin) - 0.00001));
-            if ( ( $cex_bid_price_1 eq "0.00001" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin)); }
-            if ( ( $cex_ask_price_1 eq "0.00001" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = sprintf("%.8f", ($cex_price + $cex_price * $askmargin)); }
+            if ( ( $cex_bid_price_1 eq "0.00001" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = $maxbidprice; }
+            if ( ( $cex_ask_price_1 eq "0.00001" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = $minaskprice; }
 
+            $maxbidprice = sprintf("%.5f", ($cex_price - $cex_price * $bidminmargin));
+            $minaskprice = sprintf("%.5f", ($cex_price + $cex_price * $askminmargin));
             $cex_bid_price_2 = sprintf("%.5f", (calc_bestprice($bitvavo_depth->{'bids'},$quantity_2,$coin) + 0.00001));
             $cex_ask_price_2 = sprintf("%.5f", (calc_bestprice($bitvavo_depth->{'asks'},$quantity_2,$coin) - 0.00001));
             if ( ( $cex_bid_price_2 eq "0.00001" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
@@ -1113,8 +1117,7 @@ if ( $api eq "dex" ) {
 
         if ( $coin eq "BTC" ) {
             my $binance_book_price = decode_json(binance_book_price($base,$coin));
-            my $binance_latest_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
-            $cex_price = $binance_latest_price;
+            $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
         } else {
             $cex_price = decode_json(coinex_latest_price($base,$coin))->{'data'}{'ticker'}{'last'};
         }

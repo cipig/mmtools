@@ -1,16 +1,16 @@
 {
     "BTC": {
-        "bidmargin": 0.005,
+        "bidmargin": 0.006,
         "bidminmargin": 0.003,
-        "askmargin": 0.005,
+        "askmargin": 0.006,
         "askminmargin": 0.003,
         "quantity": 1000
     },
     "ETH": {
-        "bidmargin": 0.005,
+        "bidmargin": 0.006,
         "bidminmargin": 0.003,
-        "askmargin": 0.005,
+        "askmargin": 0.006,
         "askminmargin": 0.003,
-        "quantity": 250
+        "quantity": 300
     }
 }
