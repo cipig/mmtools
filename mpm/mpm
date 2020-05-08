@@ -292,6 +292,8 @@ sub binance_getorders {
     my $url = "https://api.binance.com/api/v3/openOrders?".$command."&signature=".$signature;
 
     my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('X-MBX-APIKEY' => $binance_apikey);
     my $resp = $ua->request($req);
@@ -304,6 +306,8 @@ sub binance_cancelorders {
     my $coin = $_[1];
 
     my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
     $req = HTTP::Request->new(DELETE => 'https://api.binance.com/api/v3/order');
     $req->header('X-MBX-APIKEY' => $binance_apikey);
 
@@ -330,8 +334,9 @@ sub bitvavo_cancelorders {
     my $command = $timestamp."DELETE/v2/orders".$params;
     my $signature = hmac_sha256_hex($command, $bitvavo_seckey);
     my $ua = LWP::UserAgent->new;
-    $req = HTTP::Request->new(DELETE => $url.$params);
     $ua->agent($useragent);
+    $ua->timeout($timeout);
+    $req = HTTP::Request->new(DELETE => $url.$params);
     $req->header('BITVAVO-ACCESS-KEY' => $bitvavo_apikey);
     $req->header('BITVAVO-ACCESS-SIGNATURE' => $signature);
     $req->header('BITVAVO-ACCESS-TIMESTAMP' => $timestamp);
@@ -351,8 +356,9 @@ sub coinex_cancelorders {
     my $authorization = uc(md5_hex($params."&secret_key=".$coinex_seckey));
 
     my $ua = LWP::UserAgent->new;
-    $req = HTTP::Request->new(DELETE => $url.$params);
     $ua->agent($useragent);
+    $ua->timeout($timeout);
+    $req = HTTP::Request->new(DELETE => $url.$params);
     $req->header('authorization' => $authorization);
     $req->header('content-type' => 'application/json');
     $req->content();
@@ -371,8 +377,9 @@ sub vcc_getorders {
     my $signature = hmac_sha256_hex($payload, $vcc_seckey);
 
     my $ua = LWP::UserAgent->new;
-    $req = HTTP::Request->new(GET => $url.$params);
     $ua->agent($useragent);
+    $ua->timeout($timeout);
+    $req = HTTP::Request->new(GET => $url.$params);
     $req->header('Authorization' => 'Bearer '.$vcc_apikey);
     $req->header('timestamp' => $tonce);
     $req->header('signature' => $signature);
@@ -390,8 +397,9 @@ sub vcc_cancelorder {
     my $signature = hmac_sha256_hex($payload, $vcc_seckey);
 
     my $ua = LWP::UserAgent->new;
-    $req = HTTP::Request->new(PUT => $url);
     $ua->agent($useragent);
+    $ua->timeout($timeout);
+    $req = HTTP::Request->new(PUT => $url);
     $req->header('Authorization' => 'Bearer '.$vcc_apikey);
     $req->header('timestamp' => $tonce);
     $req->header('signature' => $signature);
@@ -418,8 +426,9 @@ sub vcc_cancelallorders {
     my $signature = hmac_sha256_hex($payload, $vcc_seckey);
 
     my $ua = LWP::UserAgent->new;
-    $req = HTTP::Request->new(PUT => $url);
     $ua->agent($useragent);
+    $ua->timeout($timeout);
+    $req = HTTP::Request->new(PUT => $url);
     $req->header('Authorization' => 'Bearer '.$vcc_apikey);
     $req->header('timestamp' => $tonce);
     $req->header('signature' => $signature);
@@ -442,6 +451,8 @@ sub crex24_cancelorders {
     }
 
     my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
     $req = HTTP::Request->new(POST => 'https://api.crex24.com/v2/trading/cancelOrdersByInstrument');
     $req->header('X-CREX24-API-KEY' => $crex24_apikey,
                  'X-CREX24-API-NONCE' => $nonce,
@@ -469,6 +480,8 @@ sub binance_setprice {
     my $quantity = sprintf("%u",$_[4]);
 
     my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => 'https://api.binance.com/api/v3/order');
     $req->header('X-MBX-APIKEY' => $binance_apikey);
 
@@ -521,8 +534,9 @@ sub bitvavo_setprice {
     my $timestamp = time()*1000;
     my $url = "https://api.bitvavo.com/v2/order";
     my $ua = LWP::UserAgent->new;
-    my $req = HTTP::Request->new(POST => $url);
     $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(POST => $url);
 
     print "$base/$coin size ".sprintf("%04d",$quantity);
 
@@ -583,6 +597,8 @@ sub crex24_setprice {
             $signature .= '=';
         }
         my $ua = LWP::UserAgent->new;
+        $ua->agent($useragent);
+        $ua->timeout($timeout);
         $req = HTTP::Request->new(POST => 'https://api.crex24.com/v2/trading/placeOrder');
         $req->header('X-CREX24-API-KEY' => $crex24_apikey,
                      'X-CREX24-API-NONCE' => $nonce,
@@ -607,6 +623,8 @@ sub crex24_setprice {
             $signature .= '=';
         }
         my $ua = LWP::UserAgent->new;
+        $ua->agent($useragent);
+        $ua->timeout($timeout);
         $req = HTTP::Request->new(POST => 'https://api.crex24.com/v2/trading/placeOrder');
         $req->header('X-CREX24-API-KEY' => $crex24_apikey,
                      'X-CREX24-API-NONCE' => $nonce,
@@ -640,8 +658,9 @@ sub vcc_setprice {
         my $payload = "POST api/v2/orders".$params;
         my $signature = hmac_sha256_hex($payload, $vcc_seckey);
         my $ua = LWP::UserAgent->new;
-        $req = HTTP::Request->new(POST => $url.$params);
         $ua->agent($useragent);
+        $ua->timeout($timeout);
+        $req = HTTP::Request->new(POST => $url.$params);
         $req->header('Authorization' => 'Bearer '.$vcc_apikey);
         $req->header('timestamp' => $tonce);
         $req->header('signature' => $signature);
@@ -662,8 +681,9 @@ sub vcc_setprice {
         my $payload = "POST api/v2/orders".$params;
         my $signature = hmac_sha256_hex($payload, $vcc_seckey);
         my $ua = LWP::UserAgent->new;
-        $req = HTTP::Request->new(POST => $url.$params);
         $ua->agent($useragent);
+        $ua->timeout($timeout);
+        $req = HTTP::Request->new(POST => $url.$params);
         $req->header('Authorization' => 'Bearer '.$vcc_apikey);
         $req->header('timestamp' => $tonce);
         $req->header('signature' => $signature);
@@ -697,9 +717,9 @@ sub coinex_setprice {
         my $authorization = uc(md5_hex($signtext));
 
         my $ua = LWP::UserAgent->new;
-        $req = HTTP::Request->new(POST => $url);
         $ua->agent($useragent);
         $ua->timeout($timeout);
+        $req = HTTP::Request->new(POST => $url);
         $req->header('authorization' => $authorization);
         $req->header('content-type' => 'application/json');
         $req->content($body);
@@ -721,9 +741,9 @@ sub coinex_setprice {
         my $authorization = uc(md5_hex($signtext));
 
         my $ua = LWP::UserAgent->new;
-        $req = HTTP::Request->new(POST => $url);
         $ua->agent($useragent);
         $ua->timeout($timeout);
+        $req = HTTP::Request->new(POST => $url);
         $req->header('authorization' => $authorization);
         $req->header('content-type' => 'application/json');
         $req->content($body);
