@@ -2,5 +2,5 @@
 while true; do
   date
   ~/mmtools/mpm/mpm bitvavo
-  sleep 30
+  sleep 20
 done
