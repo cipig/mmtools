@@ -91,6 +91,7 @@ sub binance_latest_price {
             print "HTTP GET url: ", $url, "\n";
             #print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
+            return 1
         }
 }
 
@@ -1116,17 +1117,14 @@ if ( $api eq "dex" ) {
 
         bitvavo_cancelorders($base,$coin);
 
-        my $pap_btc_eur_price = paprika_latest_price("eur-euro","btc-bitcoin");
-        my $btc_eur_price_1 = sprintf("%.2f", from_json($pap_btc_eur_price)->{'price'});
-        my $binance_book_price_btceur = decode_json(binance_book_price("BTC","EUR"));
-        my $btc_eur_price_2 = sprintf("%.2f", ($binance_book_price_btceur->{'bidPrice'} + $binance_book_price_btceur->{'askPrice'})/2);
-        my $btc_eur_price = ($btc_eur_price_1 + $btc_eur_price_2)/2;
-        print "paprika: $btc_eur_price_1, binance: $btc_eur_price_2, mine: $btc_eur_price\n";
+        my $bin_btc_eur_price = binance_latest_price("BTC","EUR");
+        my $btc_eur_price = sprintf("%.2f", from_json($bin_btc_eur_price)->{'price'});
         my $binance_book_price = decode_json(binance_book_price($base,"BTC"));
         my $cex_price = sprintf("%.5f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2*$btc_eur_price);
         my $bitvavo_depth = decode_json(bitvavo_depth($base,$coin));
+        print "btceur: $btc_eur_price, cex: $cex_price\n";
 
-        if ( $bitvavo_depth ne "1" ) {
+        if ( ($bitvavo_depth ne "1") && ($bin_btc_eur_price ne "1") && ($binance_book_price ne "1") ) {
             my $maxbidprice = sprintf("%.5f", ($cex_price - $cex_price * $bidmargin_1));
             my $minaskprice = sprintf("%.5f", ($cex_price + $cex_price * $askmargin_1));
             $cex_bid_price_1 = sprintf("%.5f", (calc_bestprice($bitvavo_depth->{'bids'},$quantity_1,$coin) + 0.00001));
