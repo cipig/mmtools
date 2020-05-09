@@ -584,12 +584,12 @@ sub crex24_setprice {
     my $bid = $_[2];
     my $ask = $_[3];
     my $quantity = sprintf("%u",$_[4]);
+    my $nonce = $_[5];
     my $urlpath = "/v2/trading/placeOrder";
 
     print "$base/$coin size ".sprintf("%03d",$quantity);
 
     if ( defined $bid ) {
-        my $nonce = time();
         my $body = '{"instrument":"'.$base.'-'.$coin.'","side":"buy","volume":'.$quantity.',"price":'.$bid.'}';
         my $command = $urlpath . $nonce . $body;
         my $signature = hmac_sha512_base64($command,$crex24_seckey);
@@ -614,7 +614,7 @@ sub crex24_setprice {
     }
 
     if ( defined $ask ) {
-        my $nonce = time();
+        $nonce = $nonce+1;
         my $body = '{"instrument":"'.$base.'-'.$coin.'","side":"sell","volume":'.$quantity.',"price":'.$ask.'}';
         my $command = $urlpath . $nonce . $body;
         my $signature = hmac_sha512_base64($command,$crex24_seckey);
@@ -1092,8 +1092,10 @@ if ( $api eq "dex" ) {
             if ( $cex_ask_price_2 > $cex_ask_price_1 ) { $cex_ask_price_2 = $cex_ask_price_1; }
             if ( $cex_bid_price_2 < $cex_bid_price_1 ) { $cex_bid_price_2 = $cex_bid_price_1; }
 
-            crex24_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
-            crex24_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
+            my $nonce = time();
+            crex24_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1,$nonce);
+            $nonce = $nonce+2;
+            crex24_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2,$nonce);
         }
         sleep(2);
     }
