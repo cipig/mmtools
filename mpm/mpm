@@ -462,7 +462,6 @@ sub crex24_cancelorders {
     $req->content($body);
     my $resp = $ua->request($req);
     #print $resp->content."\n";
-    sleep(1);
 }
 
 
@@ -612,7 +611,6 @@ sub crex24_setprice {
             print " bid 0.0000000";
             #print " ".$resp->content;
         }
-        sleep(1);
     }
 
     if ( defined $ask ) {
@@ -638,7 +636,6 @@ sub crex24_setprice {
             print " ask 0.0000000\n";
             #print " ".$resp->content."\n";
         }
-        sleep(1);
     }
 }
 
@@ -732,7 +729,6 @@ sub coinex_setprice {
             print " bid 0.00000000";
             #print " ".$resp->content;
         }
-        sleep 1;
     }
 
     if ( defined $ask ) {
