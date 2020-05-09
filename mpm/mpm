@@ -967,7 +967,7 @@ if ( $api eq "dex" ) {
             if ( $binance_price ne "1" ) {
                 my $binance_book_price = decode_json($binance_price);
                 my $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
-                $price = 1 / $cex_price;
+                $price = sprintf("%.8f", 1/$cex_price);
             }
         }
 
