@@ -11,6 +11,7 @@ use MIME::Base64;
 use Digest::SHA qw(hmac_sha256_hex hmac_sha512_base64);
 use Digest::MD5 qw(md5_hex);
 use DateTime;
+use DateTime::Format::Strptime;
 use Data::Dumper;
 
 my $api = $ARGV[0];
@@ -951,32 +952,34 @@ if ( $api eq "dex" ) {
     my $marginadd = 0;
     foreach my $coin ( keys %{$marginsconf} ) {
         my $price = undef;
+        my $diff_1 = 0;
+        my $diff_2 = 0;
         my $papid = $marginsconf->{$coin}{'papid'};
         my $tradefee = dex_gettradefee($coin);
         my $maxfee = $marginsconf->{$coin}{'maxfee'};
         if ( !defined $maxfee ) { $maxfee = "100"; }
 
-        if ( ( $coin eq "BTC" ) || ( $coin eq "ETH" ) ) {
-            my $binance_price = binance_book_price($base,$coin);
-            if ( $binance_price ne "1" ) {
-                my $binance_book_price = decode_json($binance_price);
-                my $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
-                $price = sprintf("%.8f", 1/$cex_price);
-            }
+        my $coinprice = paprika_latest_price($basepapid,$papid);
+        if ( $coinprice ne "1" ) {
+            $price = from_json($coinprice)->{'price'};
+            my $format = DateTime::Format::Strptime->new( pattern => '%FT%T%z');
+            my $base_updated = from_json($coinprice)->{'base_price_last_updated'};
+            my $basetime = $format->parse_datetime($base_updated);
+            my $quote_updated = from_json($coinprice)->{'quote_price_last_updated'};
+            my $quotetime = $format->parse_datetime($quote_updated);
+            my $now = DateTime->now;
+            $diff_1 = $now->epoch - $basetime->epoch;
+            $diff_2 = $now->epoch - $quotetime->epoch;
+            print "$diff_1 $diff_2 ";
         }
 
-        if ( !defined $price ) {
-            my $coinprice = paprika_latest_price($basepapid,$papid);
-            if ( $coinprice ne "1" ) { $price = from_json($coinprice)->{'price'}; }
-        }
-
-        if ( (defined $price) && ($tradefee < $maxfee) ) {
-            dex_setprice($base,$coin,$price,$marginadd);
-        } else {
+        if ( (!defined $price) || ($tradefee > $maxfee) ) {
             dex_deleteprice($base,$coin);
+        } elsif ( ($diff_1 < 180) || ($diff_2 < 180) ) {
+            dex_setprice($base,$coin,$price,$marginadd);
         }
 
-        sleep(2);
+        sleep(1);
     }
 
 } elsif ( $api eq "dexp2p" ) {
