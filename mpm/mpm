@@ -10,14 +10,12 @@ use List::Util qw[min max];
 use MIME::Base64;
 use Digest::SHA qw(hmac_sha256_hex hmac_sha512_base64);
 use Digest::MD5 qw(md5_hex);
+use DateTime;
 use Data::Dumper;
 
-my $base = "KMD";
-my $basepapid = "kmd-komodo";
-#my $base = "LTC";
-#my $basepapid = "ltc-litecoin";
-
 my $api = $ARGV[0];
+my $base = $ARGV[1];
+my $basepapid = $ARGV[2];
 my $pubkey = $ARGV[1];
 my $cwd = dirname($0);
 my $useragent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
