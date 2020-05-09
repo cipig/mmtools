@@ -2,5 +2,5 @@
 while true; do
   date
   ~/mmtools/mpm/mpm crex24
-  sleep 20
+  sleep 30
 done
