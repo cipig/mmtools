@@ -1074,7 +1074,6 @@ if ( $api eq "dex" ) {
             binance_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
             binance_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity_3);
         }
-        sleep(2);
     }
 
 } elsif ( $api eq "crex24" ) {
@@ -1115,7 +1114,6 @@ if ( $api eq "dex" ) {
             $nonce = $nonce+2;
             crex24_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2,$nonce);
         }
-        sleep(2);
     }
 
 } elsif ( $api eq "bitvavo" ) {
@@ -1168,7 +1166,6 @@ if ( $api eq "dex" ) {
             bitvavo_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
             bitvavo_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity_3);
         }
-        sleep(2);
     }
 
 } elsif ( $api eq "coinex" ) {
@@ -1213,7 +1210,6 @@ if ( $api eq "dex" ) {
             coinex_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
             coinex_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
         }
-        sleep(2);
     }
 
 } elsif ( $api eq "vcc" ) {
@@ -1250,7 +1246,6 @@ if ( $api eq "dex" ) {
 
         vcc_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
         vcc_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
-        sleep(2);
     }
 
 } else {
