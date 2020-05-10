@@ -877,7 +877,7 @@ sub dex_deleteprice {
     $command = '{"userpass":"'.$userpass.'","method":"cancel_all_orders","cancel_by":{"type":"Pair","data":{"base":"'.$_[1].'","rel":"'.$_[0].'"}}}';
     $req->content($command);
     my $resp = $ua->request($req);
-    print "$_[0]/$_[1] ".$resp->content;
+    print "$_[1]/$_[0] ".$resp->content;
 
     $command = '{"userpass":"'.$userpass.'","method":"cancel_all_orders","cancel_by":{"type":"Pair","data":{"base":"'.$_[0].'","rel":"'.$_[1].'"}}}';
     $req->content($command);
@@ -979,7 +979,7 @@ if ( $api eq "dex" ) {
             dex_setprice($base,$coin,$price,$marginadd);
         }
 
-        sleep(1);
+        sleep(2);
     }
 
 } elsif ( $api eq "dexp2p" ) {
