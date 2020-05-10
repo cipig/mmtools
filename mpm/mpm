@@ -17,7 +17,7 @@ use Data::Dumper;
 my $api = $ARGV[0];
 my $base = $ARGV[1];
 my $basepapid = $ARGV[2];
-my $pubkey = $ARGV[1];
+my $pubkey = $ARGV[3];
 my $cwd = dirname($0);
 my $useragent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
 my $timeout = 10;

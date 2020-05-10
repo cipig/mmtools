@@ -1,6 +1,6 @@
 #!/bin/bash
 while true; do
   date
-  ~/mmtools/mpm/mpm crex24
+  ~/mmtools/mpm/mpm crex24 $1 $2
   sleep 30
 done

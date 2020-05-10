@@ -2,6 +2,6 @@
 pubkey=$(komodo-cli -ac_name=DEXP2P DEX_stats | jq -r .publishable_pubkey)
 while true; do
   date
-  ~/mmtools/mpm/mpm dexp2p $pubkey
+  ~/mmtools/mpm/mpm dexp2p $1 $2 $pubkey
   sleep 120
 done

@@ -1,6 +1,6 @@
 #!/bin/bash
 while true; do
   date
-  ~/mmtools/mpm/mpm vcc
+  ~/mmtools/mpm/mpm vcc $1 $2
   sleep 30
 done
