@@ -1037,11 +1037,11 @@ if ( $api eq "dex" ) {
             my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_1));
             my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_1));
             if ( $coin eq "ETH" ) {
-                $cex_bid_price_1 = calc_bestprice($binance_depth->{'bids'},$quantity_1,$coin) + 0.00000100;
-                $cex_ask_price_1 = calc_bestprice($binance_depth->{'asks'},$quantity_1,$coin) - 0.00000100;
+                $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$quantity_1,$coin) + 0.00000100;
+                $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$quantity_1,$coin) - 0.00000100;
             } else {
-                $cex_bid_price_1 = calc_bestprice($binance_depth->{'bids'},$quantity_1,$coin) + 0.00000010;
-                $cex_ask_price_1 = calc_bestprice($binance_depth->{'asks'},$quantity_1,$coin) - 0.00000010;
+                $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$quantity_1,$coin) + 0.00000010;
+                $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$quantity_1,$coin) - 0.00000010;
             }
             if ( ( $cex_bid_price_1 eq "0.00000001" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = $maxbidprice; }
             if ( ( $cex_ask_price_1 eq "0.00000001" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = $minaskprice; }
@@ -1049,11 +1049,11 @@ if ( $api eq "dex" ) {
             $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_2));
             $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_2));
             if ( $coin eq "ETH" ) {
-                $cex_bid_price_2 = calc_bestprice($binance_depth->{'bids'},$quantity_2,$coin) + 0.00000100;
-                $cex_ask_price_2 = calc_bestprice($binance_depth->{'asks'},$quantity_2,$coin) - 0.00000100;
+                $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$quantity_2,$coin) + 0.00000100;
+                $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$quantity_2,$coin) - 0.00000100;
             } else {
-                $cex_bid_price_2 = calc_bestprice($binance_depth->{'bids'},$quantity_2,$coin) + 0.00000010;
-                $cex_ask_price_2 = calc_bestprice($binance_depth->{'asks'},$quantity_2,$coin) - 0.00000010;
+                $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$quantity_2,$coin) + 0.00000010;
+                $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$quantity_2,$coin) - 0.00000010;
             }
             if ( ( $cex_bid_price_2 eq "0.00000001" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
             if ( ( $cex_ask_price_2 eq "0.00000001" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = $minaskprice; }
@@ -1061,11 +1061,11 @@ if ( $api eq "dex" ) {
             $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_3));
             $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_3));
             if ( $coin eq "ETH" ) {
-                $cex_bid_price_3 = calc_bestprice($binance_depth->{'bids'},$quantity_3,$coin) + 0.00000100;
-                $cex_ask_price_3 = calc_bestprice($binance_depth->{'asks'},$quantity_3,$coin) - 0.00000100;
+                $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$quantity_3,$coin) + 0.00000100;
+                $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$quantity_3,$coin) - 0.00000100;
             } else {
-                $cex_bid_price_3 = calc_bestprice($binance_depth->{'bids'},$quantity_3,$coin) + 0.00000010;
-                $cex_ask_price_3 = calc_bestprice($binance_depth->{'asks'},$quantity_3,$coin) - 0.00000010;
+                $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$quantity_3,$coin) + 0.00000010;
+                $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$quantity_3,$coin) - 0.00000010;
             }
             if ( ( $cex_bid_price_3 eq "0.00000001" ) || ( $cex_bid_price_3 > $maxbidprice ) ) { $cex_bid_price_3 = $maxbidprice; }
             if ( ( $cex_ask_price_3 eq "0.00000001" ) || ( $cex_ask_price_3 < $minaskprice ) ) { $cex_ask_price_3 = $minaskprice; }
