@@ -7,10 +7,10 @@
         "bidmargin_2": 0.007,
         "askmargin_2": 0.007,
         "quantity_2": 250,
-        "maxsum_1": 2000,
+        "maxsum_2": 2000,
         "bidmargin_3": 0.003,
         "askmargin_3": 0.003,
         "quantity_3": 30,
-        "maxsum_1": 200
+        "maxsum_3": 200
     }
 }
