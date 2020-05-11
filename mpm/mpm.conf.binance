@@ -1,24 +1,30 @@
 {
     "BTC": {
-        "bidmargin_1": 0.012,
-        "askmargin_1": 0.012,
-        "quantity_1": 2000,
-        "bidmargin_2": 0.006,
-        "askmargin_2": 0.006,
-        "quantity_2": 800,
+        "bidmargin_1": 0.007,
+        "askmargin_1": 0.007,
+        "quantity_1": 500,
+        "maxsum_1": 5000,
+        "bidmargin_2": 0.005,
+        "askmargin_2": 0.005,
+        "quantity_2": 200,
+        "maxsum_2": 2000,
         "bidmargin_3": 0.003,
         "askmargin_3": 0.003,
-        "quantity_3": 100
+        "quantity_3": 50,
+        "maxsum_3": 200
     },
     "ETH": {
-        "bidmargin_1": 0.012,
-        "askmargin_1": 0.012,
-        "quantity_1": 900,
-        "bidmargin_2": 0.006,
-        "askmargin_2": 0.006,
-        "quantity_2": 300,
+        "bidmargin_1": 0.007,
+        "askmargin_1": 0.007,
+        "quantity_1": 250,
+        "maxsum_1": 2000,
+        "bidmargin_2": 0.005,
+        "askmargin_2": 0.005,
+        "quantity_2": 100,
+        "maxsum_2": 1000,
         "bidmargin_3": 0.003,
         "askmargin_3": 0.003,
-        "quantity_3": 100
+        "quantity_3": 25,
+        "maxsum_3": 100
     }
 }
