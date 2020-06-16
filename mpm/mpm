@@ -939,7 +939,7 @@ sub calc_bestprice_crex24 {
         my $price = $array[0]{"price"};
         my $volume = $array[0]{"volume"};
         if ( $volume >= $quantity ) {
-            return $price;
+            return sprintf("%.7f",$price);
             last;
         }
     }
