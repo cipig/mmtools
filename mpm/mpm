@@ -53,6 +53,25 @@ sub paprika_latest_price {
 }
 
 
+sub dex_ticker_24h {
+    my $url = "https://dexapi.cipig.net/public/ticker_24h.php?market=".$_[0]."-".$_[1];
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub paprika_price {
     my $base = $_[0];
     my $rel = $_[1];
@@ -979,8 +998,12 @@ if ( $api eq "dex" ) {
         if ( !defined $maxfee ) { $maxfee = "100"; }
 
         my $coinprice = paprika_latest_price($basepapid,$papid);
+        my $weightedprice = from_json(dex_ticker_24h($coin,$base))->[0]{'weightedAvgPrice'};
         if ( $coinprice ne "1" ) {
             $price = from_json($coinprice)->{'price'};
+            if ($weightedprice) {
+                print "$weightedprice $price\n";
+            }
             my $format = DateTime::Format::Strptime->new( pattern => '%FT%T%z');
             my $base_updated = from_json($coinprice)->{'base_price_last_updated'};
             my $basetime = $format->parse_datetime($base_updated);
