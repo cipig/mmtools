@@ -53,7 +53,6 @@ sub paprika_latest_price {
 }
 
 
-
 sub dex_ticker_24h {
     my $url = "https://dexapi.cipig.net/public/ticker_24h.php?market=".$_[0]."-".$_[1];
     my $ua = LWP::UserAgent->new;
@@ -491,7 +490,10 @@ sub binance_setprice {
     my $coin = $_[1];
     my $bid = undef;
     my $ask = undef;
-    if ( $coin eq "ETH" ) {
+    if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+        $bid = sprintf("%.4f",$_[2]);
+        $ask = sprintf("%.4f",$_[3]);
+    } elsif ( $coin eq "ETH" ) {
         $bid = sprintf("%.6f",$_[2]);
         $ask = sprintf("%.6f",$_[3]);
     } else {
@@ -1069,7 +1071,10 @@ if ( $api eq "dex" ) {
         if ( ($binance_depth ne "1") && ($binance_book_price ne "1") ) {
             my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_1));
             my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_1));
-            if ( $coin eq "ETH" ) {
+            if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+                $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_1,$coin) + 0.00010000;
+                $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_1,$coin) - 0.00010000;
+            } elsif ( $coin eq "ETH" ) {
                 $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_1,$coin) + 0.00000100;
                 $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_1,$coin) - 0.00000100;
             } else {
@@ -1081,7 +1086,10 @@ if ( $api eq "dex" ) {
 
             $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_2));
             $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_2));
-            if ( $coin eq "ETH" ) {
+            if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+                $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_2,$coin) + 0.00010000;
+                $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_2,$coin) - 0.00010000;
+            } elsif ( $coin eq "ETH" ) {
                 $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_2,$coin) + 0.00000100;
                 $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_2,$coin) - 0.00000100;
             } else {
@@ -1093,7 +1101,10 @@ if ( $api eq "dex" ) {
 
             $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_3));
             $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_3));
-            if ( $coin eq "ETH" ) {
+            if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+                $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_3,$coin) + 0.00010000;
+                $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_3,$coin) - 0.00010000;
+            } elsif ( $coin eq "ETH" ) {
                 $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_3,$coin) + 0.00000100;
                 $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_3,$coin) - 0.00000100;
             } else {
