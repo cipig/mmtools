@@ -1032,6 +1032,7 @@ if ( $api eq "dex" ) {
             if ($weightedprice) {
                 if ( (($coin eq "VRSC") || ($coin eq "HUSH")) && ($base eq "KMD") ) {
                     print "$weightedprice $price\n";
+                    $price = $weightedprice;
                 }
             }
             my $format = DateTime::Format::Strptime->new( pattern => '%FT%T%z');
