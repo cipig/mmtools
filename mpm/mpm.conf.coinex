@@ -1,21 +1,21 @@
 {
     "BTC": {
-        "bidmargin_1": 0.007,
-        "askmargin_1": 0.007,
+        "bidmargin_1": 0.005,
+        "askmargin_1": 0.005,
         "quantity_1": 100,
         "maxsum_1": 200,
-        "bidmargin_2": 0.004,
-        "askmargin_2": 0.004,
+        "bidmargin_2": 0.003,
+        "askmargin_2": 0.003,
         "quantity_2": 20,
         "maxsum_2": 50
     },
     "BCH": {
-        "bidmargin_1": 0.007,
-        "askmargin_1": 0.007,
+        "bidmargin_1": 0.005,
+        "askmargin_1": 0.005,
         "quantity_1": 100,
         "maxsum_1": 200,
-        "bidmargin_2": 0.004,
-        "askmargin_2": 0.004,
+        "bidmargin_2": 0.003,
+        "askmargin_2": 0.003,
         "quantity_2": 20,
         "maxsum_2": 50
     }

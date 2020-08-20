@@ -2,57 +2,57 @@
     "BTC": {
         "bidmargin_1": 0.006,
         "askmargin_1": 0.006,
-        "quantity_1": 1500,
-        "maxsum_1": 5000,
+        "quantity_1": 1000,
+        "maxsum_1": 9000,
         "bidmargin_2": 0.004,
         "askmargin_2": 0.004,
-        "quantity_2": 500,
-        "maxsum_2": 2500,
+        "quantity_2": 400,
+        "maxsum_2": 5000,
         "bidmargin_3": 0.002,
         "askmargin_3": 0.002,
-        "quantity_3": 150,
-        "maxsum_3": 500
+        "quantity_3": 100,
+        "maxsum_3": 800
     },
     "ETH": {
         "bidmargin_1": 0.006,
         "askmargin_1": 0.006,
-        "quantity_1": 500,
-        "maxsum_1": 2000,
+        "quantity_1": 400,
+        "maxsum_1": 3000,
         "bidmargin_2": 0.004,
         "askmargin_2": 0.004,
         "quantity_2": 200,
-        "maxsum_2": 500,
+        "maxsum_2": 1000,
         "bidmargin_3": 0.002,
         "askmargin_3": 0.002,
-        "quantity_3": 50,
-        "maxsum_3": 150
+        "quantity_3": 100,
+        "maxsum_3": 300
     },
     "BUSD": {
         "bidmargin_1": 0.006,
         "askmargin_1": 0.006,
-        "quantity_1": 500,
-        "maxsum_1": 2000,
+        "quantity_1": 400,
+        "maxsum_1": 3000,
         "bidmargin_2": 0.004,
         "askmargin_2": 0.004,
         "quantity_2": 200,
-        "maxsum_2": 500,
+        "maxsum_2": 1000,
         "bidmargin_3": 0.002,
         "askmargin_3": 0.002,
-        "quantity_3": 50,
-        "maxsum_3": 150
+        "quantity_3": 100,
+        "maxsum_3": 300
     },
     "USDT": {
         "bidmargin_1": 0.006,
         "askmargin_1": 0.006,
-        "quantity_1": 500,
-        "maxsum_1": 2000,
+        "quantity_1": 400,
+        "maxsum_1": 3000,
         "bidmargin_2": 0.004,
         "askmargin_2": 0.004,
         "quantity_2": 200,
-        "maxsum_2": 500,
+        "maxsum_2": 1000,
         "bidmargin_3": 0.002,
         "askmargin_3": 0.002,
-        "quantity_3": 50,
-        "maxsum_3": 150
+        "quantity_3": 100,
+        "maxsum_3": 300
     }
 }

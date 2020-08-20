@@ -1,16 +1,16 @@
 {
     "EUR": {
-        "bidmargin_1": 0.010,
-        "askmargin_1": 0.010,
-        "quantity_1": 750,
-        "maxsum_1": 8000,
-        "bidmargin_2": 0.007,
-        "askmargin_2": 0.007,
-        "quantity_2": 250,
-        "maxsum_2": 2000,
-        "bidmargin_3": 0.003,
-        "askmargin_3": 0.003,
-        "quantity_3": 30,
-        "maxsum_3": 200
+        "bidmargin_1": 0.006,
+        "askmargin_1": 0.006,
+        "quantity_1": 1000,
+        "maxsum_1": 6000,
+        "bidmargin_2": 0.004,
+        "askmargin_2": 0.004,
+        "quantity_2": 300,
+        "maxsum_2": 2500,
+        "bidmargin_3": 0.002,
+        "askmargin_3": 0.002,
+        "quantity_3": 100,
+        "maxsum_3": 250
     }
 }
