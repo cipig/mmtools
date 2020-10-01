@@ -203,7 +203,7 @@ sub coinex_latest_price {
 sub binance_depth {
     my $base = $_[0];
     my $coin = $_[1];
-    my $url = "https://api.binance.com/api/v3/depth?symbol=".$base.$coin."&limit=20";
+    my $url = "https://api.binance.com/api/v3/depth?symbol=".$base.$coin."&limit=100";
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -1026,15 +1026,9 @@ if ( $api eq "dex" ) {
         if ( !defined $maxfee ) { $maxfee = "100"; }
 
         my $coinprice = paprika_latest_price($basepapid,$papid);
-        my $weightedprice = from_json(dex_ticker_24h($coin,$base))->[0]{'weightedAvgPrice'};
+#        my $weightedprice = from_json(dex_ticker_24h($coin,$base))->[0]{'weightedAvgPrice'};
         if ( $coinprice ne "1" ) {
             $price = from_json($coinprice)->{'price'};
-            if ($weightedprice) {
-                if ( (($coin eq "VRSC") || ($coin eq "HUSH")) && ($base eq "KMD") ) {
-                    print "$weightedprice $price\n";
-                    $price = ($price + $weightedprice)/2;
-                }
-            }
             my $format = DateTime::Format::Strptime->new( pattern => '%FT%T%z');
             my $base_updated = from_json($coinprice)->{'base_price_last_updated'};
             my $basetime = $format->parse_datetime($base_updated);
@@ -1074,12 +1068,12 @@ if ( $api eq "dex" ) {
     my $marginadd = binance_volat();
 
     foreach my $coin ( keys %{$marginsconf} ) {
-        my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/3);
+        my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/7);
         my $bidmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_2'} + $marginadd/5);
-        my $bidmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_3'} + $marginadd/7);
-        my $askmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_1'} + $marginadd/3);
+        my $bidmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_3'} + $marginadd/3);
+        my $askmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_1'} + $marginadd/7);
         my $askmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_2'} + $marginadd/5);
-        my $askmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_3'} + $marginadd/7);
+        my $askmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_3'} + $marginadd/3);
         my $quantity_1 = $marginsconf->{$coin}{'quantity_1'};
         my $quantity_2 = $marginsconf->{$coin}{'quantity_2'};
         my $quantity_3 = $marginsconf->{$coin}{'quantity_3'};
@@ -1139,6 +1133,7 @@ if ( $api eq "dex" ) {
             if ( ( $cex_bid_price_3 eq "0.00000001" ) || ( $cex_bid_price_3 > $maxbidprice ) ) { $cex_bid_price_3 = $maxbidprice; }
             if ( ( $cex_ask_price_3 eq "0.00000001" ) || ( $cex_ask_price_3 < $minaskprice ) ) { $cex_ask_price_3 = $minaskprice; }
 
+            #print "$cex_ask_price_1 $cex_ask_price_2 $cex_ask_price_3\n";
             binance_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
             binance_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
             binance_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity_3);
@@ -1194,12 +1189,12 @@ if ( $api eq "dex" ) {
     my $marginadd = binance_volat();
 
     foreach my $coin ( keys %{$marginsconf} ) {
-        my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/3);
+        my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/7);
         my $bidmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_2'} + $marginadd/5);
-        my $bidmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_3'} + $marginadd/7);
-        my $askmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_1'} + $marginadd/3);
+        my $bidmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_3'} + $marginadd/3);
+        my $askmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_1'} + $marginadd/7);
         my $askmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_2'} + $marginadd/5);
-        my $askmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_3'} + $marginadd/7);
+        my $askmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_3'} + $marginadd/3);
         my $quantity_1 = $marginsconf->{$coin}{'quantity_1'};
         my $quantity_2 = $marginsconf->{$coin}{'quantity_2'};
         my $quantity_3 = $marginsconf->{$coin}{'quantity_3'};
