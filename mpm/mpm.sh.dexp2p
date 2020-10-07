@@ -1,7 +1,9 @@
 #!/bin/bash
-pubkey=$(komodo-cli -ac_name=DEXP2P DEX_stats | jq -r .publishable_pubkey)
+pubkey=$(komodo-cli -ac_name=SHURLI0 DEX_stats | jq -r .publishable_pubkey)
+recvaddr=
+recvZaddr=
 while true; do
   date
-  ~/mmtools/mpm/mpm dexp2p $1 $2 $pubkey
+  ~/mmtools/mpm/mpm dexp2p $1 $2 $pubkey $recvaddr $recvZaddr
   sleep 120
 done

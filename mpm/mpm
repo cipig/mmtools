@@ -18,6 +18,8 @@ my $api = $ARGV[0];
 my $base = $ARGV[1];
 my $basepapid = $ARGV[2];
 my $pubkey = $ARGV[3];
+my $recvaddr = $ARGV[4];
+my $recvZaddr = $ARGV[5];
 my $cwd = dirname($0);
 my $useragent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
 my $timeout = 10;
@@ -839,8 +841,8 @@ sub dexp2p_setprice {
     }
 
     my $client = new JSON::RPC::Legacy::Client;
-    $client->ua->credentials('localhost:14869', 'jsonrpc', 'dexp2p' => 'KeWt2phRPXUPGX');
-    my $uri = 'http://localhost:14869/';
+    $client->ua->credentials('localhost:10591', 'jsonrpc', 'dexp2p' => 'KeWt2phRPXUPGX');
+    my $uri = 'http://localhost:10591/';
 
     if ( defined $ask ) {
         my $obj = { method => 'DEX_broadcast', params => ['hello','0',$rel,$base,$pubkey,''.$rel_balance,''.$ask] };
@@ -873,8 +875,8 @@ sub dexp2p_deleteprice {
     my $rel = $_[1];
 
     my $client = new JSON::RPC::Legacy::Client;
-    $client->ua->credentials('localhost:14869', 'jsonrpc', 'dexp2p' => 'KeWt2phRPXUPGX');
-    my $uri = 'http://localhost:14869/';
+    $client->ua->credentials('localhost:10591', 'jsonrpc', 'dexp2p' => 'KeWt2phRPXUPGX');
+    my $uri = 'http://localhost:10591/';
 
     my $obj = { method => 'DEX_cancel', params => ['','',$base,$rel] };
     my $res = $client->call( $uri, $obj );
@@ -887,6 +889,25 @@ sub dexp2p_deleteprice {
 
     $obj = { method => 'DEX_cancel', params => ['','',$rel,$base] };
     $res = $client->call( $uri, $obj );
+    if ($res){
+       if ($res->is_error) { print "Error : ", Dumper($res->error_message); }
+       #else { print Dumper($res->result); }
+    } else {
+       print $client->status_line;
+    }
+}
+
+
+sub dexp2p_getbalance {
+    my $rpcport = $_[0];
+    my $address = $_[1];
+
+    my $client = new JSON::RPC::Legacy::Client;
+    $client->ua->credentials('localhost:$rpcport', 'jsonrpc', 'dexp2p' => 'KeWt2phRPXUPGX');
+    my $uri = 'http://localhost:$rpcport/';
+
+    my $obj = { method => 'z_getbalance', params => [$address] };
+    my $res = $client->call( $uri, $obj );
     if ($res){
        if ($res->is_error) { print "Error : ", Dumper($res->error_message); }
        #else { print Dumper($res->result); }
@@ -1051,15 +1072,16 @@ if ( $api eq "dex" ) {
 
 } elsif ( $api eq "dexp2p" ) {
     my $json = read_file("$cwd/mpm.conf.dexp2p");
-    my $relamount = 0.07;
-    my $baseamount = 1000;
     $marginsconf = decode_json($json);
+    my $baseamount = dexp2p_getbalance(7771,$recvaddr);
     foreach my $coin ( keys %{$marginsconf} ) {
+        my $rpcport = $marginsconf->{$coin}{'rpcport'};
+        my $relamount = dexp2p_getbalance($rpcport,$recvaddr);
         my $papid = $marginsconf->{$coin}{'papid'};
         my $baseprice = from_json(paprika_price($papid,$basepapid,$relamount))->{'price'};
         my $relprice = from_json(paprika_price($basepapid,$papid,$baseamount))->{'price'};
-        dexp2p_deleteprice("KMD",$coin);
-        dexp2p_setprice("KMD",$coin,$baseprice,$relprice,$baseamount,$relamount);
+        dexp2p_deleteprice($base,$coin);
+        dexp2p_setprice($base,$coin,$baseprice,$relprice,$baseamount,$relamount);
     }
 
 } elsif ( $api eq "binance" ) {
