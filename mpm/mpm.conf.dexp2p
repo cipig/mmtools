@@ -3,6 +3,7 @@
         "papid": "vrsc-verus-coin",
         "rpcport": 27486,
         "bidmargin": 0.15,
-        "askmargin": 0.15
+        "askmargin": 0.15,
+        "amount": 20
     }
 }

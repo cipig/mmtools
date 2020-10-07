@@ -844,13 +844,14 @@ sub dexp2p_setprice {
     $client->ua->credentials('localhost:10591', 'jsonrpc', 'dexp2p' => 'KeWt2phRPXUPGX');
     my $uri = 'http://localhost:10591/';
 
+    print "$rel/$base ";
     if ( defined $ask ) {
         my $obj = { method => 'DEX_broadcast', params => ['hello','0',$rel,$base,$pubkey,''.$rel_balance,''.$ask] };
         my $res = $client->call( $uri, $obj );
         if ($res){
            if ($res->is_error) { print "Error : ", Dumper($res->error_message); }
            #else { print Dumper($res->result); }
-           else { print $rel."/".$base." ".$rel_balance." ".$ask."\n"; }
+           else { print "ask ".sprintf("%.8f",$ask/$rel_balance)." "; }
         } else {
            print $client->status_line;
         }
@@ -862,11 +863,12 @@ sub dexp2p_setprice {
         if ($res){
            if ($res->is_error) { print "Error : ", Dumper($res->error_message); }
            #else { print Dumper($res->result); }
-           else { print $base."/".$rel." ".$base_balance." ".$bid."\n"; }
+           else { print "bid ".sprintf("%.8f",$base_balance/$bid); }
         } else {
            print $client->status_line;
         }
     }
+    print "\n";
 }
 
 
@@ -903,14 +905,14 @@ sub dexp2p_getbalance {
     my $address = $_[1];
 
     my $client = new JSON::RPC::Legacy::Client;
-    $client->ua->credentials('localhost:$rpcport', 'jsonrpc', 'dexp2p' => 'KeWt2phRPXUPGX');
-    my $uri = 'http://localhost:$rpcport/';
+    $client->ua->credentials('localhost:'.$rpcport, 'jsonrpc', 'dexp2p' => 'KeWt2phRPXUPGX');
+    my $uri = 'http://localhost:'.$rpcport.'/';
 
     my $obj = { method => 'z_getbalance', params => [$address] };
     my $res = $client->call( $uri, $obj );
     if ($res){
        if ($res->is_error) { print "Error : ", Dumper($res->error_message); }
-       #else { print Dumper($res->result); }
+       else { return $res->result; }
     } else {
        print $client->status_line;
     }
@@ -1073,10 +1075,12 @@ if ( $api eq "dex" ) {
 } elsif ( $api eq "dexp2p" ) {
     my $json = read_file("$cwd/mpm.conf.dexp2p");
     $marginsconf = decode_json($json);
-    my $baseamount = dexp2p_getbalance(7771,$recvaddr);
+#    my $baseamount = dexp2p_getbalance(7771,$recvaddr);
+    my $baseamount = 10;
     foreach my $coin ( keys %{$marginsconf} ) {
         my $rpcport = $marginsconf->{$coin}{'rpcport'};
-        my $relamount = dexp2p_getbalance($rpcport,$recvaddr);
+#        my $relamount = dexp2p_getbalance($rpcport,$recvaddr);
+        my $relamount = $marginsconf->{$coin}{'amount'};
         my $papid = $marginsconf->{$coin}{'papid'};
         my $baseprice = from_json(paprika_price($papid,$basepapid,$relamount))->{'price'};
         my $relprice = from_json(paprika_price($basepapid,$papid,$baseamount))->{'price'};
