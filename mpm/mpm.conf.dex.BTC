@@ -53,13 +53,15 @@
         "geckoid": "verasity",
         "bidmargin": 0.39,
         "askmargin": 0.19,
-        "maxfee": 0.0086
+        "maxfee": 0.0086,
+        "bidvolume": 0.01
     },
     "AXE": {
         "papid": "axe-axe",
         "geckoid": "axe",
         "bidmargin": 0.39,
-        "askmargin": 0.19
+        "askmargin": 0.19,
+        "bidvolume": 0.01
     },
     "BCH": {
         "papid": "bch-bitcoin-cash",
@@ -89,19 +91,22 @@
         "papid": "emc2-einsteinium",
         "geckoid": "einsteinium",
         "bidmargin": 0.39,
-        "askmargin": 0.19
+        "askmargin": 0.19,
+        "bidvolume": 0.01
     },
     "FTC": {
         "papid": "ftc-feathercoin",
         "geckoid": "feathercoin",
         "bidmargin": 0.39,
-        "askmargin": 0.19
+        "askmargin": 0.19,
+        "bidvolume": 0.01
     },
     "GLEEC": {
         "papid": "gleec-gleec-coin",
         "geckoid": "gleec-coin",
-        "bidmargin": 0.99,
-        "askmargin": 0.29
+        "bidmargin": 0.79,
+        "askmargin": 0.29,
+        "bidvolume": 0.01
     },
     "HUSH": {
         "papid": "hush-hush",
@@ -137,7 +142,8 @@
         "papid": "nmc-namecoin",
         "geckoid": "namecoin",
         "bidmargin": 0.29,
-        "askmargin": 0.19
+        "askmargin": 0.19,
+        "bidvolume": 0.01
     },
     "QTUM": {
         "papid": "qtum-qtum",
@@ -154,8 +160,9 @@
     "THC": {
         "papid": "thc-hempcoin",
         "geckoid": "hempcoin-thc",
-        "bidmargin": 0.90,
-        "askmargin": 0.19
+        "bidmargin": 0.79,
+        "askmargin": 0.19,
+        "bidvolume": 0.01
     },
     "VRSC": {
         "papid": "vrsc-verus-coin",
@@ -179,6 +186,7 @@
         "papid": "zer-zero",
         "geckoid": "zero",
         "bidmargin": 0.39,
-        "askmargin": 0.19
+        "askmargin": 0.19,
+        "bidvolume": 0.01
     }
 }

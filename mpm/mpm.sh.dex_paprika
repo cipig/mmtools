@@ -2,6 +2,6 @@
 source ~/atomicDEX-API/etomic_build/client/userpass
 while true; do
   date
-  ~/mmtools/mpm/mpm dex $1 $2
+  ~/mmtools/mpm/mpm dex_paprika $1 $2
   sleep 120
 done
