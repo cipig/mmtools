@@ -51,14 +51,14 @@
     "VRA": {
         "papid": "vra-verasity",
         "geckoid": "verasity",
-        "bidmargin": 0.50,
+        "bidmargin": 0.39,
         "askmargin": 0.19,
         "maxfee": 0.0086
     },
     "AXE": {
         "papid": "axe-axe",
         "geckoid": "axe",
-        "bidmargin": 0.50,
+        "bidmargin": 0.39,
         "askmargin": 0.19
     },
     "DASH": {
@@ -76,26 +76,26 @@
     "DOGE": {
         "papid": "doge-dogecoin",
         "geckoid": "dogecoin",
-        "bidmargin": 0.05,
-        "askmargin": 0.05
+        "bidmargin": 0.049,
+        "askmargin": 0.049
     },
     "ECA": {
         "papid": "eca-electra",
         "geckoid": "electra",
-        "bidmargin": 0.60,
+        "bidmargin": 0.49,
         "askmargin": 0.19
     },
     "EMC2": {
         "papid": "emc2-einsteinium",
         "geckoid": "einsteinium",
-        "bidmargin": 0.40,
-        "askmargin": 0.15
+        "bidmargin": 0.39,
+        "askmargin": 0.19
     },
     "FTC": {
         "papid": "ftc-feathercoin",
         "geckoid": "feathercoin",
-        "bidmargin": 0.40,
-        "askmargin": 0.15
+        "bidmargin": 0.39,
+        "askmargin": 0.19
     },
     "GLEEC": {
         "papid": "gleec-gleec-coin",
@@ -112,8 +112,8 @@
     "MONA": {
         "papid": "mona-monacoin",
         "geckoid": "monacoin",
-        "bidmargin": 0.30,
-        "askmargin": 0.15
+        "bidmargin": 0.19,
+        "askmargin": 0.19
     },
     "NAV": {
         "papid": "nav-navcoin",
@@ -124,8 +124,8 @@
     "NMC": {
         "papid": "nmc-namecoin",
         "geckoid": "namecoin",
-        "bidmargin": 0.40,
-        "askmargin": 0.15
+        "bidmargin": 0.29,
+        "askmargin": 0.19
     },
     "QTUM": {
         "papid": "qtum-qtum",
@@ -148,7 +148,7 @@
     "VRSC": {
         "papid": "vrsc-verus-coin",
         "geckoid": "verus-coin",
-        "bidmargin": 0.30,
+        "bidmargin": 0.19,
         "askmargin": 0.19
     },
     "XZC": {
@@ -166,7 +166,7 @@
     "ZER": {
         "papid": "zer-zero",
         "geckoid": "zero",
-        "bidmargin": 0.50,
+        "bidmargin": 0.39,
         "askmargin": 0.19
     }
 }

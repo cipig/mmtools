@@ -805,16 +805,18 @@ sub coinex_setprice {
 
 sub dex_setprice {
     my $price = $_[2];
+    my $marginadd = $_[3];
+    my $bidvolume = $_[4];
     my $bid = undef;
     my $ask = undef;
     my $command = undef;
 
     if ( defined $marginsconf->{$_[1]}{'askmargin'} ) {
-        my $askmargin = $marginsconf->{$_[1]}{'askmargin'} + $_[3];
+        my $askmargin = $marginsconf->{$_[1]}{'askmargin'} + $marginadd;
         $ask = sprintf("%.8f", $price + $price * $askmargin);
     }
     if ( defined $marginsconf->{$_[1]}{'bidmargin'} ) {
-        my $bidmargin = $marginsconf->{$_[1]}{'bidmargin'} + $_[3];
+        my $bidmargin = $marginsconf->{$_[1]}{'bidmargin'} + $marginadd;
         $bid = sprintf("%.8f", 1 / ($price - $price * $bidmargin));
     }
 
@@ -833,7 +835,11 @@ sub dex_setprice {
     }
 
     if ( defined $bid ) {
-	$command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.',"max":true}';
+        if ( defined $bidvolume ) {
+            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.',"volume":'.$bidvolume.'}';
+        } else {
+            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.',"max":true}';
+        }
         $req->content($command);
         $resp = $ua->request($req);
         my $uuid = from_json($resp->content)->{'result'}{'uuid'};
@@ -1083,11 +1089,12 @@ if ( $api eq "dex_gecko" ) {
             my $tradefee = dex_gettradefee($coin);
             my $maxfee = $marginsconf->{$coin}{'maxfee'};
             if ( !defined $maxfee ) { $maxfee = "100"; }
+            my $bidvolume = $marginsconf->{$coin}{'bidvolume'};
 
             if ( (!defined $price) || ($tradefee > $maxfee) ) {
                 dex_deleteprice($base,$coin);
             } else {
-                dex_setprice($base,$coin,$price/$factor,$marginadd);
+                dex_setprice($base,$coin,$price/$factor,$marginadd,$bidvolume);
             }
         }
     }
