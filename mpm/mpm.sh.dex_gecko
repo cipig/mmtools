@@ -1,0 +1,7 @@
+#!/bin/bash
+source ~/atomicDEX-API/etomic_build/client/userpass
+while true; do
+  date
+  ~/mmtools/mpm/mpm dex_gecko $1
+  sleep 120
+done

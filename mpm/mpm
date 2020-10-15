@@ -55,6 +55,25 @@ sub paprika_latest_price {
 }
 
 
+sub gecko_latest_price {
+    my $url = "https://api.coingecko.com/api/v3/simple/price?ids=".$_[0]."&vs_currencies=btc,ltc,bch,eth,usd";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub dex_ticker_24h {
     my $url = "https://dexapi.cipig.net/public/ticker_24h.php?market=".$_[0]."-".$_[1];
     my $ua = LWP::UserAgent->new;
@@ -1033,7 +1052,48 @@ sub binance_volat {
 }
 
 
-if ( $api eq "dex" ) {
+if ( $api eq "dex_gecko" ) {
+    $userpass =  $ENV{'userpass'};
+    my $json = read_file("$cwd/mpm.conf.dex.$base");
+    $marginsconf = decode_json($json);
+    my $marginadd = 0;
+
+    my $factor = 1;
+    my $baseid = lc($base);
+    if ( $baseid eq "kmd" ) {
+        $baseid = "btc";
+        my $kmdprice = gecko_latest_price("komodo");
+        $factor = from_json($kmdprice)->{"komodo"}{"btc"};
+    }
+
+    my $idcount = 0;
+    my $ids = "";
+    foreach my $coin ( keys %{$marginsconf} ) {
+        if ( $idcount eq "0" ) { $ids = $marginsconf->{$coin}{'geckoid'}; }
+        else { $ids = $ids.",".$marginsconf->{$coin}{'geckoid'}; }
+        $idcount++;
+    }
+    my $coinprice = gecko_latest_price($ids);
+
+    if ( $coinprice ne "1" ) {
+        foreach my $coin ( keys %{$marginsconf} ) {
+            my $geckoid = $marginsconf->{$coin}{'geckoid'};
+            my $price = undef;
+            $price = from_json($coinprice)->{$geckoid}{$baseid};
+            my $tradefee = dex_gettradefee($coin);
+            my $maxfee = $marginsconf->{$coin}{'maxfee'};
+            if ( !defined $maxfee ) { $maxfee = "100"; }
+
+            if ( (!defined $price) || ($tradefee > $maxfee) ) {
+                dex_deleteprice($base,$coin);
+            } else {
+                dex_setprice($base,$coin,$price/$factor,$marginadd);
+            }
+        }
+    }
+
+
+} elsif ( $api eq "dex" ) {
     $userpass =  $ENV{'userpass'};
     my $json = read_file("$cwd/mpm.conf.dex.$base");
     $marginsconf = decode_json($json);

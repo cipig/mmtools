@@ -2,49 +2,49 @@
     "BUSD": {
         "papid": "busd-binance-usd",
         "geckoid": "binance-usd",
-        "bidmargin": 0.036,
+        "bidmargin": 0.09,
         "askmargin": 0.036,
         "maxfee": 0.0086
     },
     "DAI": {
         "papid": "dai-dai",
         "geckoid": "dai",
-        "bidmargin": 0.036,
+        "bidmargin": 0.09,
         "askmargin": 0.036,
         "maxfee": 0.0086
     },
     "PAX": {
         "papid": "pax-paxos-standard-token",
         "geckoid": "paxos-standard",
-        "bidmargin": 0.036,
+        "bidmargin": 0.09,
         "askmargin": 0.036,
         "maxfee": 0.0086
     },
     "TUSD": {
         "papid": "tusd-trueusd",
         "geckoid": "true-usd",
-        "bidmargin": 0.036,
+        "bidmargin": 0.09,
         "askmargin": 0.036,
         "maxfee": 0.0086
     },
     "USDC": {
         "papid": "usdc-usd-coin",
         "geckoid": "usd-coin",
-        "bidmargin": 0.036,
+        "bidmargin": 0.09,
         "askmargin": 0.036,
         "maxfee": 0.0086
     },
     "BAT": {
         "papid": "bat-basic-attention-token",
         "geckoid": "basic-attention-token",
-        "bidmargin": 0.036,
+        "bidmargin": 0.09,
         "askmargin": 0.036,
         "maxfee": 0.0086
     },
     "ETH": {
         "papid": "eth-ethereum",
         "geckoid": "ethereum",
-        "bidmargin": 0.036,
+        "bidmargin": 0.09,
         "askmargin": 0.036,
         "maxfee": 0.0086
     },
@@ -61,41 +61,29 @@
         "bidmargin": 0.50,
         "askmargin": 0.19
     },
-    "AYA": {
-        "papid": "aya-aryacoin",
-        "geckoid": "aryacoin",
-        "bidmargin": 0.90,
-        "askmargin": 0.19
-    },
     "BCH": {
         "papid": "bch-bitcoin-cash",
         "geckoid": "bitcoin-cash",
-        "bidmargin": 0.036,
+        "bidmargin": 0.09,
         "askmargin": 0.036
     },
     "DASH": {
         "papid": "dash-dash",
         "geckoid": "dash",
-        "bidmargin": 0.036,
+        "bidmargin": 0.09,
         "askmargin": 0.036
     },
     "DGB": {
         "papid": "dgb-digibyte",
         "geckoid": "digibyte",
-        "bidmargin": 0.036,
+        "bidmargin": 0.15,
         "askmargin": 0.036
     },
     "DOGE": {
         "papid": "doge-dogecoin",
         "geckoid": "dogecoin",
-        "bidmargin": 0.05,
-        "askmargin": 0.05
-    },
-    "ECA": {
-        "papid": "eca-electra",
-        "geckoid": "electra",
-        "bidmargin": 0.60,
-        "askmargin": 0.19
+        "bidmargin": 0.15,
+        "askmargin": 0.06
     },
     "EMC2": {
         "papid": "emc2-einsteinium",
@@ -121,22 +109,28 @@
         "bidmargin": 0.90,
         "askmargin": 5
     },
+    "KMD": {
+        "papid": "kmd-komodo",
+        "geckoid": "komodo",
+        "bidmargin": 0.09,
+        "askmargin": 0.036
+    },
     "LTC": {
         "papid": "ltc-litecoin",
         "geckoid": "litecoin",
-        "bidmargin": 0.036,
+        "bidmargin": 0.09,
         "askmargin": 0.036
     },
     "MONA": {
         "papid": "mona-monacoin",
         "geckoid": "monacoin",
-        "bidmargin": 0.30,
+        "bidmargin": 0.40,
         "askmargin": 0.15
     },
     "NAV": {
         "papid": "nav-navcoin",
         "geckoid": "nav-coin",
-        "bidmargin": 0.046,
+        "bidmargin": 0.19,
         "askmargin": 0.036
     },
     "NMC": {
@@ -148,13 +142,13 @@
     "QTUM": {
         "papid": "qtum-qtum",
         "geckoid": "qtum",
-        "bidmargin": 0.036,
+        "bidmargin": 0.09,
         "askmargin": 0.036
     },
     "RVN": {
         "papid": "rvn-ravencoin",
         "geckoid": "ravencoin",
-        "bidmargin": 0.036,
+        "bidmargin": 0.15,
         "askmargin": 0.036
     },
     "THC": {
@@ -172,13 +166,13 @@
     "XZC": {
         "papid": "xzc-zcoin",
         "geckoid": "zcoin",
-        "bidmargin": 0.036,
+        "bidmargin": 0.09,
         "askmargin": 0.036
     },
     "ZEC": {
         "papid": "zec-zcash",
         "geckoid": "zcash",
-        "bidmargin": 0.036,
+        "bidmargin": 0.09,
         "askmargin": 0.036
     },
     "ZER": {

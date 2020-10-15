@@ -61,18 +61,6 @@
         "bidmargin": 0.50,
         "askmargin": 0.19
     },
-    "AYA": {
-        "papid": "aya-aryacoin",
-        "geckoid": "aryacoin",
-        "bidmargin": 0.90,
-        "askmargin": 0.19
-    },
-    "BCH": {
-        "papid": "bch-bitcoin-cash",
-        "geckoid": "bitcoin-cash",
-        "bidmargin": 0.036,
-        "askmargin": 0.036
-    },
     "DASH": {
         "papid": "dash-dash",
         "geckoid": "dash",
