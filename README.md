@@ -5,6 +5,6 @@ sudo apt-get install jq libdatetime-perl libdatetime-format-strptime-perl libjso
 cd && git clone https://github.com/cipig/mmtools
 ```
 
-start with `stdbuf -oL nohup ~/mmtools/mpm/mpm.sh.dex_paprika KMD kmd-komodo > /tmp/mpm.log.dex.kmd &` to update prices from coinpaprika  
-or with `stdbuf -oL nohup ~/mmtools/mpm/mpm.sh.dex_gecko KMD > /tmp/mpm.log.dex.kmd & to update prices from coingecko  
+`stdbuf -oL nohup ~/mmtools/mpm/mpm.sh.dex_paprika KMD kmd-komodo > /tmp/mpm.log.dex.kmd &` to update prices from coinpaprika  
+`stdbuf -oL nohup ~/mmtools/mpm/mpm.sh.dex_gecko KMD > /tmp/mpm.log.dex.kmd &` to update prices from coingecko  
 `tail -f /tmp/mpm.log.dex.kmd` to watch mpm TV  
