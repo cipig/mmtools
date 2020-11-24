@@ -56,7 +56,7 @@ sub paprika_latest_price {
 
 
 sub gecko_latest_price {
-    my $url = "https://api.coingecko.com/api/v3/simple/price?ids=".$_[0]."&vs_currencies=btc,ltc,bch,eth,usd";
+    my $url = "https://api.coingecko.com/api/v3/simple/price?ids=".$_[0]."&vs_currencies=btc,ltc,bch,eth,usd&include_24hr_change=true";
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -1086,12 +1086,14 @@ if ( $api eq "dex_gecko" ) {
             my $geckoid = $marginsconf->{$coin}{'geckoid'};
             my $price = undef;
             $price = from_json($coinprice)->{$geckoid}{$baseid};
+            my $key = $baseid."_24h_change";
+            my $change = abs(from_json($coinprice)->{$geckoid}{$key});
             my $tradefee = dex_gettradefee($coin);
             my $maxfee = $marginsconf->{$coin}{'maxfee'};
             if ( !defined $maxfee ) { $maxfee = "100"; }
             my $bidvolume = $marginsconf->{$coin}{'bidvolume'};
 
-            if ( (!defined $price) || ($tradefee > $maxfee) ) {
+            if ( (!defined $price) || ($tradefee > $maxfee) || ($change > 20) ) {
                 dex_deleteprice($base,$coin);
             } else {
                 dex_setprice($base,$coin,$price/$factor,$marginadd,$bidvolume);
