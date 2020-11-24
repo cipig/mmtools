@@ -1100,7 +1100,7 @@ if ( $api eq "dex_gecko" ) {
             }
         }
     }
-
+    sleep(1);
 
 } elsif ( $api eq "dex_paprika" ) {
     $userpass =  $ENV{'userpass'};
@@ -1138,7 +1138,7 @@ if ( $api eq "dex_gecko" ) {
             dex_setprice($base,$coin,$price,$marginadd);
         }
 
-        sleep(2);
+        sleep(1);
     }
 
 } elsif ( $api eq "dexp2p" ) {
