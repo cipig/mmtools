@@ -9,7 +9,7 @@
         "quantity_2": 20,
         "maxsum_2": 50
     },
-    "BCH": {
+    "USDT": {
         "bidmargin_1": 0.005,
         "askmargin_1": 0.005,
         "quantity_1": 100,
