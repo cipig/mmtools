@@ -17,6 +17,7 @@ use Data::Dumper;
 my $api = $ARGV[0];
 my $base = $ARGV[1];
 my $basepapid = $ARGV[2];
+my $basegeckoid = $ARGV[2];
 my $pubkey = $ARGV[3];
 my $recvaddr = $ARGV[4];
 my $recvZaddr = $ARGV[5];
@@ -804,20 +805,23 @@ sub coinex_setprice {
 
 
 sub dex_setprice {
+    my $base = $_[0];
+    my $rel = $_[1];
     my $price = $_[2];
     my $marginadd = $_[3];
     my $maxbidvolume = $_[4];
     my $minbidvolume = $_[5];
+    my $minaskvolume = $_[6];
     my $bid = undef;
     my $ask = undef;
     my $command = undef;
 
-    if ( defined $marginsconf->{$_[1]}{'askmargin'} ) {
-        my $askmargin = $marginsconf->{$_[1]}{'askmargin'} + $marginadd;
+    if ( defined $marginsconf->{$rel}{'askmargin'} ) {
+        my $askmargin = $marginsconf->{$rel}{'askmargin'} + $marginadd;
         $ask = sprintf("%.8f", $price + $price * $askmargin);
     }
-    if ( defined $marginsconf->{$_[1]}{'bidmargin'} ) {
-        my $bidmargin = $marginsconf->{$_[1]}{'bidmargin'} + $marginadd;
+    if ( defined $marginsconf->{$rel}{'bidmargin'} ) {
+        my $bidmargin = $marginsconf->{$rel}{'bidmargin'} + $marginadd;
         $bid = sprintf("%.8f", 1 / ($price - $price * $bidmargin));
     }
 
@@ -825,9 +829,14 @@ sub dex_setprice {
     my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
     $req->content_type('application/x-www-form-urlencoded');
 
-    print "$_[1]/$_[0] ";
+    print "$rel/$base ";
     if ( defined $ask ) {
-	$command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[1].'","rel":"'.$_[0].'","price":'.$ask.',"max":true}';
+        if (defined $minaskvolume) {
+	    $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask.',"max":true,"min_volume":'.$minaskvolume.'}';
+        } else {
+            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask.',"max":true}';
+        }
+        #print "$command\n";
         $req->content($command);
         my $resp = $ua->request($req);
         my $uuid = from_json($resp->content)->{'result'}{'uuid'};
@@ -837,14 +846,15 @@ sub dex_setprice {
 
     if ( defined $bid ) {
         if ( (defined $maxbidvolume) && (defined $minbidvolume) ) {
-            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.',"volume":'.$maxbidvolume.',"min_volume":'.$minbidvolume.'}';
+            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"volume":'.$maxbidvolume.',"min_volume":'.$minbidvolume.'}';
         } elsif ( defined $maxbidvolume ) {
-            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.',"volume":'.$maxbidvolume.'}';
+            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"volume":'.$maxbidvolume.'}';
         } elsif ( defined $minbidvolume ) {
-            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.',"max":true,"min_volume":'.$minbidvolume.'}';
+            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"max":true,"min_volume":'.$minbidvolume.'}';
         } else {
             $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.',"max":true}';
         }
+        #print "$command\n";
         $req->content($command);
         $resp = $ua->request($req);
         my $uuid = from_json($resp->content)->{'result'}{'uuid'};
@@ -1069,12 +1079,13 @@ if ( $api eq "dex_gecko" ) {
     $marginsconf = decode_json($json);
     my $marginadd = 0;
 
+    my $baseprices = gecko_latest_price("ethereum,bitcoin,litecoin,bitcoin-cash,komodo");
+
     my $factor = 1;
     my $baseid = lc($base);
     if ( $baseid eq "kmd" ) {
         $baseid = "btc";
-        my $kmdprice = gecko_latest_price("komodo");
-        $factor = from_json($kmdprice)->{"komodo"}{"btc"};
+        $factor = from_json($baseprices)->{"komodo"}{"btc"};
     }
 
     my $idcount = 0;
@@ -1086,23 +1097,38 @@ if ( $api eq "dex_gecko" ) {
     }
     my $coinprice = gecko_latest_price($ids);
 
+    my $erc20fee = dex_gettradefee("ETH");
+    my $btcfee = dex_gettradefee("BTC");
+    my $ethusdprice = from_json($baseprices)->{"ethereum"}{"usd"};
+    my $baseusdprice = from_json($baseprices)->{$basegeckoid}{"usd"};
+
     if ( $coinprice ne "1" ) {
         foreach my $coin ( keys %{$marginsconf} ) {
             my $geckoid = $marginsconf->{$coin}{'geckoid'};
+            my $type = $marginsconf->{$coin}{'type'};
+            if ( !defined $type ) { $type = "utxo"; }
             my $price = undef;
             $price = from_json($coinprice)->{$geckoid}{$baseid};
+            my $coinusdprice = from_json($coinprice)->{$geckoid}{"usd"};
             my $key = $baseid."_24h_change";
             my $change = abs(from_json($coinprice)->{$geckoid}{$key});
-            my $tradefee = dex_gettradefee($coin);
-            my $maxfee = $marginsconf->{$coin}{'maxfee'};
-            if ( !defined $maxfee ) { $maxfee = "100"; }
+
             my $maxbidvolume = $marginsconf->{$coin}{'maxbidvolume'};
             my $minbidvolume = $marginsconf->{$coin}{'minbidvolume'};
+            my $maxaskvolume = $marginsconf->{$coin}{'maxaskvolume'};
+            my $minaskvolume = $marginsconf->{$coin}{'minaskvolume'};
+            if ( $type eq "erc20" ) {
+                $minaskvolume = $erc20fee * $ethusdprice / $coinusdprice * 20;
+                $minbidvolume = $erc20fee * $ethusdprice / $baseusdprice * 20;
+            }
+            if ( $base eq "BTC" ) {
+                $minbidvolume = $btcfee * 20;
+            }
 
-            if ( (!defined $price) || ($tradefee > $maxfee) || ($change > 30) ) {
+            if ( (!defined $price) || ($change > 35) ) {
                 dex_deleteprice($base,$coin);
             } else {
-                dex_setprice($base,$coin,$price/$factor,$marginadd,$maxbidvolume,$minbidvolume);
+                dex_setprice($base,$coin,$price/$factor,$marginadd,$maxbidvolume,$minbidvolume,$minaskvolume);
             }
             sleep(1);
         }

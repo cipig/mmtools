@@ -1,5 +1,6 @@
 {
     "BUSD": {
+        "type": "erc20",
         "papid": "busd-binance-usd",
         "geckoid": "binance-usd",
         "bidmargin": 0.038,
@@ -7,6 +8,7 @@
         "maxfee": 0.0098
     },
     "DAI": {
+        "type": "erc20",
         "papid": "dai-dai",
         "geckoid": "dai",
         "bidmargin": 0.038,
@@ -14,6 +16,7 @@
         "maxfee": 0.0098
     },
     "PAX": {
+        "type": "erc20",
         "papid": "pax-paxos-standard-token",
         "geckoid": "paxos-standard",
         "bidmargin": 0.038,
@@ -21,6 +24,7 @@
         "maxfee": 0.0098
     },
     "TUSD": {
+        "type": "erc20",
         "papid": "tusd-trueusd",
         "geckoid": "true-usd",
         "bidmargin": 0.038,
@@ -28,6 +32,7 @@
         "maxfee": 0.0098
     },
     "USDC": {
+        "type": "erc20",
         "papid": "usdc-usd-coin",
         "geckoid": "usd-coin",
         "bidmargin": 0.038,
@@ -35,6 +40,7 @@
         "maxfee": 0.0098
     },
     "BAT": {
+        "type": "erc20",
         "papid": "bat-basic-attention-token",
         "geckoid": "basic-attention-token",
         "bidmargin": 0.038,
@@ -42,12 +48,14 @@
         "maxfee": 0.0098
     },
     "ETH": {
+        "type": "erc20",
         "papid": "eth-ethereum",
         "geckoid": "ethereum",
         "bidmargin": 0.038,
         "maxfee": 0.0098
     },
     "VRA": {
+        "type": "erc20",
         "papid": "vra-verasity",
         "geckoid": "verasity",
         "bidmargin": 0.48,
