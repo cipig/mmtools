@@ -806,7 +806,8 @@ sub coinex_setprice {
 sub dex_setprice {
     my $price = $_[2];
     my $marginadd = $_[3];
-    my $bidvolume = $_[4];
+    my $maxbidvolume = $_[4];
+    my $minbidvolume = $_[5];
     my $bid = undef;
     my $ask = undef;
     my $command = undef;
@@ -835,8 +836,12 @@ sub dex_setprice {
     }
 
     if ( defined $bid ) {
-        if ( defined $bidvolume ) {
-            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.',"volume":'.$bidvolume.'}';
+        if ( (defined $maxbidvolume) && (defined $minbidvolume) ) {
+            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.',"volume":'.$maxbidvolume.',"min_volume":'.$minbidvolume.'}';
+        } elsif ( defined $maxbidvolume ) {
+            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.',"volume":'.$maxbidvolume.'}';
+        } elsif ( defined $minbidvolume ) {
+            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.',"max":true,"min_volume":'.$minbidvolume.'}';
         } else {
             $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.',"max":true}';
         }
@@ -1091,16 +1096,18 @@ if ( $api eq "dex_gecko" ) {
             my $tradefee = dex_gettradefee($coin);
             my $maxfee = $marginsconf->{$coin}{'maxfee'};
             if ( !defined $maxfee ) { $maxfee = "100"; }
-            my $bidvolume = $marginsconf->{$coin}{'bidvolume'};
+            my $maxbidvolume = $marginsconf->{$coin}{'maxbidvolume'};
+            my $minbidvolume = $marginsconf->{$coin}{'minbidvolume'};
 
             if ( (!defined $price) || ($tradefee > $maxfee) || ($change > 30) ) {
                 dex_deleteprice($base,$coin);
             } else {
-                dex_setprice($base,$coin,$price/$factor,$marginadd,$bidvolume);
+                dex_setprice($base,$coin,$price/$factor,$marginadd,$maxbidvolume,$minbidvolume);
             }
             sleep(1);
         }
     }
+
 
 } elsif ( $api eq "dex_paprika" ) {
     $userpass =  $ENV{'userpass'};
