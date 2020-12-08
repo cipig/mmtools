@@ -1,140 +1,111 @@
 {
     "BUSD": {
         "type": "erc20",
-        "papid": "busd-binance-usd",
         "geckoid": "binance-usd",
         "bidmargin": 0.038,
-        "askmargin": 0.038,
-        "maxfee": 0.0098
+        "askmargin": 0.038
     },
     "DAI": {
         "type": "erc20",
-        "papid": "dai-dai",
         "geckoid": "dai",
         "bidmargin": 0.038,
-        "askmargin": 0.038,
-        "maxfee": 0.0098
+        "askmargin": 0.038
     },
     "PAX": {
         "type": "erc20",
-        "papid": "pax-paxos-standard-token",
         "geckoid": "paxos-standard",
         "bidmargin": 0.038,
-        "askmargin": 0.038,
-        "maxfee": 0.0098
+        "askmargin": 0.038
     },
     "TUSD": {
         "type": "erc20",
-        "papid": "tusd-trueusd",
         "geckoid": "true-usd",
         "bidmargin": 0.038,
-        "askmargin": 0.038,
-        "maxfee": 0.0098
+        "askmargin": 0.038
     },
     "USDC": {
         "type": "erc20",
-        "papid": "usdc-usd-coin",
         "geckoid": "usd-coin",
         "bidmargin": 0.038,
-        "askmargin": 0.038,
-        "maxfee": 0.0098
+        "askmargin": 0.038
     },
     "BAT": {
         "type": "erc20",
-        "papid": "bat-basic-attention-token",
         "geckoid": "basic-attention-token",
         "bidmargin": 0.038,
-        "askmargin": 0.038,
-        "maxfee": 0.0098
+        "askmargin": 0.038
     },
     "ETH": {
         "type": "erc20",
-        "papid": "eth-ethereum",
         "geckoid": "ethereum",
-        "bidmargin": 0.038,
-        "maxfee": 0.0098
+        "bidmargin": 0.038
     },
     "VRA": {
         "type": "erc20",
-        "papid": "vra-verasity",
         "geckoid": "verasity",
         "bidmargin": 0.48,
-        "askmargin": 0.18,
-        "maxfee": 0.0098
+        "askmargin": 0.18
     },
     "AXE": {
-        "papid": "axe-axe",
         "geckoid": "axe",
         "bidmargin": 0.58,
         "askmargin": 0.18
     },
     "AYA": {
-        "papid": "aya-aryacoin",
         "geckoid": "aryacoin",
         "bidmargin": 0.98,
         "askmargin": 0.18
     },
     "DASH": {
-        "papid": "dash-dash",
         "geckoid": "dash",
         "bidmargin": 0.038,
         "askmargin": 0.038
     },
     "DGB": {
-        "papid": "dgb-digibyte",
         "geckoid": "digibyte",
         "bidmargin": 0.048,
         "askmargin": 0.048
     },
     "DOGE": {
-        "papid": "doge-dogecoin",
         "geckoid": "dogecoin",
         "bidmargin": 0.058,
         "askmargin": 0.058
     },
     "ECA": {
-        "papid": "eca-electra",
         "geckoid": "electra",
         "askmargin": 0.38
     },
     "EMC2": {
-        "papid": "emc2-einsteinium",
         "geckoid": "einsteinium",
         "bidmargin": 0.38,
         "askmargin": 0.18
     },
     "FTC": {
-        "papid": "ftc-feathercoin",
         "geckoid": "feathercoin",
         "bidmargin": 0.38,
         "askmargin": 0.18
     },
     "GLEEC": {
-        "papid": "gleec-gleec-coin",
         "geckoid": "gleec-coin",
         "bidmargin": 0.98,
         "askmargin": 0.28
     },
     "LTC": {
-        "papid": "ltc-litecoin",
         "geckoid": "litecoin",
         "bidmargin": 0.038,
         "askmargin": 0.038
     },
     "MONA": {
-        "papid": "mona-monacoin",
         "geckoid": "monacoin",
         "bidmargin": 0.18,
         "askmargin": 0.18
     },
     "NAV": {
-        "papid": "nav-navcoin",
         "geckoid": "nav-coin",
         "bidmargin": 0.038,
         "askmargin": 0.038
     },
     "NMC": {
-        "papid": "nmc-namecoin",
         "geckoid": "namecoin",
         "bidmargin": 0.28,
         "askmargin": 0.18
@@ -145,43 +116,36 @@
         "askmargin": 0.038
     },
     "QTUM": {
-        "papid": "qtum-qtum",
         "geckoid": "qtum",
         "bidmargin": 0.038,
         "askmargin": 0.038
     },
     "RVN": {
-        "papid": "rvn-ravencoin",
         "geckoid": "ravencoin",
         "bidmargin": 0.048,
         "askmargin": 0.048
     },
     "THC": {
-        "papid": "thc-hempcoin",
         "geckoid": "hempcoin-thc",
         "bidmargin": 0.68,
         "askmargin": 0.18
     },
     "VRSC": {
-        "papid": "vrsc-verus-coin",
         "geckoid": "verus-coin",
         "bidmargin": 0.14,
         "askmargin": 0.14
     },
     "FIRO": {
-        "papid": "xzc-zcoin",
         "geckoid": "zcoin",
         "bidmargin": 0.038,
         "askmargin": 0.038
     },
     "ZEC": {
-        "papid": "zec-zcash",
         "geckoid": "zcash",
         "bidmargin": 0.038,
         "askmargin": 0.038
     },
     "ZER": {
-        "papid": "zer-zero",
         "geckoid": "zero",
         "bidmargin": 0.38,
         "askmargin": 0.18
