@@ -749,8 +749,15 @@ sub vcc_setprice {
 sub coinex_setprice {
     my $base = $_[0];
     my $coin = $_[1];
-    my $bid = $_[2];
-    my $ask = $_[3];
+    my $bid = undef;
+    my $ask = undef;
+    if ( $coin eq "USDT" ) {
+        $bid = sprintf("%.4f",$_[2]);
+        $ask = sprintf("%.4f",$_[3]);
+    } else {
+        $bid = sprintf("%.8f",$_[2]);
+        $ask = sprintf("%.8f",$_[3]);
+    }
     my $quantity = sprintf("%u",$_[4]);
     my $url = "https://api.coinex.com/v1/order/limit";
 
