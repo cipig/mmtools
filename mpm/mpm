@@ -846,9 +846,9 @@ sub dex_setprice {
         #print "$command\n";
         $req->content($command);
         my $resp = $ua->request($req);
-        my $uuid = from_json($resp->content)->{'result'}{'uuid'};
-        if ( !defined $uuid ) { $uuid = "error"; }
-        print "ask ".sprintf("%.8f",$ask)." ";
+        #print Dumper($resp->content);
+        my $askerror = from_json($resp->content)->{'error'};
+        if ( defined $askerror ) { print $askerror." "; } else { print "ask ".sprintf("%.8f",$ask)." "; }
     }
 
     if ( defined $bid ) {
@@ -864,9 +864,8 @@ sub dex_setprice {
         #print "$command\n";
         $req->content($command);
         $resp = $ua->request($req);
-        my $uuid = from_json($resp->content)->{'result'}{'uuid'};
-        if ( !defined $uuid ) { $uuid = "error"; }
-        print "bid ".sprintf("%.8f",1/$bid);
+        my $biderror = from_json($resp->content)->{'error'};
+        if ( defined $biderror ) { print $biderror; } else { print "bid ".sprintf("%.8f",1/$bid); }
     }
     print "\n";
 }
@@ -1125,8 +1124,8 @@ if ( $api eq "dex_gecko" ) {
             my $maxaskvolume = $marginsconf->{$coin}{'maxaskvolume'};
             my $minaskvolume = $marginsconf->{$coin}{'minaskvolume'};
             if ( $type eq "erc20" ) {
-                $minaskvolume = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 8);
-                $minbidvolume = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 8);
+                $minaskvolume = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 5);
+                $minbidvolume = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 5);
                 if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
             }
             if ( $base eq "BTC" ) {
