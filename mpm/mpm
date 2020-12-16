@@ -1124,8 +1124,8 @@ if ( $api eq "dex_gecko" ) {
             my $maxaskvolume = $marginsconf->{$coin}{'maxaskvolume'};
             my $minaskvolume = $marginsconf->{$coin}{'minaskvolume'};
             if ( $type eq "erc20" ) {
-                $minaskvolume = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 5);
-                $minbidvolume = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 5);
+                $minaskvolume = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 8);
+                $minbidvolume = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 8);
                 if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
             }
             if ( $base eq "BTC" ) {
