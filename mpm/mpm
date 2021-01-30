@@ -1083,7 +1083,6 @@ if ( $api eq "dex_gecko" ) {
     $userpass =  $ENV{'userpass'};
     my $json = read_file("$cwd/mpm.conf.dex.$base");
     $marginsconf = decode_json($json);
-    my $marginadd = 0;
 
     my $baseprices = gecko_latest_price("ethereum,bitcoin,litecoin,bitcoin-cash,komodo");
 
@@ -1118,6 +1117,7 @@ if ( $api eq "dex_gecko" ) {
             my $coinusdprice = from_json($coinprice)->{$geckoid}{"usd"};
             my $key = $baseid."_24h_change";
             my $change = abs(from_json($coinprice)->{$geckoid}{$key});
+            my $marginadd = $change/100/3;
 
             my $maxbidvolume = $marginsconf->{$coin}{'maxbidvolume'};
             my $minbidvolume = $marginsconf->{$coin}{'minbidvolume'};
@@ -1129,11 +1129,12 @@ if ( $api eq "dex_gecko" ) {
                 if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
             }
             if ( $base eq "BTC" ) {
-                $minbidvolume = sprintf("%.8f",$btcfee * 15);
+                $minbidvolume = sprintf("%.8f",$btcfee * 20);
                 if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
             }
 
-            if ( (!defined $price) || ($change > 35) ) {
+#            if ( (!defined $price) || ($change > 35) ) {
+            if (!defined $price) {
                 dex_deleteprice($base,$coin);
             } else {
                 dex_setprice($base,$coin,$price/$factor,$marginadd,$maxbidvolume,$minbidvolume,$minaskvolume);
