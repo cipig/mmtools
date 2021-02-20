@@ -2,110 +2,242 @@
     "BUSD": {
         "type": "erc20",
         "geckoid": "binance-usd",
-        "bidmargin": 0.038,
-        "askmargin": 0.038
+        "bidmargin": 0.037,
+        "askmargin": 0.037
     },
     "DAI": {
         "type": "erc20",
         "geckoid": "dai",
-        "bidmargin": 0.038,
-        "askmargin": 0.038
+        "bidmargin": 0.037,
+        "askmargin": 0.037
     },
     "PAX": {
         "type": "erc20",
         "geckoid": "paxos-standard",
-        "bidmargin": 0.038,
-        "askmargin": 0.038
+        "bidmargin": 0.037,
+        "askmargin": 0.037
     },
     "TUSD": {
         "type": "erc20",
         "geckoid": "true-usd",
-        "bidmargin": 0.038,
-        "askmargin": 0.038
+        "bidmargin": 0.037,
+        "askmargin": 0.037
     },
     "USDC": {
         "type": "erc20",
         "geckoid": "usd-coin",
-        "bidmargin": 0.038,
-        "askmargin": 0.038
+        "bidmargin": 0.037,
+        "askmargin": 0.037
     },
-    "BAT": {
+    "EURS": {
         "type": "erc20",
-        "geckoid": "basic-attention-token",
-        "bidmargin": 0.038,
-        "askmargin": 0.038
+        "geckoid": "stasis-eurs",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "HUSD": {
+        "type": "erc20",
+        "geckoid": "husd",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
     },
     "ETH": {
         "type": "erc20",
         "geckoid": "ethereum",
-        "bidmargin": 0.038
+        "bidmargin": 0.037
+    },
+    "1INCH": {
+        "type": "erc20",
+        "geckoid": "1inch",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "AAVE": {
+        "type": "erc20",
+        "geckoid": "aave",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "BAND": {
+        "type": "erc20",
+        "geckoid": "band-protocol",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "BAT": {
+        "type": "erc20",
+        "geckoid": "basic-attention-token",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "BNT": {
+        "type": "erc20",
+        "geckoid": "bancor",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "COMP": {
+        "type": "erc20",
+        "geckoid": "compound-governance-token",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "ENJ": {
+        "type": "erc20",
+        "geckoid": "enjincoin",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "LINK": {
+        "type": "erc20",
+        "geckoid": "chainlink",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "MKR": {
+        "type": "erc20",
+        "geckoid": "maker",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "PAXG": {
+        "type": "erc20",
+        "geckoid": "pax-gold",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "REN": {
+        "type": "erc20",
+        "geckoid": "republic-protocol",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "RSR": {
+        "type": "erc20",
+        "geckoid": "reserve-rights-token",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "SNX": {
+        "type": "erc20",
+        "geckoid": "havven",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "STORJ": {
+        "type": "erc20",
+        "geckoid": "storj",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "SUSHI": {
+        "type": "erc20",
+        "geckoid": "sushi",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "UNI": {
+        "type": "erc20",
+        "geckoid": "uniswap",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
     },
     "VRA": {
         "type": "erc20",
-        "geckoid": "verasity",
+        "geckoid": "verasity-new",
+        "bidmargin": 0.38,
+        "askmargin": 0.18,
+        "maxbidvolume": 1000
+    },
+    "WBTC": {
+        "type": "erc20",
+        "geckoid": "wrapped-bitcoin",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "YFI": {
+        "type": "erc20",
+        "geckoid": "yearn-finance",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "ZRX": {
+        "type": "erc20",
+        "geckoid": "0x",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "AXE": {
+        "geckoid": "axe",
         "bidmargin": 0.48,
         "askmargin": 0.18,
         "maxbidvolume": 1000
     },
-    "AXE": {
-        "geckoid": "axe",
-        "bidmargin": 0.58,
-        "askmargin": 0.18,
-        "maxbidvolume": 500
+    "BLK": {
+        "geckoid": "blackcoin",
+        "bidmargin": 0.37,
+        "askmargin": 0.07,
+        "maxbidvolume": 1000
     },
-    "AYA": {
-        "geckoid": "aryacoin",
-        "bidmargin": 0.98,
-        "askmargin": 0.18,
-        "maxbidvolume": 500
+    "BTCZ": {
+        "geckoid": "bitcoinz",
+        "bidmargin": 0.68,
+        "askmargin": 0.58,
+        "maxbidvolume": 1000
     },
     "BCH": {
         "geckoid": "bitcoin-cash",
-        "bidmargin": 0.038,
-        "askmargin": 0.038
+        "bidmargin": 0.037,
+        "askmargin": 0.037
     },
     "DASH": {
         "geckoid": "dash",
-        "bidmargin": 0.038,
-        "askmargin": 0.038
+        "bidmargin": 0.037,
+        "askmargin": 0.037
     },
     "DGB": {
         "geckoid": "digibyte",
-        "bidmargin": 0.048,
-        "askmargin": 0.048
+        "bidmargin": 0.047,
+        "askmargin": 0.047
     },
     "DOGE": {
         "geckoid": "dogecoin",
-        "bidmargin": 0.058,
-        "askmargin": 0.058,
-        "minbidvolume": 5
+        "bidmargin": 0.18,
+        "askmargin": 0.088
     },
     "ECA": {
         "geckoid": "electra",
-        "askmargin": 0.38
+        "bidmargin": 0.58,
+        "askmargin": 0.28,
+        "maxbidvolume": 500
     },
     "EMC2": {
         "geckoid": "einsteinium",
-        "bidmargin": 0.38,
-        "askmargin": 0.18,
-        "maxbidvolume": 500
+        "bidmargin": 0.48,
+        "askmargin": 0.08,
+        "maxbidvolume": 1000
     },
     "FTC": {
         "geckoid": "feathercoin",
         "bidmargin": 0.38,
         "askmargin": 0.18,
-        "maxbidvolume": 500
+        "maxbidvolume": 1000
     },
     "GLEEC": {
         "geckoid": "gleec-coin",
-        "bidmargin": 0.98,
-        "askmargin": 0.28,
-        "maxbidvolume": 200
+        "bidmargin": 0.68,
+        "askmargin": 0.18,
+        "maxbidvolume": 1000
+    },
+    "GRS": {
+        "geckoid": "groestlcoin",
+        "bidmargin": 0.037,
+        "askmargin": 0.037
     },
     "LTC": {
         "geckoid": "litecoin",
-        "bidmargin": 0.038,
-        "askmargin": 0.038
+        "bidmargin": 0.037,
+        "askmargin": 0.037
     },
     "MONA": {
         "geckoid": "monacoin",
@@ -115,56 +247,66 @@
     },
     "NAV": {
         "geckoid": "nav-coin",
-        "bidmargin": 0.038,
-        "askmargin": 0.038,
-        "maxbidvolume": 2000
+        "bidmargin": 0.037,
+        "askmargin": 0.037
     },
     "NMC": {
         "geckoid": "namecoin",
-        "bidmargin": 0.28,
+        "bidmargin": 0.18,
         "askmargin": 0.18,
-        "maxbidvolume": 500
+        "maxbidvolume": 1000
     },
     "QC": {
         "geckoid": "qcash",
-        "bidmargin": 0.038,
-        "askmargin": 0.038
+        "bidmargin": 0.037,
+        "askmargin": 0.037
+    },
+    "QI": {
+        "geckoid": "qiswap",
+        "bidmargin": 0.37,
+        "askmargin": 0.037
     },
     "QTUM": {
         "geckoid": "qtum",
-        "bidmargin": 0.038,
-        "askmargin": 0.038
+        "bidmargin": 0.037,
+        "askmargin": 0.037
     },
     "RVN": {
         "geckoid": "ravencoin",
-        "bidmargin": 0.048,
-        "askmargin": 0.048
+        "bidmargin": 0.047,
+        "askmargin": 0.047
     },
     "THC": {
         "geckoid": "hempcoin-thc",
         "bidmargin": 0.68,
         "askmargin": 0.18,
-        "maxbidvolume": 200
+        "maxbidvolume": 500
+    },
+    "VRM": {
+        "geckoid": "veriumreserve",
+        "bidmargin": 0.57,
+        "askmargin": 0.37,
+        "maxbidvolume": 100
     },
     "VRSC": {
         "geckoid": "verus-coin",
-        "bidmargin": 0.14,
-        "askmargin": 0.14
+        "bidmargin": 0.09,
+        "askmargin": 0.12
     },
     "FIRO": {
         "geckoid": "zcoin",
-        "bidmargin": 0.038,
-        "askmargin": 0.038
+        "bidmargin": 0.067,
+        "askmargin": 0.037
     },
     "ZEC": {
         "geckoid": "zcash",
-        "bidmargin": 0.038,
-        "askmargin": 0.038
+        "bidmargin": 0.037,
+        "askmargin": 0.037
     },
     "ZER": {
         "geckoid": "zero",
         "bidmargin": 0.38,
-        "askmargin": 0.18,
-        "maxbidvolume": 500
+        "askmargin": 0.08,
+        "maxbidvolume": 1000
     }
 }
