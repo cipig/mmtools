@@ -1084,13 +1084,16 @@ if ( $api eq "dex_gecko" ) {
     my $json = read_file("$cwd/mpm.conf.dex.$base");
     $marginsconf = decode_json($json);
 
-    my $baseprices = gecko_latest_price("ethereum,bitcoin,litecoin,bitcoin-cash,komodo");
+    my $baseprices = gecko_latest_price("ethereum,bitcoin,litecoin,bitcoin-cash,komodo,dogecoin");
 
     my $factor = 1;
     my $baseid = lc($base);
     if ( $baseid eq "kmd" ) {
         $baseid = "btc";
         $factor = from_json($baseprices)->{"komodo"}{"btc"};
+    } elsif ( $baseid eq "doge" ) {
+        $baseid = "btc";
+        $factor = from_json($baseprices)->{"dogecoin"}{"btc"};
     }
 
     my $idcount = 0;
@@ -1117,7 +1120,9 @@ if ( $api eq "dex_gecko" ) {
             $price = from_json($coinprice)->{$geckoid}{$baseid};
             my $coinusdprice = from_json($coinprice)->{$geckoid}{"usd"};
             my $key = $baseid."_24h_change";
+            #print "geckoid: $geckoid\n";
             my $change = abs(from_json($coinprice)->{$geckoid}{$key});
+            #print "change: $change\n";
             my $marginadd = $change/100/4;
 
             my $maxbidvolume = $marginsconf->{$coin}{'maxbidvolume'};
