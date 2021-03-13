@@ -1129,22 +1129,34 @@ if ( $api eq "dex_gecko" ) {
             my $minbidvolume = $marginsconf->{$coin}{'minbidvolume'};
             my $maxaskvolume = $marginsconf->{$coin}{'maxaskvolume'};
             my $minaskvolume = $marginsconf->{$coin}{'minaskvolume'};
-            my $minaskvolume_btc = 0.00777;
-            my $minbidvolume_btc = 0.00777;
-            my $minaskvolume_eth = 0.00777;
-            my $minbidvolume_eth = 0.00777;
-            if ( $base eq "BTC" ) {
+            my $minaskvolume_btc = undef;
+            my $minbidvolume_btc = undef;
+            my $minaskvolume_eth = undef;
+            my $minbidvolume_eth = undef;
+            if ( ($base eq "BTC") && ($type eq "erc20") ) {
                 $minaskvolume_btc = sprintf("%.8f",$btcfee * $btcusdprice / $coinusdprice * 15);
                 $minbidvolume_btc = sprintf("%.8f",$btcfee * 15);
-            }
-            if ( $type eq "erc20" ) {
                 $minaskvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 20);
                 $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 20);
+                $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
+                $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
+                if ( $minaskvolume < 0.00777 ) { $minaskvolume = 0.00777; }
+                if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
+            } elsif ( $base eq "BTC" ) {
+                $minaskvolume_btc = sprintf("%.8f",$btcfee * $btcusdprice / $coinusdprice * 15);
+                $minbidvolume_btc = sprintf("%.8f",$btcfee * 15);
+                $minaskvolume = $minaskvolume_btc;
+                $minbidvolume = $minbidvolume_btc;
+                if ( $minaskvolume < 0.00777 ) { $minaskvolume = 0.00777; }
+                if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
+            } elsif ( $type eq "erc20" ) {
+                $minaskvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 20);
+                $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 20);
+                $minaskvolume = $minaskvolume_eth;
+                $minbidvolume = $minbidvolume_eth;
+                if ( $minaskvolume < 0.00777 ) { $minaskvolume = 0.00777; }
+                if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
             }
-            $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
-            $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
-            if ( $minaskvolume < 0.00777 ) { $minaskvolume = 0.00777; }
-            if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
 
 #            if ( (!defined $price) || ($change > 35) ) {
             if (!defined $price) {
