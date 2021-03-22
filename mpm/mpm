@@ -829,6 +829,7 @@ sub dex_setprice {
     }
     if ( defined $marginsconf->{$rel}{'bidmargin'} ) {
         my $bidmargin = $marginsconf->{$rel}{'bidmargin'} + $marginadd;
+        if ( $bidmargin > 0.9 ) { $bidmargin = 0.89; }
         $bid = sprintf("%.8f", 1 / ($price - $price * $bidmargin));
     }
 
