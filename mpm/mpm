@@ -1085,7 +1085,7 @@ if ( $api eq "dex_gecko" ) {
     my $json = read_file("$cwd/mpm.conf.dex.$base");
     $marginsconf = decode_json($json);
 
-    my $baseprices = gecko_latest_price("ethereum,bitcoin,litecoin,bitcoin-cash,komodo,dogecoin,tether");
+    my $baseprices = gecko_latest_price("ethereum,bitcoin,litecoin,bitcoin-cash,komodo,dogecoin,tether,binance-usd");
 
     my $factor = 1;
     my $baseid = lc($base);
