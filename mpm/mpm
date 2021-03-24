@@ -1085,7 +1085,7 @@ if ( $api eq "dex_gecko" ) {
     my $json = read_file("$cwd/mpm.conf.dex.$base");
     $marginsconf = decode_json($json);
 
-    my $baseprices = gecko_latest_price("ethereum,bitcoin,litecoin,bitcoin-cash,komodo,dogecoin");
+    my $baseprices = gecko_latest_price("ethereum,bitcoin,litecoin,bitcoin-cash,komodo,dogecoin,tether");
 
     my $factor = 1;
     my $baseid = lc($base);
@@ -1095,6 +1095,8 @@ if ( $api eq "dex_gecko" ) {
     } elsif ( $baseid eq "doge" ) {
         $baseid = "btc";
         $factor = from_json($baseprices)->{"dogecoin"}{"btc"};
+    } elsif ( $baseid eq "usdt" ) {
+        $baseid = "usd";
     }
 
     my $idcount = 0;
