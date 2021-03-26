@@ -834,6 +834,7 @@ sub dex_setprice {
     }
 
     my $ua = LWP::UserAgent->new;
+    $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
     $req->content_type('application/x-www-form-urlencoded');
 
@@ -968,6 +969,7 @@ sub dexp2p_getbalance {
 
 sub dex_deleteprice {
     my $ua = LWP::UserAgent->new;
+    $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
     $req->content_type('application/x-www-form-urlencoded');
 
@@ -986,6 +988,7 @@ sub dex_deleteprice {
 sub dex_gettradefee {
     my $coin = $_[0];
     my $ua = LWP::UserAgent->new;
+    $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
     $req->content_type('application/x-www-form-urlencoded');
 
@@ -1085,16 +1088,24 @@ if ( $api eq "dex_gecko" ) {
     my $json = read_file("$cwd/mpm.conf.dex.$base");
     $marginsconf = decode_json($json);
 
-    my $baseprices = gecko_latest_price("ethereum,bitcoin,litecoin,bitcoin-cash,komodo,dogecoin,tether,binance-usd");
+    my $ids = "ethereum,bitcoin,litecoin,bitcoin-cash,komodo,dogecoin,tether,binance-usd";
+    foreach my $coin ( keys %{$marginsconf} ) {
+        if (index($ids, $marginsconf->{$coin}{'geckoid'}) != -1) {
+            next;
+        } else {
+            $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
+        }
+    }
+    my $coinprice = gecko_latest_price($ids);
 
     my $factor = 1;
     my $baseid = lc($base);
     if ( $baseid eq "kmd" ) {
         $baseid = "btc";
-        $factor = from_json($baseprices)->{"komodo"}{"btc"};
+        $factor = from_json($coinprice)->{"komodo"}{"btc"};
     } elsif ( $baseid eq "doge" ) {
         $baseid = "btc";
-        $factor = from_json($baseprices)->{"dogecoin"}{"btc"};
+        $factor = from_json($coinprice)->{"dogecoin"}{"btc"};
     } elsif ( $baseid eq "btc-bep20" ) {
         $baseid = "btc";
     } elsif ( $baseid eq "eth-bep20" ) {
@@ -1103,20 +1114,11 @@ if ( $api eq "dex_gecko" ) {
         $baseid = "usd";
     }
 
-    my $idcount = 0;
-    my $ids = "";
-    foreach my $coin ( keys %{$marginsconf} ) {
-        if ( $idcount eq "0" ) { $ids = $marginsconf->{$coin}{'geckoid'}; }
-        else { $ids = $ids.",".$marginsconf->{$coin}{'geckoid'}; }
-        $idcount++;
-    }
-    my $coinprice = gecko_latest_price($ids);
-
     my $erc20fee = dex_gettradefee("ETH");
     my $btcfee = dex_gettradefee("BTC");
-    my $ethusdprice = from_json($baseprices)->{"ethereum"}{"usd"};
-    my $btcusdprice = from_json($baseprices)->{"bitcoin"}{"usd"};
-    my $baseusdprice = from_json($baseprices)->{$basegeckoid}{"usd"};
+    my $ethusdprice = from_json($coinprice)->{"ethereum"}{"usd"};
+    my $btcusdprice = from_json($coinprice)->{"bitcoin"}{"usd"};
+    my $baseusdprice = from_json($coinprice)->{$basegeckoid}{"usd"};
 
     if ( $coinprice ne "1" ) {
         foreach my $coin ( keys %{$marginsconf} ) {
@@ -1171,7 +1173,6 @@ if ( $api eq "dex_gecko" ) {
             } else {
                 dex_setprice($base,$coin,$price/$factor,$marginadd,$maxbidvolume,$minbidvolume,$minaskvolume);
             }
-            sleep(1);
         }
     }
 
