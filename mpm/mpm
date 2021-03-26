@@ -1095,6 +1095,10 @@ if ( $api eq "dex_gecko" ) {
     } elsif ( $baseid eq "doge" ) {
         $baseid = "btc";
         $factor = from_json($baseprices)->{"dogecoin"}{"btc"};
+    } elsif ( $baseid eq "btc-bep20" ) {
+        $baseid = "btc";
+    } elsif ( $baseid eq "eth-bep20" ) {
+        $baseid = "eth";
     } elsif ( ($baseid eq "busd-bep20") || ($baseid eq "usdt-bep20") ) {
         $baseid = "usd";
     }
