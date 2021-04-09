@@ -1128,10 +1128,12 @@ if ( $api eq "dex_gecko" ) {
             my $price = undef;
             $price = from_json($coinprice)->{$geckoid}{$baseid};
             my $coinusdprice = from_json($coinprice)->{$geckoid}{"usd"};
+
             my $key = $baseid."_24h_change";
-            #print "geckoid: $geckoid\n";
-            my $change = abs(from_json($coinprice)->{$geckoid}{$key});
-            #print "change: $change\n";
+            my $change = 0;
+            if ( defined from_json($coinprice)->{$geckoid}{$key} ) {
+                $change = abs(from_json($coinprice)->{$geckoid}{$key});
+            }
             my $marginadd = $change/100/5;
 
             my $maxbidvolume = $marginsconf->{$coin}{'maxbidvolume'};
@@ -1163,8 +1165,6 @@ if ( $api eq "dex_gecko" ) {
                 $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 20);
                 $minaskvolume = $minaskvolume_eth;
                 $minbidvolume = $minbidvolume_eth;
-                if ( $minaskvolume < 0.00777 ) { $minaskvolume = 0.00777; }
-                if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
             }
 
 #            if ( (!defined $price) || ($change > 35) ) {
@@ -1173,6 +1173,8 @@ if ( $api eq "dex_gecko" ) {
             } else {
                 dex_setprice($base,$coin,$price/$factor,$marginadd,$maxbidvolume,$minbidvolume,$minaskvolume);
             }
+
+            sleep(1);
         }
     }
 
@@ -1238,12 +1240,12 @@ if ( $api eq "dex_gecko" ) {
     my $marginadd = binance_volat();
 
     foreach my $coin ( keys %{$marginsconf} ) {
-        my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/15);
-        my $bidmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_2'} + $marginadd/10);
-        my $bidmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_3'} + $marginadd/5);
-        my $askmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_1'} + $marginadd/15);
-        my $askmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_2'} + $marginadd/10);
-        my $askmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_3'} + $marginadd/5);
+        my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/50);
+        my $bidmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_2'} + $marginadd/25);
+        my $bidmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_3'} + $marginadd/10);
+        my $askmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_1'} + $marginadd/50);
+        my $askmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_2'} + $marginadd/25);
+        my $askmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_3'} + $marginadd/10);
         my $quantity_1 = $marginsconf->{$coin}{'quantity_1'};
         my $quantity_2 = $marginsconf->{$coin}{'quantity_2'};
         my $quantity_3 = $marginsconf->{$coin}{'quantity_3'};
@@ -1361,12 +1363,12 @@ if ( $api eq "dex_gecko" ) {
     my $marginadd = binance_volat();
 
     foreach my $coin ( keys %{$marginsconf} ) {
-        my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/15);
-        my $bidmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_2'} + $marginadd/10);
-        my $bidmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_3'} + $marginadd/5);
-        my $askmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_1'} + $marginadd/15);
-        my $askmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_2'} + $marginadd/10);
-        my $askmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_3'} + $marginadd/5);
+        my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/50);
+        my $bidmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_2'} + $marginadd/25);
+        my $bidmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_3'} + $marginadd/10);
+        my $askmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_1'} + $marginadd/50);
+        my $askmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_2'} + $marginadd/25);
+        my $askmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_3'} + $marginadd/10);
         my $quantity_1 = $marginsconf->{$coin}{'quantity_1'};
         my $quantity_2 = $marginsconf->{$coin}{'quantity_2'};
         my $quantity_3 = $marginsconf->{$coin}{'quantity_3'};
@@ -1376,14 +1378,16 @@ if ( $api eq "dex_gecko" ) {
 
         bitvavo_cancelorders($base,$coin);
 
-        my $vav_btc_eur_price = decode_json(bitvavo_book_price("BTC","EUR"));
-        my $btc_eur_price = sprintf("%.2f", ($vav_btc_eur_price->{'bid'} + $vav_btc_eur_price->{'ask'})/2);
-        my $binance_book_price = decode_json(binance_book_price($base,"BTC"));
-        my $cex_price = sprintf("%.4f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2*$btc_eur_price);
+#        my $vav_btc_eur_price = decode_json(bitvavo_book_price("BTC","EUR"));
+#        my $btc_eur_price = sprintf("%.2f", ($vav_btc_eur_price->{'bid'} + $vav_btc_eur_price->{'ask'})/2);
+#        my $binance_book_price = decode_json(binance_book_price($base,"BTC"));
+#        my $cex_price = sprintf("%.4f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2*$btc_eur_price);
+        my $bitvavo_book_price = decode_json(bitvavo_book_price($base,$coin));
+        my $cex_price = sprintf("%.4f", ($bitvavo_book_price->{'bid'} + $bitvavo_book_price->{'ask'})/2);
         my $bitvavo_depth = decode_json(bitvavo_depth($base,$coin));
-        print "btceur: $btc_eur_price, cex: $cex_price\n";
+#        print "btceur: $btc_eur_price, cex: $cex_price\n";
 
-        if ( ($bitvavo_depth ne "1") && ($vav_btc_eur_price ne "1") && ($binance_book_price ne "1") ) {
+        if ( ($bitvavo_depth ne "1") && ($bitvavo_book_price ne "1") ) {
             my $maxbidprice = sprintf("%.4f", ($cex_price - $cex_price * $bidmargin_1));
             my $minaskprice = sprintf("%.4f", ($cex_price + $cex_price * $askmargin_1));
             $cex_bid_price_1 = sprintf("%.4f", (calc_bestprice_sum($bitvavo_depth->{'bids'},$maxsum_1,$coin) + 0.0001));
@@ -1417,10 +1421,10 @@ if ( $api eq "dex_gecko" ) {
     my $marginadd = binance_volat();
 
     foreach my $coin ( keys %{$marginsconf} ) {
-        my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/5);
-        my $bidmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_2'} + $marginadd/15);
-        my $askmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_1'} + $marginadd/5);
-        my $askmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_2'} + $marginadd/15);
+        my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/15);
+        my $bidmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_2'} + $marginadd/30);
+        my $askmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_1'} + $marginadd/15);
+        my $askmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_2'} + $marginadd/30);
         my $quantity_1 = $marginsconf->{$coin}{'quantity_1'};
         my $quantity_2 = $marginsconf->{$coin}{'quantity_2'};
         my $maxsum_1 = $marginsconf->{$coin}{'maxsum_1'};
