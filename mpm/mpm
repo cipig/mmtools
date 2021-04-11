@@ -814,24 +814,12 @@ sub coinex_setprice {
 sub dex_setprice {
     my $base = $_[0];
     my $rel = $_[1];
-    my $price = $_[2];
-    my $marginadd = $_[3];
+    my $bid = $_[2];
+    my $ask = $_[3];
     my $maxbidvolume = $_[4];
     my $minbidvolume = $_[5];
     my $minaskvolume = $_[6];
-    my $bid = undef;
-    my $ask = undef;
     my $command = undef;
-
-    if ( defined $marginsconf->{$rel}{'askmargin'} ) {
-        my $askmargin = $marginsconf->{$rel}{'askmargin'} + $marginadd;
-        $ask = sprintf("%.8f", $price + $price * $askmargin);
-    }
-    if ( defined $marginsconf->{$rel}{'bidmargin'} ) {
-        my $bidmargin = $marginsconf->{$rel}{'bidmargin'} + $marginadd;
-        if ( $bidmargin > 0.9 ) { $bidmargin = 0.89; }
-        $bid = sprintf("%.8f", 1 / ($price - $price * $bidmargin));
-    }
 
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
@@ -861,7 +849,7 @@ sub dex_setprice {
         } elsif ( defined $minbidvolume ) {
             $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"max":true,"min_volume":'.$minbidvolume.'}';
         } else {
-            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$_[0].'","rel":"'.$_[1].'","price":'.$bid.',"max":true}';
+            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"max":true}';
         }
         #print "$command\n";
         $req->content($command);
@@ -1126,7 +1114,7 @@ if ( $api eq "dex_gecko" ) {
             my $type = $marginsconf->{$coin}{'type'};
             if ( !defined $type ) { $type = "utxo"; }
             my $price = undef;
-            $price = from_json($coinprice)->{$geckoid}{$baseid};
+            $price = from_json($coinprice)->{$geckoid}{$baseid}/$factor;
             my $coinusdprice = from_json($coinprice)->{$geckoid}{"usd"};
 
             my $key = $baseid."_24h_change";
@@ -1135,6 +1123,16 @@ if ( $api eq "dex_gecko" ) {
                 $change = abs(from_json($coinprice)->{$geckoid}{$key});
             }
             my $marginadd = $change/100/5;
+
+            if ( defined $marginsconf->{$coin}{'askmargin'} ) {
+                my $askmargin = $marginsconf->{$coin}{'askmargin'} + $marginadd;
+                $ask = sprintf("%.8f", $price + $price * $askmargin);
+            }
+            if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
+                my $bidmargin = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
+                if ( $bidmargin > 0.95 ) { $bidmargin = 0.95; }
+                $bid = sprintf("%.8f", 1 / ($price - $price * $bidmargin));
+            }
 
             my $maxbidvolume = $marginsconf->{$coin}{'maxbidvolume'};
             my $minbidvolume = $marginsconf->{$coin}{'minbidvolume'};
@@ -1151,14 +1149,14 @@ if ( $api eq "dex_gecko" ) {
                 $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 20);
                 $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
                 $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
-                if ( $minaskvolume < 0.00777 ) { $minaskvolume = 0.00777; }
+                if ( $minaskvolume < 0.00777/$ask ) { $minaskvolume = 0.00777/$ask*1.1; }
                 if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
             } elsif ( $base eq "BTC" ) {
                 $minaskvolume_btc = sprintf("%.8f",$btcfee * $btcusdprice / $coinusdprice * 15);
                 $minbidvolume_btc = sprintf("%.8f",$btcfee * 15);
                 $minaskvolume = $minaskvolume_btc;
                 $minbidvolume = $minbidvolume_btc;
-                if ( $minaskvolume < 0.00777 ) { $minaskvolume = 0.00777; }
+                if ( $minaskvolume < 0.00777/$ask ) { $minaskvolume = 0.00777/$ask*1.1; }
                 if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
             } elsif ( $type eq "erc20" ) {
                 $minaskvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 20);
@@ -1167,11 +1165,10 @@ if ( $api eq "dex_gecko" ) {
                 $minbidvolume = $minbidvolume_eth;
             }
 
-#            if ( (!defined $price) || ($change > 35) ) {
             if (!defined $price) {
                 dex_deleteprice($base,$coin);
             } else {
-                dex_setprice($base,$coin,$price/$factor,$marginadd,$maxbidvolume,$minbidvolume,$minaskvolume);
+                dex_setprice($base,$coin,$bid,$ask,$maxbidvolume,$minbidvolume,$minaskvolume);
             }
 
             sleep(1);
