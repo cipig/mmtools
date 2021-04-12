@@ -1113,6 +1113,7 @@ if ( $api eq "dex_gecko" ) {
             my $geckoid = $marginsconf->{$coin}{'geckoid'};
             my $type = $marginsconf->{$coin}{'type'};
             if ( !defined $type ) { $type = "utxo"; }
+
             my $price = undef;
             $price = from_json($coinprice)->{$geckoid}{$baseid}/$factor;
             my $coinusdprice = from_json($coinprice)->{$geckoid}{"usd"};
@@ -1124,6 +1125,8 @@ if ( $api eq "dex_gecko" ) {
             }
             my $marginadd = $change/100/5;
 
+            my $bid = undef;
+            my $ask = undef;
             if ( defined $marginsconf->{$coin}{'askmargin'} ) {
                 my $askmargin = $marginsconf->{$coin}{'askmargin'} + $marginadd;
                 $ask = sprintf("%.8f", $price + $price * $askmargin);
