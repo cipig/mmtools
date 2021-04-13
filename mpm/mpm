@@ -23,7 +23,7 @@ my $recvaddr = $ARGV[4];
 my $recvZaddr = $ARGV[5];
 my $cwd = dirname($0);
 my $useragent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
-my $timeout = 20;
+my $timeout = 30;
 
 my $binance_apikey = "";
 my $binance_seckey = "";
@@ -1123,7 +1123,12 @@ if ( $api eq "dex_gecko" ) {
             if ( defined from_json($coinprice)->{$geckoid}{$key} ) {
                 $change = abs(from_json($coinprice)->{$geckoid}{$key});
             }
-            my $marginadd = $change/100/5;
+            my $marginadd = 0;
+            if ($base eq "KMD") {
+                $marginadd = $change/100/5;
+            } else {
+                $marginadd = $change/100/4;
+            }
 
             my $bid = undef;
             my $ask = undef;
