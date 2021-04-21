@@ -2,6 +2,7 @@
 
 use warnings;
 use LWP::UserAgent;
+use LWP::Protocol::socks;
 use JSON;
 use JSON::RPC::Legacy::Client;
 use File::Slurp qw(read_file);
@@ -61,6 +62,7 @@ sub gecko_latest_price {
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
+    $ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
