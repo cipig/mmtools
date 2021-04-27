@@ -525,8 +525,8 @@ sub binance_setprice {
         $bid = sprintf("%.6f",$_[2]);
         $ask = sprintf("%.6f",$_[3]);
     } else {
-        $bid = sprintf("%.7f",$_[2]);
-        $ask = sprintf("%.7f",$_[3]);
+        $bid = sprintf("%.8f",$_[2]);
+        $ask = sprintf("%.8f",$_[3]);
     }
     my $quantity = sprintf("%u",$_[4]);
 
@@ -547,7 +547,6 @@ sub binance_setprice {
         if ($resp->is_success) {
             print " bid ".$bid;
         } else {
-#            print " bid 0.0000000";
             print " bid ".$resp->content;
         }
     }
@@ -561,7 +560,6 @@ sub binance_setprice {
         if ($resp->is_success) {
             print " ask ".$ask."\n";
         } else {
-#            print " ask 0.0000000\n";
             print " ask ".$resp->content."\n";
         }
     }
@@ -1242,7 +1240,7 @@ if ( $api eq "dex_gecko" ) {
                 dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume);
             }
 
-            Time::HiRes::sleep(0.2);
+            Time::HiRes::sleep(0.3);
         }
     }
 
@@ -1303,7 +1301,8 @@ if ( $api eq "dex_gecko" ) {
 } elsif ( $api eq "binance" ) {
     my $json = read_file("$cwd/mpm.conf.binance");
     my $marginsconf = decode_json($json);
-    my $marginadd = binance_volat();
+    #my $marginadd = binance_volat();
+    my $marginadd = 0;
 
     foreach my $coin ( keys %{$marginsconf} ) {
         my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/50);
@@ -1335,8 +1334,8 @@ if ( $api eq "dex_gecko" ) {
                 $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_1,$coin) + 0.00000100;
                 $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_1,$coin) - 0.00000100;
             } else {
-                $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_1,$coin) + 0.00000010;
-                $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_1,$coin) - 0.00000010;
+                $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_1,$coin) + 0.00000001;
+                $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_1,$coin) - 0.00000001;
             }
             if ( ( $cex_bid_price_1 eq "0.00000001" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = $maxbidprice; }
             if ( ( $cex_ask_price_1 eq "0.00000001" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = $minaskprice; }
@@ -1350,8 +1349,8 @@ if ( $api eq "dex_gecko" ) {
                 $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_2,$coin) + 0.00000100;
                 $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_2,$coin) - 0.00000100;
             } else {
-                $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_2,$coin) + 0.00000010;
-                $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_2,$coin) - 0.00000010;
+                $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_2,$coin) + 0.00000001;
+                $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_2,$coin) - 0.00000001;
             }
             if ( ( $cex_bid_price_2 eq "0.00000001" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
             if ( ( $cex_ask_price_2 eq "0.00000001" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = $minaskprice; }
@@ -1365,8 +1364,8 @@ if ( $api eq "dex_gecko" ) {
                 $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_3,$coin) + 0.00000100;
                 $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_3,$coin) - 0.00000100;
             } else {
-                $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_3,$coin) + 0.00000010;
-                $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_3,$coin) - 0.00000010;
+                $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_3,$coin) + 0.00000001;
+                $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_3,$coin) - 0.00000001;
             }
             if ( ( $cex_bid_price_3 eq "0.00000001" ) || ( $cex_bid_price_3 > $maxbidprice ) ) { $cex_bid_price_3 = $maxbidprice; }
             if ( ( $cex_ask_price_3 eq "0.00000001" ) || ( $cex_ask_price_3 < $minaskprice ) ) { $cex_ask_price_3 = $minaskprice; }
