@@ -13,6 +13,7 @@ use Digest::SHA qw(hmac_sha256_hex hmac_sha512_base64);
 use Digest::MD5 qw(md5_hex);
 use DateTime;
 use DateTime::Format::Strptime;
+use Time::HiRes;
 use Data::Dumper;
 
 my $api = $ARGV[0];
@@ -1241,7 +1242,7 @@ if ( $api eq "dex_gecko" ) {
                 dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume);
             }
 
-            sleep(1);
+            Time::HiRes::sleep(0.2);
         }
     }
 
@@ -1281,8 +1282,6 @@ if ( $api eq "dex_gecko" ) {
         } elsif ( ($diff_1 < 180) || ($diff_2 < 180) ) {
             dex_setprice($base,$coin,$price,$marginadd);
         }
-
-        sleep(1);
     }
 
 } elsif ( $api eq "dexp2p" ) {
