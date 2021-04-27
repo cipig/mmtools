@@ -816,12 +816,14 @@ sub coinex_setprice {
 sub dex_setprice {
     my $base = $_[0];
     my $rel = $_[1];
-    my $bid = $_[2];
-    my $ask = $_[3];
-    my $maxbidvolume = $_[4];
-    my $minbidvolume = $_[5];
-    my $minaskvolume = $_[6];
-    my $command = undef;
+    my $bid1 = $_[2];
+    my $ask1 = $_[3];
+    my $bid2 = $_[4];
+    my $ask2 = $_[5];
+    my $maxbidvolume = $_[6];
+    my $minbidvolume = $_[7];
+    my $maxaskvolume = $_[8];
+    my $minaskvolume = $_[9];
 
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
@@ -829,35 +831,72 @@ sub dex_setprice {
     $req->content_type('application/x-www-form-urlencoded');
 
     print "$rel/$base ";
-    if ( defined $ask ) {
-        if (defined $minaskvolume) {
-	    $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask.',"max":true,"min_volume":'.$minaskvolume.'}';
+    if ( defined $ask1 ) {
+        my $command1 = undef;
+        my $command2 = undef;
+        my $askvolume1 = 0;
+        my $askvolume2 = 0;
+        if ( defined $maxaskvolume ) {
+            $askvolume1 = $maxaskvolume/2;
+            $askvolume2 = $maxaskvolume*0.99;
         } else {
-            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask.',"max":true}';
+            $askvolume2 = dex_getbalance($rel)*0.99;
+            if ( $askvolume2 > 0 ) { $askvolume1 = $askvolume2/2; }
         }
-        #print "$command\n";
-        $req->content($command);
-        my $resp = $ua->request($req);
-        #print Dumper($resp->content);
-        my $askerror = from_json($resp->content)->{'error'};
-        if ( defined $askerror ) { print $askerror." "; } else { print "ask ".sprintf("%.8f",$ask)." "; }
+
+        if ( $askvolume2 > 0 ) {
+            if (defined $minaskvolume) {
+                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.',"min_volume":'.$minaskvolume.'}';
+                $command2 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask2.',"volume":'.$askvolume2.',"min_volume":'.$minaskvolume.',"cancel_previous":false}';
+            } else {
+                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.'}';
+                $command2 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask2.',"volume":'.$askvolume2.',"cancel_previous":false}';
+            }
+
+            $req->content($command1);
+            my $resp1 = $ua->request($req);
+            my $askerror1 = from_json($resp1->content)->{'error'};
+            if ( defined $askerror1 ) { print $askerror1." "; } else { print "ask1 ".sprintf("%.8f",$ask1)." "; }
+
+            $req->content($command2);
+            my $resp2 = $ua->request($req);
+            my $askerror2 = from_json($resp2->content)->{'error'};
+            if ( defined $askerror2 ) { print $askerror2." "; } else { print "ask2 ".sprintf("%.8f",$ask2)." "; }
+        }
     }
 
-    if ( defined $bid ) {
-        if ( (defined $maxbidvolume) && (defined $minbidvolume) ) {
-            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"volume":'.$maxbidvolume.',"min_volume":'.$minbidvolume.'}';
-        } elsif ( defined $maxbidvolume ) {
-            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"volume":'.$maxbidvolume.'}';
-        } elsif ( defined $minbidvolume ) {
-            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"max":true,"min_volume":'.$minbidvolume.'}';
+    if ( defined $bid1 ) {
+        my $command1 = undef;
+        my $command2 = undef;
+        my $bidvolume1 = 0;
+        my $bidvolume2 = 0;
+        if ( defined $maxbidvolume ) {
+            $bidvolume1 = $maxbidvolume/2;
+            $bidvolume2 = $maxbidvolume*0.99;
         } else {
-            $command = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"max":true}';
+            $bidvolume2 = dex_getbalance($base)*0.99;
+            if ( $bidvolume2 > 0 ) { $bidvolume1 = $bidvolume2/2; }
         }
-        #print "$command\n";
-        $req->content($command);
-        $resp = $ua->request($req);
-        my $biderror = from_json($resp->content)->{'error'};
-        if ( defined $biderror ) { print $biderror; } else { print "bid ".sprintf("%.8f",1/$bid); }
+
+        if ( $bidvolume2 > 0 ) {
+            if ( defined $minbidvolume ) {
+                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid1.',"volume":'.$bidvolume1.',"min_volume":'.$minbidvolume.'}';
+                $command2 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid2.',"volume":'.$bidvolume2.',"min_volume":'.$minbidvolume.',"cancel_previous":false}';
+            } else {
+                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid1.',"volume":'.$bidvolume1.'}';
+                $command2 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid2.',"volume":'.$bidvolume2.',"cancel_previous":false}';
+            }
+
+            $req->content($command1);
+            $resp1 = $ua->request($req);
+            my $biderror1 = from_json($resp1->content)->{'error'};
+            if ( defined $biderror1 ) { print $biderror1; } else { print "bid1 ".sprintf("%.8f",1/$bid1)." "; }
+
+            $req->content($command2);
+            $resp2 = $ua->request($req);
+            my $biderror2 = from_json($resp2->content)->{'error'};
+            if ( defined $biderror2 ) { print $biderror2; } else { print "bid2 ".sprintf("%.8f",1/$bid2); }
+        }
     }
     print "\n";
 }
@@ -986,6 +1025,20 @@ sub dex_gettradefee {
     $req->content($command);
     my $resp = $ua->request($req);
     return from_json($resp->content)->{'result'}{'amount'};
+}
+
+
+sub dex_getbalance {
+    my $coin = $_[0];
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
+    $req->content_type('application/x-www-form-urlencoded');
+
+    $command = '{"userpass":"'.$userpass.'","method":"my_balance","coin":"'.$coin.'"}';
+    $req->content($command);
+    my $resp = $ua->request($req);
+    return from_json($resp->content)->{'balance'};
 }
 
 
@@ -1127,7 +1180,7 @@ if ( $api eq "dex_gecko" ) {
             }
             my $marginadd = 0;
             if ($base eq "KMD") {
-                $marginadd = $change/100/5;
+                $marginadd = $change/100/6;
             } else {
                 $marginadd = $change/100/4;
             }
@@ -1136,12 +1189,16 @@ if ( $api eq "dex_gecko" ) {
             my $ask = undef;
             if ( defined $marginsconf->{$coin}{'askmargin'} ) {
                 my $askmargin = $marginsconf->{$coin}{'askmargin'} + $marginadd;
-                $ask = sprintf("%.8f", $price + $price * $askmargin);
+                $ask1 = sprintf("%.8f", $price + $price * $askmargin);
+                $ask2 = sprintf("%.8f", $price + $price * $askmargin * 2);
             }
             if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
-                my $bidmargin = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
-                if ( $bidmargin > 0.95 ) { $bidmargin = 0.95; }
-                $bid = sprintf("%.8f", 1 / ($price - $price * $bidmargin));
+                my $bidmargin1 = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
+                my $bidmargin2 = $bidmargin1 * 2;
+                if ( $bidmargin1 > 0.95 ) { $bidmargin1 = 0.95; }
+                if ( $bidmargin2 > 0.99 ) { $bidmargin2 = 0.99; }
+                $bid1 = sprintf("%.8f", 1 / ($price - $price * $bidmargin1));
+                $bid2 = sprintf("%.8f", 1 / ($price - $price * $bidmargin2));
             }
 
             my $maxbidvolume = $marginsconf->{$coin}{'maxbidvolume'};
@@ -1159,14 +1216,14 @@ if ( $api eq "dex_gecko" ) {
                 $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 20);
                 $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
                 $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
-                if ( $minaskvolume < 0.00777/$ask ) { $minaskvolume = 0.00777/$ask*1.1; }
+                if ( $minaskvolume < 0.00777/$ask1 ) { $minaskvolume = 0.00777/$ask1*1.1; }
                 if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
             } elsif ( $base eq "BTC" ) {
                 $minaskvolume_btc = sprintf("%.8f",$btcfee * $btcusdprice / $coinusdprice * 15);
                 $minbidvolume_btc = sprintf("%.8f",$btcfee * 15);
                 $minaskvolume = $minaskvolume_btc;
                 $minbidvolume = $minbidvolume_btc;
-                if ( $minaskvolume < 0.00777/$ask ) { $minaskvolume = 0.00777/$ask*1.1; }
+                if ( $minaskvolume < 0.00777/$ask1 ) { $minaskvolume = 0.00777/$ask1*1.1; }
                 if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
             } elsif ( $type eq "erc20" ) {
                 $minaskvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 20);
@@ -1178,7 +1235,7 @@ if ( $api eq "dex_gecko" ) {
             if (!defined $price) {
                 dex_deleteprice($base,$coin);
             } else {
-                dex_setprice($base,$coin,$bid,$ask,$maxbidvolume,$minbidvolume,$minaskvolume);
+                dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume);
             }
 
             sleep(1);
