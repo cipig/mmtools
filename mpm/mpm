@@ -1190,9 +1190,10 @@ if ( $api eq "dex_gecko" ) {
             my $ask1 = undef;
             my $ask2 = undef;
             if ( defined $marginsconf->{$coin}{'askmargin'} ) {
-                my $askmargin = $marginsconf->{$coin}{'askmargin'} + $marginadd;
-                $ask1 = sprintf("%.8f", $price + $price * $askmargin);
-                $ask2 = sprintf("%.8f", $price + $price * $askmargin * 2);
+                my $askmargin1 = $marginsconf->{$coin}{'askmargin'} + $marginadd;
+                my $askmargin2 = $askmargin1 * 2;
+                $ask1 = sprintf("%.8f", $price + $price * $askmargin1);
+                $ask2 = sprintf("%.8f", $price + $price * $askmargin2);
             }
             if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
                 my $bidmargin1 = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
