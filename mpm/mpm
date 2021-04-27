@@ -1197,8 +1197,8 @@ if ( $api eq "dex_gecko" ) {
             if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
                 my $bidmargin1 = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
                 my $bidmargin2 = $bidmargin1 * 2;
-                if ( $bidmargin1 > 0.95 ) { $bidmargin1 = 0.95; }
-                if ( $bidmargin2 > 0.99 ) { $bidmargin2 = 0.99; }
+                if ( $bidmargin1 > 0.94 ) { $bidmargin1 = 0.94; }
+                if ( $bidmargin2 > 0.98 ) { $bidmargin2 = 0.98; }
                 $bid1 = sprintf("%.8f", 1 / ($price - $price * $bidmargin1));
                 $bid2 = sprintf("%.8f", 1 / ($price - $price * $bidmargin2));
             }
