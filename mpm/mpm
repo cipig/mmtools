@@ -1132,11 +1132,7 @@ if ( $api eq "dex_gecko" ) {
 
     my $ids = "ethereum,bitcoin,litecoin,bitcoin-cash,komodo,dogecoin,tether,binance-usd";
     foreach my $coin ( keys %{$marginsconf} ) {
-        if (index($ids, $marginsconf->{$coin}{'geckoid'}) != -1) {
-            next;
-        } else {
-            $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
-        }
+        $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
     }
     my $coinprice = gecko_latest_price($ids);
 
@@ -1156,20 +1152,19 @@ if ( $api eq "dex_gecko" ) {
         $baseid = "usd";
     }
 
-    my $erc20fee = dex_gettradefee("ETH");
-    my $btcfee = dex_gettradefee("BTC");
-    my $ethusdprice = from_json($coinprice)->{"ethereum"}{"usd"};
-    my $btcusdprice = from_json($coinprice)->{"bitcoin"}{"usd"};
-    my $baseusdprice = from_json($coinprice)->{$basegeckoid}{"usd"};
-
     if ( $coinprice ne "1" ) {
+        my $erc20fee = dex_gettradefee("ETH");
+        my $btcfee = dex_gettradefee("BTC");
+        my $ethusdprice = from_json($coinprice)->{"ethereum"}{"usd"};
+        my $btcusdprice = from_json($coinprice)->{"bitcoin"}{"usd"};
+        my $baseusdprice = from_json($coinprice)->{$basegeckoid}{"usd"};
+
         foreach my $coin ( keys %{$marginsconf} ) {
             my $geckoid = $marginsconf->{$coin}{'geckoid'};
             my $type = $marginsconf->{$coin}{'type'};
             if ( !defined $type ) { $type = "utxo"; }
 
-            my $price = undef;
-            $price = from_json($coinprice)->{$geckoid}{$baseid}/$factor;
+            my $price = from_json($coinprice)->{$geckoid}{$baseid} / $factor;
             my $coinusdprice = from_json($coinprice)->{$geckoid}{"usd"};
 
             my $key = $baseid."_24h_change";
@@ -1198,7 +1193,9 @@ if ( $api eq "dex_gecko" ) {
                 my $bidmargin1 = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
                 my $bidmargin2 = $bidmargin1 * 2;
                 if ( $bidmargin1 > 0.94 ) { $bidmargin1 = 0.94; }
-                if ( $bidmargin2 > 0.98 ) { $bidmargin2 = 0.98; }
+                if ( $bidmargin2 > 0.96 ) { $bidmargin2 = 0.96; }
+                my $low = $price - $price * $bidmargin2;
+                if ( $low < 0.00000001 ) { print "kaputt: $coin, price: $low\n"; }
                 $bid1 = sprintf("%.8f", 1 / ($price - $price * $bidmargin1));
                 $bid2 = sprintf("%.8f", 1 / ($price - $price * $bidmargin2));
             }
