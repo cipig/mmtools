@@ -1165,6 +1165,7 @@ if ( $api eq "dex_gecko" ) {
         my $btcfee = dex_gettradefee("BTC");
         my $ethusdprice = from_json($coinprice)->{"ethereum"}{"usd"};
         my $btcusdprice = from_json($coinprice)->{"bitcoin"}{"usd"};
+        my $dogeusdprice = from_json($coinprice)->{"dogecoin"}{"usd"};
         my $baseusdprice = from_json($coinprice)->{$basegeckoid}{"usd"};
 
         foreach my $coin ( keys %{$marginsconf} ) {
@@ -1237,6 +1238,11 @@ if ( $api eq "dex_gecko" ) {
                 $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 20);
                 $minaskvolume = $minaskvolume_eth;
                 $minbidvolume = $minbidvolume_eth;
+            }
+
+            if ( ($base eq "DOGE") && (!defined $minaskvolume) ) {
+                $minaskvolume = $dogeusdprice / $coinusdprice * 50;
+                $minbidvolume = 50;
             }
 
             if (!defined $price) {
