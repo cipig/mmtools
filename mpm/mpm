@@ -1240,11 +1240,6 @@ if ( $api eq "dex_gecko" ) {
                 $minbidvolume = $minbidvolume_eth;
             }
 
-            if ( ($base eq "DOGE") && (!defined $minaskvolume) ) {
-                $minaskvolume = $dogeusdprice / $coinusdprice * 50;
-                $minbidvolume = 50;
-            }
-
             if (!defined $price) {
                 dex_deleteprice($base,$coin);
             } else {
