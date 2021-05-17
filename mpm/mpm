@@ -1183,7 +1183,7 @@ if ( $api eq "dex_gecko" ) {
             }
             my $marginadd = 0;
             if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) {
-                $marginadd = $change/100/5;
+                $marginadd = $change/100/4;
             } else {
                 $marginadd = $change/100/3;
             }
