@@ -1149,7 +1149,7 @@ if ( $api eq "dex_gecko" ) {
     if ( $baseid eq "kmd" ) {
         $baseid = "btc";
         $factor = from_json($coinprice)->{"komodo"}{"btc"};
-    } elsif ( $baseid eq "doge" ) {
+    } elsif ( ($baseid eq "doge") || ($baseid eq "doge-bep20") ) {
         $baseid = "btc";
         $factor = from_json($coinprice)->{"dogecoin"}{"btc"};
     } elsif ( $baseid eq "btc-bep20" ) {
