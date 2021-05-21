@@ -837,9 +837,9 @@ sub dex_setprice {
         my $askvolume2 = 0;
         if ( defined $maxaskvolume ) {
             $askvolume1 = $maxaskvolume/2;
-            $askvolume2 = $maxaskvolume*0.99;
+            $askvolume2 = $maxaskvolume*0.95;
         } else {
-            $askvolume2 = dex_getbalance($rel)*0.99;
+            $askvolume2 = dex_getbalance($rel)*0.95;
             if ( $askvolume2 > 0 ) { $askvolume1 = $askvolume2/2; }
         }
 
@@ -871,9 +871,9 @@ sub dex_setprice {
         my $bidvolume2 = 0;
         if ( defined $maxbidvolume ) {
             $bidvolume1 = $maxbidvolume/2;
-            $bidvolume2 = $maxbidvolume*0.99;
+            $bidvolume2 = $maxbidvolume*0.95;
         } else {
-            $bidvolume2 = dex_getbalance($base)*0.99;
+            $bidvolume2 = dex_getbalance($base)*0.95;
             if ( $bidvolume2 > 0 ) { $bidvolume1 = $bidvolume2/2; }
         }
 
