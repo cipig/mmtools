@@ -837,9 +837,9 @@ sub dex_setprice {
         my $askvolume2 = 0;
         if ( defined $maxaskvolume ) {
             $askvolume1 = $maxaskvolume/2;
-            $askvolume2 = $maxaskvolume*0.95;
+            $askvolume2 = $maxaskvolume*0.8;
         } else {
-            $askvolume2 = dex_getbalance($rel)*0.95;
+            $askvolume2 = dex_getbalance($rel)*0.8;
             if ( $askvolume2 > 0 ) { $askvolume1 = $askvolume2/2; }
         }
 
@@ -871,9 +871,9 @@ sub dex_setprice {
         my $bidvolume2 = 0;
         if ( defined $maxbidvolume ) {
             $bidvolume1 = $maxbidvolume/2;
-            $bidvolume2 = $maxbidvolume*0.95;
+            $bidvolume2 = $maxbidvolume*0.8;
         } else {
-            $bidvolume2 = dex_getbalance($base)*0.95;
+            $bidvolume2 = dex_getbalance($base)*0.8;
             if ( $bidvolume2 > 0 ) { $bidvolume1 = $bidvolume2/2; }
         }
 
@@ -1224,8 +1224,8 @@ if ( $api eq "dex_gecko" ) {
             if ( ($base eq "BTC") && ($type eq "erc20") ) {
                 $minaskvolume_btc = sprintf("%.8f",$btcfee * $btcusdprice / $coinusdprice * 15);
                 $minbidvolume_btc = sprintf("%.8f",$btcfee * 15);
-                $minaskvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 22);
-                $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 22);
+                $minaskvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 25);
+                $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 25);
                 $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
                 $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
                 if ( $minaskvolume < 0.00777/$ask1 ) { $minaskvolume = 0.00777/$ask1*1.1; }
@@ -1238,8 +1238,8 @@ if ( $api eq "dex_gecko" ) {
                 if ( $minaskvolume < 0.00777/$ask1 ) { $minaskvolume = 0.00777/$ask1*1.1; }
                 if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
             } elsif ( $type eq "erc20" ) {
-                $minaskvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 22);
-                $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 22);
+                $minaskvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 25);
+                $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 25);
                 $minaskvolume = $minaskvolume_eth;
                 $minbidvolume = $minbidvolume_eth;
             }
