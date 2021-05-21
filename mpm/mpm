@@ -25,7 +25,7 @@ my $recvaddr = $ARGV[4];
 my $recvZaddr = $ARGV[5];
 my $cwd = dirname($0);
 my $useragent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
-my $timeout = 20;
+my $timeout = 30;
 
 my $binance_apikey = "";
 my $binance_seckey = "";
@@ -1138,7 +1138,7 @@ if ( $api eq "dex_gecko" ) {
     my $json = read_file("$cwd/mpm.conf.dex.$base");
     $marginsconf = decode_json($json);
 
-    my $ids = "ethereum,bitcoin,litecoin,bitcoin-cash,komodo,dogecoin,tether,binance-usd";
+    my $ids = "ethereum,bitcoin,litecoin,bitcoin-cash,komodo,dogecoin";
     foreach my $coin ( keys %{$marginsconf} ) {
         $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
     }
@@ -1166,7 +1166,11 @@ if ( $api eq "dex_gecko" ) {
         my $ethusdprice = from_json($coinprice)->{"ethereum"}{"usd"};
         my $btcusdprice = from_json($coinprice)->{"bitcoin"}{"usd"};
         my $dogeusdprice = from_json($coinprice)->{"dogecoin"}{"usd"};
-        my $baseusdprice = from_json($coinprice)->{$basegeckoid}{"usd"};
+
+        my $baseusdprice = 1;
+        if ( $baseid ne "usd" ) {
+            $baseusdprice = from_json($coinprice)->{$basegeckoid}{"usd"};
+        }
 
         foreach my $coin ( keys %{$marginsconf} ) {
             my $geckoid = $marginsconf->{$coin}{'geckoid'};
