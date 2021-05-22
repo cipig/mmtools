@@ -59,7 +59,7 @@ sub paprika_latest_price {
 
 
 sub gecko_latest_price {
-    my $url = "https://api.coingecko.com/api/v3/simple/price?ids=".$_[0]."&vs_currencies=btc,ltc,bch,eth,usd&include_24hr_change=true";
+    my $url = "https://api.coingecko.com/api/v3/simple/price?ids=".$_[0]."&vs_currencies=btc,usd&include_24hr_change=true";
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
