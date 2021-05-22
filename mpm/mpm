@@ -1149,13 +1149,20 @@ if ( $api eq "dex_gecko" ) {
     if ( $baseid eq "kmd" ) {
         $baseid = "btc";
         $factor = from_json($coinprice)->{"komodo"}{"btc"};
+    } elsif ( $baseid eq "ltc" ) {
+        $baseid = "btc";
+        $factor = from_json($coinprice)->{"litecoin"}{"btc"};
+    } elsif ( $baseid eq "bch" ) {
+        $baseid = "btc";
+        $factor = from_json($coinprice)->{"bitcoin-cash"}{"btc"};
     } elsif ( ($baseid eq "doge") || ($baseid eq "doge-bep20") ) {
         $baseid = "btc";
         $factor = from_json($coinprice)->{"dogecoin"}{"btc"};
     } elsif ( $baseid eq "btc-bep20" ) {
         $baseid = "btc";
     } elsif ( $baseid eq "eth-bep20" ) {
-        $baseid = "eth";
+        $baseid = "btc";
+        $factor = from_json($coinprice)->{"ethereum"}{"btc"};
     } elsif ( ($baseid eq "busd-bep20") || ($baseid eq "usdt-bep20") ) {
         $baseid = "usd";
     }
