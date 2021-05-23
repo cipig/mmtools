@@ -882,12 +882,12 @@ sub dex_setprice {
             $req->content($command1);
             my $resp1 = $ua->request($req);
             my $askerror1 = from_json($resp1->content)->{'error'};
-            if ( defined $askerror1 ) { print $askerror1." "; } else { print "ask1 ".sprintf("%.8f",$ask1)." "; }
+            if ( defined $askerror1 ) { print $askerror1." "; } else { print "ask1 ".sprintf("%.10f",$ask1)." "; }
 
             $req->content($command2);
             my $resp2 = $ua->request($req);
             my $askerror2 = from_json($resp2->content)->{'error'};
-            if ( defined $askerror2 ) { print $askerror2." "; } else { print "ask2 ".sprintf("%.8f",$ask2)." "; }
+            if ( defined $askerror2 ) { print $askerror2." "; } else { print "ask2 ".sprintf("%.10f",$ask2)." "; }
         }
     }
 
@@ -916,12 +916,12 @@ sub dex_setprice {
             $req->content($command1);
             $resp1 = $ua->request($req);
             my $biderror1 = from_json($resp1->content)->{'error'};
-            if ( defined $biderror1 ) { print $biderror1; } else { print "bid1 ".sprintf("%.8f",1/$bid1)." "; }
+            if ( defined $biderror1 ) { print $biderror1; } else { print "bid1 ".sprintf("%.10f",1/$bid1)." "; }
 
             $req->content($command2);
             $resp2 = $ua->request($req);
             my $biderror2 = from_json($resp2->content)->{'error'};
-            if ( defined $biderror2 ) { print $biderror2; } else { print "bid2 ".sprintf("%.8f",1/$bid2); }
+            if ( defined $biderror2 ) { print $biderror2; } else { print "bid2 ".sprintf("%.10f",1/$bid2); }
         }
     }
     print "\n";
@@ -1176,26 +1176,36 @@ if ( $api eq "dex_gecko" ) {
     my $baseid = lc($base);
     if ( $baseid eq "kmd" ) {
         $baseid = "btc";
-        #$factor = from_json($coinprice)->{"komodo"}{"btc"};
-        $factor = decode_json(binance_latest_price("KMDBTC"))->{'price'};
+        $factor = from_json($coinprice)->{"komodo"}{"btc"};
+        print "factor: $factor\n";
+        $binance_factor = decode_json(binance_latest_price("KMDBTC"))->{'price'};
+        print "binance_factor: $binance_factor\n";
     } elsif ( $baseid eq "ltc" ) {
         $baseid = "btc";
-        #$factor = from_json($coinprice)->{"litecoin"}{"btc"};
-        $factor = decode_json(binance_latest_price("LTCBTC"))->{'price'};
+        $factor = from_json($coinprice)->{"litecoin"}{"btc"};
+        print "factor: $factor\n";
+        $binance_factor = decode_json(binance_latest_price("LTCBTC"))->{'price'};
+        print "binance_factor: $binance_factor\n";
     } elsif ( $baseid eq "bch" ) {
         $baseid = "btc";
-        #$factor = from_json($coinprice)->{"bitcoin-cash"}{"btc"};
-        $factor = decode_json(binance_latest_price("BCHBTC"))->{'price'};
+        $factor = from_json($coinprice)->{"bitcoin-cash"}{"btc"};
+        print "factor: $factor\n";
+        $binance_factor = decode_json(binance_latest_price("BCHBTC"))->{'price'};
+        print "binance_factor: $binance_factor\n";
     } elsif ( ($baseid eq "doge") || ($baseid eq "doge-bep20") ) {
         $baseid = "btc";
-        #$factor = from_json($coinprice)->{"dogecoin"}{"btc"};
-        $factor = decode_json(binance_latest_price("DOGEBTC"))->{'price'};
+        $factor = from_json($coinprice)->{"dogecoin"}{"btc"};
+        print "factor: $factor\n";
+        $binance_factor = decode_json(binance_latest_price("DOGEBTC"))->{'price'};
+        print "binance_factor: $binance_factor\n";
     } elsif ( $baseid eq "btc-bep20" ) {
         $baseid = "btc";
     } elsif ( $baseid eq "eth-bep20" ) {
         $baseid = "btc";
-        #$factor = from_json($coinprice)->{"ethereum"}{"btc"};
-        $factor = decode_json(binance_latest_price("ETHBTC"))->{'price'};
+        $factor = from_json($coinprice)->{"ethereum"}{"btc"};
+        print "factor: $factor\n";
+        $binance_factor = decode_json(binance_latest_price("ETHBTC"))->{'price'};
+        print "binance_factor: $binance_factor\n";
     } elsif ( ($baseid eq "busd-bep20") || ($baseid eq "usdt-bep20") ) {
         $baseid = "usd";
     }
@@ -1250,8 +1260,8 @@ if ( $api eq "dex_gecko" ) {
             if ( defined $marginsconf->{$coin}{'askmargin'} ) {
                 my $askmargin1 = $marginsconf->{$coin}{'askmargin'} + $marginadd;
                 my $askmargin2 = $askmargin1 * 2;
-                $ask1 = sprintf("%.8f", $price + $price * $askmargin1);
-                $ask2 = sprintf("%.8f", $price + $price * $askmargin2);
+                $ask1 = sprintf("%.10f", $price + $price * $askmargin1);
+                $ask2 = sprintf("%.10f", $price + $price * $askmargin2);
             }
             if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
                 my $bidmargin1 = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
@@ -1260,8 +1270,8 @@ if ( $api eq "dex_gecko" ) {
                 if ( $bidmargin2 > 0.96 ) { $bidmargin2 = 0.96; }
                 my $low = $price - $price * $bidmargin2;
                 if ( $low < 0.00000001 ) { print "kaputt: $coin, price: $low\n"; }
-                $bid1 = sprintf("%.8f", 1 / ($price - $price * $bidmargin1));
-                $bid2 = sprintf("%.8f", 1 / ($price - $price * $bidmargin2));
+                $bid1 = sprintf("%.10f", 1 / ($price - $price * $bidmargin1));
+                $bid2 = sprintf("%.10f", 1 / ($price - $price * $bidmargin2));
             }
 
             my $maxbidvolume = $marginsconf->{$coin}{'maxbidvolume'};
