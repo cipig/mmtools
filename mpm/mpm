@@ -118,7 +118,7 @@ sub paprika_price {
 }
 
 
-sub binance_latest_price {
+sub binance_latest_price_old {
     my $base = $_[0];
     my $coin = $_[1];
     my $url = "https://api.binance.com/api/v3/ticker/price?symbol=".$base.$coin;
@@ -135,6 +135,26 @@ sub binance_latest_price {
             #print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
             return 1
+        }
+}
+
+
+sub binance_latest_price {
+    my $symbol = $_[0];
+    my $url = "https://api.binance.com/api/v3/ticker/price?symbol=".$symbol;
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 0
         }
 }
 
@@ -1145,24 +1165,40 @@ if ( $api eq "dex_gecko" ) {
     my $coinprice = gecko_latest_price($ids);
 
     my $factor = 1;
+    my $binance_factor = 1;
     my $baseid = lc($base);
     if ( $baseid eq "kmd" ) {
         $baseid = "btc";
         $factor = from_json($coinprice)->{"komodo"}{"btc"};
+        print "factor: $factor\n";
+        $binance_factor = decode_json(binance_latest_price("KMDBTC"))->{'price'};
+        print "binance_factor: $binance_factor\n";
     } elsif ( $baseid eq "ltc" ) {
         $baseid = "btc";
         $factor = from_json($coinprice)->{"litecoin"}{"btc"};
+        print "factor: $factor\n";
+        $binance_factor = decode_json(binance_latest_price("LTCBTC"))->{'price'};
+        print "binance_factor: $binance_factor\n";
     } elsif ( $baseid eq "bch" ) {
         $baseid = "btc";
         $factor = from_json($coinprice)->{"bitcoin-cash"}{"btc"};
+        print "factor: $factor\n";
+        $binance_factor = decode_json(binance_latest_price("BCHBTC"))->{'price'};
+        print "binance_factor: $binance_factor\n";
     } elsif ( ($baseid eq "doge") || ($baseid eq "doge-bep20") ) {
         $baseid = "btc";
         $factor = from_json($coinprice)->{"dogecoin"}{"btc"};
+        print "factor: $factor\n";
+        $binance_factor = decode_json(binance_latest_price("DOGEBTC"))->{'price'};
+        print "binance_factor: $binance_factor\n";
     } elsif ( $baseid eq "btc-bep20" ) {
         $baseid = "btc";
     } elsif ( $baseid eq "eth-bep20" ) {
         $baseid = "btc";
         $factor = from_json($coinprice)->{"ethereum"}{"btc"};
+        print "factor: $factor\n";
+        $binance_factor = decode_json(binance_latest_price("ETHBTC"))->{'price'};
+        print "binance_factor: $binance_factor\n";
     } elsif ( ($baseid eq "busd-bep20") || ($baseid eq "usdt-bep20") ) {
         $baseid = "usd";
     }
@@ -1173,19 +1209,24 @@ if ( $api eq "dex_gecko" ) {
         my $ethusdprice = from_json($coinprice)->{"ethereum"}{"usd"};
         my $btcusdprice = from_json($coinprice)->{"bitcoin"}{"usd"};
         my $dogeusdprice = from_json($coinprice)->{"dogecoin"}{"usd"};
-
-        my $baseusdprice = 1;
-        if ( $baseid ne "usd" ) {
-            $baseusdprice = from_json($coinprice)->{$basegeckoid}{"usd"};
-        }
+        my $baseusdprice = from_json($coinprice)->{$basegeckoid}{"usd"};
 
         foreach my $coin ( keys %{$marginsconf} ) {
             my $geckoid = $marginsconf->{$coin}{'geckoid'};
+            my $binance_symbol = $marginsconf->{$coin}{'binance_symbol'};
             my $type = $marginsconf->{$coin}{'type'};
             if ( !defined $type ) { $type = "utxo"; }
 
-            my $price = from_json($coinprice)->{$geckoid}{$baseid} / $factor;
+            my $price = from_json($coinprice)->{$geckoid}{$baseid} / $binance_factor;
             my $coinusdprice = from_json($coinprice)->{$geckoid}{"usd"};
+            if ( defined $binance_symbol ) {
+                my $binance_price = decode_json(binance_latest_price($binance_symbol))->{'price'} / $binance_factor;
+                if ( $binance_price ne "0" ) {
+                    print "price: $price\n";
+                    print "binance_price: $binance_price\n";
+                    $price = $binance_price;
+                }
+            }
 
             my $key = $baseid."_24h_change";
             my $change = 0;
@@ -1251,6 +1292,8 @@ if ( $api eq "dex_gecko" ) {
                 $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 30);
                 $minaskvolume = $minaskvolume_eth;
                 $minbidvolume = $minbidvolume_eth;
+            } elsif ( ($base eq "BUSD-BEP20") || ($base eq "USDT-BEP20") ) {
+                $minbidvolume = 10;
             }
 
             if (!defined $price) {
