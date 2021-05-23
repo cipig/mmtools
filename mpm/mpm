@@ -353,7 +353,7 @@ sub binance_getorders {
     my $base = $_[0];
     my $coin = $_[1];
 
-    my $command = "symbol=".$base.$coin."&timestamp=".time()*1000;
+    my $command = "symbol=".$base.$coin."&recvWindow=15000&timestamp=".time()*1000;
     my $signature = hmac_sha256_hex($command, $binance_seckey);
     my $url = "https://api.binance.com/api/v3/openOrders?".$command."&signature=".$signature;
 
@@ -363,8 +363,14 @@ sub binance_getorders {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('X-MBX-APIKEY' => $binance_apikey);
     my $resp = $ua->request($req);
-    #print $resp->content."\n";
-    return $resp->content;
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
 }
 
 
@@ -378,11 +384,12 @@ sub binance_cancelorders {
     $req = HTTP::Request->new(DELETE => 'https://api.binance.com/api/v3/order');
     $req->header('X-MBX-APIKEY' => $binance_apikey);
 
-    my $orders = decode_json(binance_getorders($base,$coin));
-    if ($orders) {
+    my $binance_orders = binance_getorders($base,$coin);
+    if ( $binance_orders ne "1" ) {
+        my $orders = decode_json($binance_orders);
         foreach my $order( @$orders ) {
             my $orderid = $order->{'clientOrderId'};
-            $command = "symbol=".$base.$coin."&origClientOrderId=".$orderid."&timestamp=".time()*1000;
+            $command = "symbol=".$base.$coin."&origClientOrderId=".$orderid."&recvWindow=15000&timestamp=".time()*1000;
             $signature = hmac_sha256_hex($command, $binance_seckey);
             $body = $command."&signature=".$signature;
             $req->content($body);
