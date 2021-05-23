@@ -1224,8 +1224,9 @@ if ( $api eq "dex_gecko" ) {
             my $price = from_json($coinprice)->{$geckoid}{$baseid} / $binance_factor;
             my $coinusdprice = from_json($coinprice)->{$geckoid}{"usd"};
             if ( defined $binance_symbol ) {
-                my $binance_price = decode_json(binance_latest_price($binance_symbol))->{'price'} / $binance_factor;
+                my $binance_price = binance_latest_price($binance_symbol);
                 if ( $binance_price ne "0" ) {
+                    $binance_price = from_json($binance_price)->{"price"} / $binance_factor;
                     print "price: $price\n";
                     print "binance_price: $binance_price\n";
                     $price = $binance_price;
