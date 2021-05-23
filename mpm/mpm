@@ -1176,36 +1176,26 @@ if ( $api eq "dex_gecko" ) {
     my $baseid = lc($base);
     if ( $baseid eq "kmd" ) {
         $baseid = "btc";
-        $factor = from_json($coinprice)->{"komodo"}{"btc"};
-        print "factor: $factor\n";
-        $binance_factor = decode_json(binance_latest_price("KMDBTC"))->{'price'};
-        print "binance_factor: $binance_factor\n";
+        #$factor = from_json($coinprice)->{"komodo"}{"btc"};
+        $factor = decode_json(binance_latest_price("KMDBTC"))->{'price'};
     } elsif ( $baseid eq "ltc" ) {
         $baseid = "btc";
-        $factor = from_json($coinprice)->{"litecoin"}{"btc"};
-        print "factor: $factor\n";
-        $binance_factor = decode_json(binance_latest_price("LTCBTC"))->{'price'};
-        print "binance_factor: $binance_factor\n";
+        #$factor = from_json($coinprice)->{"litecoin"}{"btc"};
+        $factor = decode_json(binance_latest_price("LTCBTC"))->{'price'};
     } elsif ( $baseid eq "bch" ) {
         $baseid = "btc";
-        $factor = from_json($coinprice)->{"bitcoin-cash"}{"btc"};
-        print "factor: $factor\n";
-        $binance_factor = decode_json(binance_latest_price("BCHBTC"))->{'price'};
-        print "binance_factor: $binance_factor\n";
+        #$factor = from_json($coinprice)->{"bitcoin-cash"}{"btc"};
+        $factor = decode_json(binance_latest_price("BCHBTC"))->{'price'};
     } elsif ( ($baseid eq "doge") || ($baseid eq "doge-bep20") ) {
         $baseid = "btc";
-        $factor = from_json($coinprice)->{"dogecoin"}{"btc"};
-        print "factor: $factor\n";
-        $binance_factor = decode_json(binance_latest_price("DOGEBTC"))->{'price'};
-        print "binance_factor: $binance_factor\n";
+        #$factor = from_json($coinprice)->{"dogecoin"}{"btc"};
+        $factor = decode_json(binance_latest_price("DOGEBTC"))->{'price'};
     } elsif ( $baseid eq "btc-bep20" ) {
         $baseid = "btc";
     } elsif ( $baseid eq "eth-bep20" ) {
         $baseid = "btc";
-        $factor = from_json($coinprice)->{"ethereum"}{"btc"};
-        print "factor: $factor\n";
-        $binance_factor = decode_json(binance_latest_price("ETHBTC"))->{'price'};
-        print "binance_factor: $binance_factor\n";
+        #$factor = from_json($coinprice)->{"ethereum"}{"btc"};
+        $factor = decode_json(binance_latest_price("ETHBTC"))->{'price'};
     } elsif ( ($baseid eq "busd-bep20") || ($baseid eq "usdt-bep20") ) {
         $baseid = "usd";
     }
