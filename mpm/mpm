@@ -1209,7 +1209,11 @@ if ( $api eq "dex_gecko" ) {
         my $ethusdprice = from_json($coinprice)->{"ethereum"}{"usd"};
         my $btcusdprice = from_json($coinprice)->{"bitcoin"}{"usd"};
         my $dogeusdprice = from_json($coinprice)->{"dogecoin"}{"usd"};
-        my $baseusdprice = from_json($coinprice)->{$basegeckoid}{"usd"};
+
+        my $baseusdprice = 1;
+        if ( $baseid ne "usd" ) {
+            $baseusdprice = from_json($coinprice)->{$basegeckoid}{"usd"};
+        }
 
         foreach my $coin ( keys %{$marginsconf} ) {
             my $geckoid = $marginsconf->{$coin}{'geckoid'};
