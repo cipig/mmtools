@@ -1192,8 +1192,10 @@ if ( $api eq "dex_gecko" ) {
             if ( defined from_json($coinprice)->{$geckoid}{$key} ) {
                 $change = abs(from_json($coinprice)->{$geckoid}{$key});
             }
-            my $marginadd = 0;
-            if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) {
+            my $marginadd = undef;
+            if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "BTC-BEP20") && ($coin eq "BTC")) || (($base eq "ETH-BEP20") && ($coin eq "ETH")) ) {
+                $marginadd = 0;
+            } elsif ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) {
                 $marginadd = $change/100/4;
             } else {
                 $marginadd = $change/100/3;
