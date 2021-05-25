@@ -119,27 +119,6 @@ sub paprika_price {
 }
 
 
-sub binance_latest_price_old {
-    my $base = $_[0];
-    my $coin = $_[1];
-    my $url = "https://api.binance.com/api/v3/ticker/price?symbol=".$base.$coin;
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    my $req = HTTP::Request->new(GET => $url);
-    $req->header('content-type' => 'application/json');
-    my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1
-        }
-}
-
-
 sub binance_latest_price {
     my $symbol = $_[0];
     my $url = "https://api.binance.com/api/v3/ticker/price?symbol=".$symbol;
@@ -153,9 +132,9 @@ sub binance_latest_price {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
-            return 0
+            return 1;
         }
 }
 
@@ -1183,37 +1162,37 @@ if ( $api eq "dex_gecko" ) {
         my $base_btc_price = 0;
         if ( $base eq "KMD" ) {
             my $binance_price_usd = binance_latest_price("KMDUSDT");
-            if ( $binance_price_usd ne "0" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = "0"; }
+            if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("KMDBTC");
-            if ( $binance_price_btc ne "0" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = "0"; }
+            if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         } elsif ( $base eq "LTC" ) {
             my $binance_price_usd = binance_latest_price("LTCUSDT");
-            if ( $binance_price_usd ne "0" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = "0"; }
+            if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("LTCBTC");
-            if ( $binance_price_btc ne "0" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = "0"; }
+            if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         } elsif ( $base eq "BCH" ) {
             my $binance_price_usd = binance_latest_price("BCHUSDT");
-            if ( $binance_price_usd ne "0" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = "0"; }
+            if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("BCHBTC");
-            if ( $binance_price_btc ne "0" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = "0"; }
+            if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         } elsif ( ($base eq "DOGE") || ($base eq "DOGE-BEP20") ) {
             my $binance_price_usd = binance_latest_price("DOGEUSDT");
-            if ( $binance_price_usd ne "0" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = "0"; }
+            if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("DOGEBTC");
-            if ( $binance_price_btc ne "0" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = "0"; }
+            if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         } elsif ( ($base eq "ETH") || ($base eq "ETH-BEP20") ) {
             my $binance_price_usd = binance_latest_price("ETHUSDT");
-            if ( $binance_price_usd ne "0" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = "0"; }
+            if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("ETHBTC");
-            if ( $binance_price_btc ne "0" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = "0"; }
+            if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         } elsif ( ($base eq "BTC") || ($base eq "BTC-BEP20") ) {
             my $binance_price_usd = binance_latest_price("BTCUSDT");
-            if ( $binance_price_usd ne "0" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = "0"; }
+            if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             $base_btc_price = 1;
         } elsif ( $base ~~ @stablecoins_usd ) {
             $base_usd_price = 1;
             my $binance_price_btc = binance_latest_price("BTCUSDT");
-            if ( $binance_price_btc ne "0" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = "0"; }
+            if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         }
 
         if ( ($gecko_price ne "1") && ($base_usd_price ne "0") && ($base_btc_price ne "0") ) {
@@ -1228,13 +1207,13 @@ if ( $api eq "dex_gecko" ) {
                 my $price = from_json($gecko_price)->{$geckoid}{"usd"} / $base_usd_price;
                 if ( defined $binance_usd_symbol ) {
                     my $binance_price = binance_latest_price($binance_usd_symbol);
-                    if ( $binance_price ne "0" ) {
+                    if ( $binance_price ne "1" ) {
                         $price = from_json($binance_price)->{"price"} / $base_usd_price;
                     }
                 }
                 if ( defined $binance_btc_symbol ) {
                     my $binance_price = binance_latest_price($binance_btc_symbol);
-                    if ( $binance_price ne "0" ) {
+                    if ( $binance_price ne "1" ) {
                         $price = from_json($binance_price)->{"price"} / $base_btc_price;
                     }
                 }
@@ -1250,7 +1229,7 @@ if ( $api eq "dex_gecko" ) {
                 if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                     $marginadd = 0;
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) ) {
-                    $marginadd = $change/100/10;
+                    $marginadd = $change/100/20;
                 } else {
                     $marginadd = $change/100/4;
                 }
@@ -1263,12 +1242,14 @@ if ( $api eq "dex_gecko" ) {
                 my $ask2 = undef;
                 if ( defined $marginsconf->{$coin}{'askmargin'} ) {
                     my $askmargin1 = $marginsconf->{$coin}{'askmargin'} + $marginadd;
+                    if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) ) { $askmargin1 = $askmargin1/3; }
                     my $askmargin2 = $askmargin1 * 2;
                     $ask1 = sprintf("%.10f", $price + $price * $askmargin1);
                     $ask2 = sprintf("%.10f", $price + $price * $askmargin2);
                 }
                 if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
                     my $bidmargin1 = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
+                    if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) ) { $bidmargin1 = $bidmargin1/3; }
                     my $bidmargin2 = $bidmargin1 * 2;
                     if ( $bidmargin1 > 0.94 ) { $bidmargin1 = 0.94; }
                     if ( $bidmargin2 > 0.96 ) { $bidmargin2 = 0.96; }
@@ -1318,12 +1299,9 @@ if ( $api eq "dex_gecko" ) {
                     $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $base_usd_price * 30);
                     $minaskvolume = $minaskvolume_eth;
                     $minbidvolume = $minbidvolume_eth;
-                } elsif ( $coin ~~ @stablecoins_usd ) {
-                    $minaskvolume = 10;
-                    $minbidvolume = sprintf("%.8f", 10 / $coinusdprice);
-                } elsif ( $base ~~ @stablecoins_usd ) {
-                    $minaskvolume = sprintf("%.8f", 10 / $coinusdprice);
-                    $minbidvolume = 10;
+                } elsif ( ($type eq "bep20") || ($base eq "BTC-BEP20") || ($base eq "ETH-BEP20") || ($base eq "DOGE-BEP20") || ($base ~~ @stablecoins_usd) ) {
+                    $minaskvolume = sprintf("%.8f", 5 / $coinusdprice);
+                    $minbidvolume = sprintf("%.8f", 5 / $base_usd_price);
                 }
 
                 if (!defined $price) {
@@ -1332,7 +1310,7 @@ if ( $api eq "dex_gecko" ) {
                     dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume);
                 }
 
-#                Time::HiRes::sleep(0.3);
+#                Time::HiRes::sleep(0.1);
             }
         }
     }
