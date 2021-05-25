@@ -1251,15 +1251,20 @@ if ( $api eq "dex_gecko" ) {
                         $price = from_json($binance_price)->{"price"} / $base_btc_price;
                     }
                 }
+
+                my $safetrade_volat = undef;
                 if ( defined $safetrade_btc_symbol ) {
                     my $safetrade_price = safetrade_latest_price($safetrade_btc_symbol);
                     if ( $safetrade_price ne "1" ) {
                         $price = from_json($safetrade_price)->{"ticker"}{"last"} / $base_btc_price;
+                        $safetrade_volat = (1 - from_json($safetrade_price)->{"ticker"}{"low"} / from_json($safetrade_price)->{"ticker"}{"high"}) * 100;
                     }
                 }
 
                 my $change = 0;
-                if ( ($coin ~~ @stablecoins_usd) && (defined from_json($gecko_price)->{$geckoid}{"btc_24h_change"}) ) {
+                if ( defined $safetrade_volat ) {
+                    $change = $safetrade_volat;
+                } elsif ( ($coin ~~ @stablecoins_usd) && (defined from_json($gecko_price)->{$geckoid}{"btc_24h_change"}) ) {
                     $change = abs(from_json($gecko_price)->{$geckoid}{"btc_24h_change"});
                 } elsif ( defined from_json($gecko_price)->{$geckoid}{"usd_24h_change"} ) {
                     $change = abs(from_json($gecko_price)->{$geckoid}{"usd_24h_change"});
@@ -1271,6 +1276,8 @@ if ( $api eq "dex_gecko" ) {
                     $price = 1;
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) ) {
                     $marginadd = $change/100/15;
+                } elsif ( defined $safetrade_btc_symbol ) {
+                    $marginadd = $change/100/6;
                 } else {
                     $marginadd = $change/100/4;
                 }
