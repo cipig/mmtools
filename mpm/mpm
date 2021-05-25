@@ -1240,6 +1240,7 @@ if ( $api eq "dex_gecko" ) {
                 my $marginadd = undef;
                 if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                     $marginadd = 0;
+                    $price = 1;
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) ) {
                     $marginadd = $change/100/20;
                 } else {
