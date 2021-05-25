@@ -569,6 +569,7 @@
     },
     "VRSC": {
         "geckoid": "verus-coin",
+        "safetrade_btc_symbol": "vrscbtc",
         "bidmargin": 0.14,
         "askmargin": 0.14
     },

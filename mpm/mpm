@@ -79,6 +79,26 @@ sub gecko_latest_price {
 }
 
 
+sub safetrade_latest_price {
+    my $url = "https://safe.trade/api/v2/peatio/public/markets/".$_[0]."/tickers";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub dex_ticker_24h {
     my $url = "https://dexapi.cipig.net/public/ticker_24h.php?market=".$_[0]."-".$_[1];
     my $ua = LWP::UserAgent->new;
@@ -1211,12 +1231,14 @@ if ( $api eq "dex_gecko" ) {
             foreach my $coin ( keys %{$marginsconf} ) {
                 if ( ($base eq $coin) || (($base eq "ETH-BEP20") && ($coin eq "ETH")) ) { next; }
                 my $geckoid = $marginsconf->{$coin}{'geckoid'};
-                my $binance_usd_symbol = $marginsconf->{$coin}{'binance_usd_symbol'};
-                my $binance_btc_symbol = $marginsconf->{$coin}{'binance_btc_symbol'};
                 my $type = $marginsconf->{$coin}{'type'};
                 if ( !defined $type ) { $type = "utxo"; }
 
                 my $price = from_json($gecko_price)->{$geckoid}{"usd"} / $base_usd_price;
+
+                my $binance_usd_symbol = $marginsconf->{$coin}{'binance_usd_symbol'};
+                my $binance_btc_symbol = $marginsconf->{$coin}{'binance_btc_symbol'};
+                my $safetrade_btc_symbol = $marginsconf->{$coin}{'safetrade_btc_symbol'};
                 if ( defined $binance_usd_symbol ) {
                     my $binance_price = binance_latest_price($binance_usd_symbol);
                     if ( $binance_price ne "1" ) {
@@ -1227,6 +1249,12 @@ if ( $api eq "dex_gecko" ) {
                     my $binance_price = binance_latest_price($binance_btc_symbol);
                     if ( $binance_price ne "1" ) {
                         $price = from_json($binance_price)->{"price"} / $base_btc_price;
+                    }
+                }
+                if ( defined $safetrade_btc_symbol ) {
+                    my $safetrade_price = safetrade_latest_price($safetrade_btc_symbol);
+                    if ( $safetrade_price ne "1" ) {
+                        $price = from_json($safetrade_price)->{"ticker"}{"last"} / $base_btc_price;
                     }
                 }
 
