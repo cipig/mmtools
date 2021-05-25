@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use warnings;
+no warnings 'experimental::smartmatch';
 use LWP::UserAgent;
 use LWP::Protocol::socks;
 use JSON;
@@ -1162,152 +1163,179 @@ sub binance_volat {
 
 if ( $api eq "dex_gecko" ) {
     $userpass =  $ENV{'userpass'};
-    my $json = read_file("$cwd/mpm.conf.dex.$base");
+    my $json = read_file("$cwd/mpm.conf.dex");
     $marginsconf = decode_json($json);
+    my @stablecoins_usd = ("USDT-BEP20", "BUSD-BEP20", "DAI-BEP20", "PAX-BEP20", "TUSD-BEP20", "USDC-BEP20");
+
+    my $erc20fee = dex_gettradefee("ETH");
+    my $btcfee = dex_gettradefee("BTC");
 
     my $ids = "ethereum,bitcoin,litecoin,bitcoin-cash,komodo,dogecoin";
     foreach my $coin ( keys %{$marginsconf} ) {
         $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
     }
-    my $coinprice = gecko_latest_price($ids);
 
-    my $factor = 1;
-    my $baseid = lc($base);
-    if ( $baseid eq "kmd" ) {
-        $baseid = "usd";
-        my $binance_price = binance_latest_price("KMDUSDT");
-        if ( $binance_price ne "0" ) { $factor = from_json($binance_price)->{"price"}; } else { $factor = "0"; }
-    } elsif ( $baseid eq "ltc" ) {
-        $baseid = "usd";
-        my $binance_price = binance_latest_price("LTCUSDT");
-        if ( $binance_price ne "0" ) { $factor = from_json($binance_price)->{"price"}; } else { $factor = "0"; }
-    } elsif ( $baseid eq "bch" ) {
-        $baseid = "usd";
-        my $binance_price = binance_latest_price("BCHUSDT");
-        if ( $binance_price ne "0" ) { $factor = from_json($binance_price)->{"price"}; } else { $factor = "0"; }
-    } elsif ( ($baseid eq "doge") || ($baseid eq "doge-bep20") ) {
-        $baseid = "usd";
-        my $binance_price = binance_latest_price("DOGEUSDT");
-        if ( $binance_price ne "0" ) { $factor = from_json($binance_price)->{"price"}; } else { $factor = "0"; }
-    } elsif ( $baseid eq "eth-bep20" ) {
-        $baseid = "usd";
-        my $binance_price = binance_latest_price("ETHUSDT");
-        if ( $binance_price ne "0" ) { $factor = from_json($binance_price)->{"price"}; } else { $factor = "0"; }
-    } elsif ( ($baseid eq "btc-bep20") || ($baseid eq "btc") ) {
-        $baseid = "usd";
-        my $binance_price = binance_latest_price("BTCUSDT");
-        if ( $binance_price ne "0" ) { $factor = from_json($binance_price)->{"price"}; } else { $factor = "0"; }
-    } elsif ( ($baseid eq "busd-bep20") || ($baseid eq "usdt-bep20") ) {
-        $baseid = "usd";
-    }
+    shift @ARGV;
+    foreach my $base(@ARGV) {
 
-    if ( ($coinprice ne "1") && ($factor ne "0") ) {
-        my $erc20fee = dex_gettradefee("ETH");
-        my $btcfee = dex_gettradefee("BTC");
-        my $ethusdprice = from_json($coinprice)->{"ethereum"}{"usd"};
-        my $btcusdprice = from_json($coinprice)->{"bitcoin"}{"usd"};
-        my $dogeusdprice = from_json($coinprice)->{"dogecoin"}{"usd"};
-
-        my $baseusdprice = 1;
-        if ( $baseid ne "usd" ) {
-            $baseusdprice = from_json($coinprice)->{$basegeckoid}{"usd"};
+        my $gecko_price = gecko_latest_price($ids);
+        my $base_usd_price = 0;
+        my $base_btc_price = 0;
+        if ( $base eq "KMD" ) {
+            my $binance_price_usd = binance_latest_price("KMDUSDT");
+            if ( $binance_price_usd ne "0" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = "0"; }
+            my $binance_price_btc = binance_latest_price("KMDBTC");
+            if ( $binance_price_btc ne "0" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = "0"; }
+        } elsif ( $base eq "LTC" ) {
+            my $binance_price_usd = binance_latest_price("LTCUSDT");
+            if ( $binance_price_usd ne "0" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = "0"; }
+            my $binance_price_btc = binance_latest_price("LTCBTC");
+            if ( $binance_price_btc ne "0" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = "0"; }
+        } elsif ( $base eq "BCH" ) {
+            my $binance_price_usd = binance_latest_price("BCHUSDT");
+            if ( $binance_price_usd ne "0" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = "0"; }
+            my $binance_price_btc = binance_latest_price("BCHBTC");
+            if ( $binance_price_btc ne "0" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = "0"; }
+        } elsif ( ($base eq "DOGE") || ($base eq "DOGE-BEP20") ) {
+            my $binance_price_usd = binance_latest_price("DOGEUSDT");
+            if ( $binance_price_usd ne "0" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = "0"; }
+            my $binance_price_btc = binance_latest_price("DOGEBTC");
+            if ( $binance_price_btc ne "0" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = "0"; }
+        } elsif ( ($base eq "ETH") || ($base eq "ETH-BEP20") ) {
+            my $binance_price_usd = binance_latest_price("ETHUSDT");
+            if ( $binance_price_usd ne "0" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = "0"; }
+            my $binance_price_btc = binance_latest_price("ETHBTC");
+            if ( $binance_price_btc ne "0" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = "0"; }
+        } elsif ( ($base eq "BTC") || ($base eq "BTC-BEP20") ) {
+            my $binance_price_usd = binance_latest_price("BTCUSDT");
+            if ( $binance_price_usd ne "0" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = "0"; }
+            $base_btc_price = 1;
+        } elsif ( $base ~~ @stablecoins_usd ) {
+            $base_usd_price = 1;
+            my $binance_price_btc = binance_latest_price("BTCUSDT");
+            if ( $binance_price_btc ne "0" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = "0"; }
         }
 
-        foreach my $coin ( keys %{$marginsconf} ) {
-            my $geckoid = $marginsconf->{$coin}{'geckoid'};
-            my $binance_symbol = $marginsconf->{$coin}{'binance_symbol'};
-            my $type = $marginsconf->{$coin}{'type'};
-            if ( !defined $type ) { $type = "utxo"; }
+        if ( ($gecko_price ne "1") && ($base_usd_price ne "0") && ($base_btc_price ne "0") ) {
+            foreach my $coin ( keys %{$marginsconf} ) {
+                if ( ($base eq $coin) || (($base eq "ETH-BEP20") && ($coin eq "ETH")) ) { next; }
+                my $geckoid = $marginsconf->{$coin}{'geckoid'};
+                my $binance_usd_symbol = $marginsconf->{$coin}{'binance_usd_symbol'};
+                my $binance_btc_symbol = $marginsconf->{$coin}{'binance_btc_symbol'};
+                my $type = $marginsconf->{$coin}{'type'};
+                if ( !defined $type ) { $type = "utxo"; }
 
-            my $price = from_json($coinprice)->{$geckoid}{$baseid} / $factor;
-            my $coinusdprice = from_json($coinprice)->{$geckoid}{"usd"};
-            if ( defined $binance_symbol ) {
-                my $binance_price = binance_latest_price($binance_symbol);
-                if ( $binance_price ne "0" ) {
-                    $binance_price = from_json($binance_price)->{"price"} / $factor;
-                    print "== price: $price  binance_price: $binance_price\n";
-                    $price = $binance_price;
+                my $price = from_json($gecko_price)->{$geckoid}{"usd"} / $base_usd_price;
+                if ( defined $binance_usd_symbol ) {
+                    my $binance_price = binance_latest_price($binance_usd_symbol);
+                    if ( $binance_price ne "0" ) {
+                        $price = from_json($binance_price)->{"price"} / $base_usd_price;
+                    }
                 }
-            }
+                if ( defined $binance_btc_symbol ) {
+                    my $binance_price = binance_latest_price($binance_btc_symbol);
+                    if ( $binance_price ne "0" ) {
+                        $price = from_json($binance_price)->{"price"} / $base_btc_price;
+                    }
+                }
 
-            my $key = $baseid."_24h_change";
-            my $change = 0;
-            if ( defined from_json($coinprice)->{$geckoid}{$key} ) {
-                $change = abs(from_json($coinprice)->{$geckoid}{$key});
-            }
-            my $marginadd = undef;
-            if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "BTC-BEP20") && ($coin eq "BTC")) || (($base eq "ETH-BEP20") && ($coin eq "ETH")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) ) {
-                $marginadd = 0;
-            } elsif ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) {
-                $marginadd = $change/100/4;
-            } else {
-                $marginadd = $change/100/3;
-            }
+                my $change = 0;
+                if ( ($coin ~~ @stablecoins_usd) && (defined from_json($gecko_price)->{$geckoid}{"btc_24h_change"}) ) {
+                    $change = abs(from_json($gecko_price)->{$geckoid}{"btc_24h_change"});
+                } elsif ( defined from_json($gecko_price)->{$geckoid}{"usd_24h_change"} ) {
+                    $change = abs(from_json($gecko_price)->{$geckoid}{"usd_24h_change"});
+                }
 
-            my $bid1 = undef;
-            my $bid2 = undef;
-            my $ask1 = undef;
-            my $ask2 = undef;
-            if ( defined $marginsconf->{$coin}{'askmargin'} ) {
-                my $askmargin1 = $marginsconf->{$coin}{'askmargin'} + $marginadd;
-                my $askmargin2 = $askmargin1 * 2;
-                $ask1 = sprintf("%.10f", $price + $price * $askmargin1);
-                $ask2 = sprintf("%.10f", $price + $price * $askmargin2);
-            }
-            if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
-                my $bidmargin1 = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
-                my $bidmargin2 = $bidmargin1 * 2;
-                if ( $bidmargin1 > 0.94 ) { $bidmargin1 = 0.94; }
-                if ( $bidmargin2 > 0.96 ) { $bidmargin2 = 0.96; }
-                my $low = $price - $price * $bidmargin2;
-                if ( $low < 0.00000001 ) { print "kaputt: $coin, price: $low\n"; }
-                $bid1 = sprintf("%.10f", 1 / ($price - $price * $bidmargin1));
-                $bid2 = sprintf("%.10f", 1 / ($price - $price * $bidmargin2));
-            }
+                my $marginadd = undef;
+                if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
+                    $marginadd = 0;
+                } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) ) {
+                    $marginadd = $change/100/10;
+                } else {
+                    $marginadd = $change/100/4;
+                }
+                if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $marginadd = $marginadd*0.9; }
+                #print "marginadd: $marginadd\n";
 
-            my $maxbidvolume = $marginsconf->{$coin}{'maxbidvolume'};
-            my $minbidvolume = $marginsconf->{$coin}{'minbidvolume'};
-            my $maxaskvolume = $marginsconf->{$coin}{'maxaskvolume'};
-            my $minaskvolume = $marginsconf->{$coin}{'minaskvolume'};
-            my $minaskvolume_btc = undef;
-            my $minbidvolume_btc = undef;
-            my $minaskvolume_eth = undef;
-            my $minbidvolume_eth = undef;
-            if ( ($base eq "BTC") && ($type eq "erc20") ) {
-                $minaskvolume_btc = sprintf("%.8f",$btcfee * $btcusdprice / $coinusdprice * 15);
-                $minbidvolume_btc = sprintf("%.8f",$btcfee * 15);
-                $minaskvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 30);
-                $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 30);
-                $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
-                $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
-                if ( $minaskvolume < 0.00777/$ask1 ) { $minaskvolume = 0.00777/$ask1*1.1; }
-                if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
-            } elsif ( $base eq "BTC" ) {
-                $minaskvolume_btc = sprintf("%.8f",$btcfee * $btcusdprice / $coinusdprice * 15);
-                $minbidvolume_btc = sprintf("%.8f",$btcfee * 15);
-                $minaskvolume = $minaskvolume_btc;
-                $minbidvolume = $minbidvolume_btc;
-                if ( $minaskvolume < 0.00777/$ask1 ) { $minaskvolume = 0.00777/$ask1*1.1; }
-                if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
-            } elsif ( $type eq "erc20" ) {
-                $minaskvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 30);
-                $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $baseusdprice * 30);
-                $minaskvolume = $minaskvolume_eth;
-                $minbidvolume = $minbidvolume_eth;
-            } elsif ( ($base eq "BUSD-BEP20") || ($base eq "USDT-BEP20") ) {
-                $minbidvolume = 10;
-            }
+                my $bid1 = undef;
+                my $bid2 = undef;
+                my $ask1 = undef;
+                my $ask2 = undef;
+                if ( defined $marginsconf->{$coin}{'askmargin'} ) {
+                    my $askmargin1 = $marginsconf->{$coin}{'askmargin'} + $marginadd;
+                    my $askmargin2 = $askmargin1 * 2;
+                    $ask1 = sprintf("%.10f", $price + $price * $askmargin1);
+                    $ask2 = sprintf("%.10f", $price + $price * $askmargin2);
+                }
+                if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
+                    my $bidmargin1 = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
+                    my $bidmargin2 = $bidmargin1 * 2;
+                    if ( $bidmargin1 > 0.94 ) { $bidmargin1 = 0.94; }
+                    if ( $bidmargin2 > 0.96 ) { $bidmargin2 = 0.96; }
+                    my $low = $price - $price * $bidmargin2;
+                    if ( $low < 0.00000001 ) { print "kaputt: $coin, price: $low\n"; }
+                    $bid1 = sprintf("%.10f", 1 / ($price - $price * $bidmargin1));
+                    $bid2 = sprintf("%.10f", 1 / ($price - $price * $bidmargin2));
+                }
 
-            if (!defined $price) {
-                dex_deleteprice($base,$coin);
-            } else {
-                dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume);
-            }
+                my $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
+                my $ethusdprice = from_json($gecko_price)->{"ethereum"}{"usd"};
+                my $coinusdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                my $minaskvolume_btc = undef;
+                my $minbidvolume_btc = undef;
+                my $minaskvolume_eth = undef;
+                my $minbidvolume_eth = undef;
+                my $maxbidvolume = undef;
+                my $minbidvolume = undef;
+                my $maxaskvolume = undef;
+                my $minaskvolume = undef;
+                my $maxbidvolume_usd = $marginsconf->{$coin}{'maxbidvolume'};
+                if ( defined $maxbidvolume_usd ) { $maxbidvolume = $maxbidvolume_usd / $base_usd_price; }
+                my $minbidvolume_usd = $marginsconf->{$coin}{'minbidvolume'};
+                if ( defined $minbidvolume_usd ) { $minbidvolume = $minbidvolume_usd / $base_usd_price; }
+                my $maxaskvolume_usd = $marginsconf->{$coin}{'maxaskvolume'};
+                if ( defined $maxaskvolume_usd ) { $maxaskvolume = $maxaskvolume_usd / $coinusdprice; }
+                my $minaskvolume_usd = $marginsconf->{$coin}{'minaskvolume'};
+                if ( defined $minaskvolume_usd ) { $minaskvolume = $minaskvolume_usd / $coinusdprice; }
+                if ( ($base eq "BTC") && ($type eq "erc20") ) {
+                    $minaskvolume_btc = sprintf("%.8f",$btcfee * $btcusdprice / $coinusdprice * 15);
+                    $minbidvolume_btc = sprintf("%.8f",$btcfee * 15);
+                    $minaskvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 30);
+                    $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $base_usd_price * 30);
+                    $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
+                    $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
+                    if ( $minaskvolume < 0.00777/$ask1 ) { $minaskvolume = sprintf("%.8f", 0.00777/$ask1*1.1); }
+                    if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
+                } elsif ( $base eq "BTC" ) {
+                    $minaskvolume_btc = sprintf("%.8f",$btcfee * $btcusdprice / $coinusdprice * 15);
+                    $minbidvolume_btc = sprintf("%.8f",$btcfee * 15);
+                    $minaskvolume = $minaskvolume_btc;
+                    $minbidvolume = $minbidvolume_btc;
+                    if ( $minaskvolume < 0.00777/$ask1 ) { $minaskvolume = sprintf("%.8f", 0.00777/$ask1*1.1); }
+                    if ( $minbidvolume < 0.00777 ) { $minbidvolume = 0.00777; }
+                } elsif ( $type eq "erc20" ) {
+                    $minaskvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 30);
+                    $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $base_usd_price * 30);
+                    $minaskvolume = $minaskvolume_eth;
+                    $minbidvolume = $minbidvolume_eth;
+                } elsif ( $coin ~~ @stablecoins_usd ) {
+                    $minaskvolume = 10;
+                    $minbidvolume = sprintf("%.8f", 10 / $coinusdprice);
+                } elsif ( $base ~~ @stablecoins_usd ) {
+                    $minaskvolume = sprintf("%.8f", 10 / $coinusdprice);
+                    $minbidvolume = 10;
+                }
 
-            Time::HiRes::sleep(0.3);
+                if (!defined $price) {
+                    dex_deleteprice($base,$coin);
+                } else {
+                    dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume);
+                }
+
+#                Time::HiRes::sleep(0.3);
+            }
         }
     }
-
 
 } elsif ( $api eq "dex_paprika" ) {
     $userpass =  $ENV{'userpass'};
@@ -1324,14 +1352,14 @@ if ( $api eq "dex_gecko" ) {
         my $maxfee = $marginsconf->{$coin}{'maxfee'};
         if ( !defined $maxfee ) { $maxfee = "100"; }
 
-        my $coinprice = paprika_latest_price($basepapid,$papid);
+        my $paprika_price = paprika_latest_price($basepapid,$papid);
 #        my $weightedprice = from_json(dex_ticker_24h($coin,$base))->[0]{'weightedAvgPrice'};
-        if ( $coinprice ne "1" ) {
-            $price = from_json($coinprice)->{'price'};
+        if ( $paprika_price ne "1" ) {
+            $price = from_json($paprika_price)->{'price'};
             my $format = DateTime::Format::Strptime->new( pattern => '%FT%T%z');
-            my $base_updated = from_json($coinprice)->{'base_price_last_updated'};
+            my $base_updated = from_json($paprika_price)->{'base_price_last_updated'};
             my $basetime = $format->parse_datetime($base_updated);
-            my $quote_updated = from_json($coinprice)->{'quote_price_last_updated'};
+            my $quote_updated = from_json($paprika_price)->{'quote_price_last_updated'};
             my $quotetime = $format->parse_datetime($quote_updated);
             my $now = DateTime->now;
             $diff_1 = $now->epoch - $basetime->epoch;
@@ -1489,7 +1517,8 @@ if ( $api eq "dex_gecko" ) {
 } elsif ( $api eq "bitvavo" ) {
     my $json = read_file("$cwd/mpm.conf.bitvavo");
     my $marginsconf = decode_json($json);
-    my $marginadd = binance_volat();
+    #my $marginadd = binance_volat();
+    my $marginadd = 0;
 
     foreach my $coin ( keys %{$marginsconf} ) {
         my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/50);

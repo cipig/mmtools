@@ -3,6 +3,6 @@ source ~/atomicDEX-API/etomic_build/client/userpass
 while true; do
   echo -n "================================================================================================== "
   date
-  ~/mmtools/mpm/mpm dex_gecko $1 $2
-  sleep 90
+  ~/mmtools/mpm/mpm dex_gecko $@
+  sleep 5
 done
