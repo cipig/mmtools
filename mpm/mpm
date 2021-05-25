@@ -830,6 +830,10 @@ sub dex_setprice {
     my $minbidvolume = $_[7];
     my $maxaskvolume = $_[8];
     my $minaskvolume = $_[9];
+    my $bidmargin1 = $_[10];
+    my $askmargin1 = $_[11];
+    my $bidmargin2 = $_[12];
+    my $askmargin2 = $_[13];
 
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
@@ -852,8 +856,10 @@ sub dex_setprice {
 
         if ( $askvolume2 > 0 ) {
             if (defined $minaskvolume) {
-                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.',"min_volume":'.$minaskvolume.'}';
-                $command2 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask2.',"volume":'.$askvolume2.',"min_volume":'.$minaskvolume.',"cancel_previous":false}';
+                my $minaskvolume1 = $minaskvolume * (1 - $askmargin1);
+                my $minaskvolume2 = $minaskvolume * (1 - $askmargin2);
+                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.',"min_volume":'.$minaskvolume1.'}';
+                $command2 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask2.',"volume":'.$askvolume2.',"min_volume":'.$minaskvolume2.',"cancel_previous":false}';
             } else {
                 $command1 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.'}';
                 $command2 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask2.',"volume":'.$askvolume2.',"cancel_previous":false}';
@@ -886,8 +892,10 @@ sub dex_setprice {
 
         if ( $bidvolume2 > 0 ) {
             if ( defined $minbidvolume ) {
-                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid1.',"volume":'.$bidvolume1.',"min_volume":'.$minbidvolume.'}';
-                $command2 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid2.',"volume":'.$bidvolume2.',"min_volume":'.$minbidvolume.',"cancel_previous":false}';
+                my $minbidvolume1 = $minbidvolume * (1 - $bidmargin1);
+                my $minbidvolume2 = $minbidvolume * (1 - $bidmargin2);
+                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid1.',"volume":'.$bidvolume1.',"min_volume":'.$minbidvolume1.'}';
+                $command2 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid2.',"volume":'.$bidvolume2.',"min_volume":'.$minbidvolume2.',"cancel_previous":false}';
             } else {
                 $command1 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid1.',"volume":'.$bidvolume1.'}';
                 $command2 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid2.',"volume":'.$bidvolume2.',"cancel_previous":false}';
@@ -1240,17 +1248,21 @@ if ( $api eq "dex_gecko" ) {
                 my $bid2 = undef;
                 my $ask1 = undef;
                 my $ask2 = undef;
+                my $askmargin1 = undef;
+                my $askmargin2 = undef;
+                my $bidmargin1 = undef;
+                my $bidmargin2 = undef;
                 if ( defined $marginsconf->{$coin}{'askmargin'} ) {
-                    my $askmargin1 = $marginsconf->{$coin}{'askmargin'} + $marginadd;
+                    $askmargin1 = $marginsconf->{$coin}{'askmargin'} + $marginadd;
                     if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) ) { $askmargin1 = $askmargin1/3; }
-                    my $askmargin2 = $askmargin1 * 2;
+                    $askmargin2 = $askmargin1 * 2;
                     $ask1 = sprintf("%.10f", $price + $price * $askmargin1);
                     $ask2 = sprintf("%.10f", $price + $price * $askmargin2);
                 }
                 if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
-                    my $bidmargin1 = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
+                    $bidmargin1 = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
                     if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) ) { $bidmargin1 = $bidmargin1/3; }
-                    my $bidmargin2 = $bidmargin1 * 2;
+                    $bidmargin2 = $bidmargin1 * 2;
                     if ( $bidmargin1 > 0.94 ) { $bidmargin1 = 0.94; }
                     if ( $bidmargin2 > 0.96 ) { $bidmargin2 = 0.96; }
                     my $low = $price - $price * $bidmargin2;
@@ -1307,7 +1319,7 @@ if ( $api eq "dex_gecko" ) {
                 if (!defined $price) {
                     dex_deleteprice($base,$coin);
                 } else {
-                    dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume);
+                    dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin1,$askmargin1,$bidmargin2,$askmargin2);
                 }
 
 #                Time::HiRes::sleep(0.1);
