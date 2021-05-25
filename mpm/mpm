@@ -1242,7 +1242,7 @@ if ( $api eq "dex_gecko" ) {
                     $marginadd = 0;
                     $price = 1;
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) ) {
-                    $marginadd = $change/100/20;
+                    $marginadd = $change/100/15;
                 } else {
                     $marginadd = $change/100/4;
                 }
