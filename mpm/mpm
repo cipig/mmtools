@@ -99,6 +99,26 @@ sub safetrade_latest_price {
 }
 
 
+sub freiexchange_latest_price {
+    my $url = "https://api.freiexchange.com/public/ticker";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub dex_ticker_24h {
     my $url = "https://dexapi.cipig.net/public/ticker_24h.php?market=".$_[0]."-".$_[1];
     my $ua = LWP::UserAgent->new;
@@ -1183,13 +1203,18 @@ if ( $api eq "dex_gecko" ) {
 
     my $ids = "ethereum,bitcoin,litecoin,bitcoin-cash,komodo,dogecoin";
     foreach my $coin ( keys %{$marginsconf} ) {
-        $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
+        if ( defined $marginsconf->{$coin}{'geckoid'} ) {
+            $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
+        }
     }
 
     shift @ARGV;
     foreach my $base(@ARGV) {
 
         my $gecko_price = gecko_latest_price($ids);
+        my $freiexchange_price = freiexchange_latest_price();
+        #print Dumper($freiexchange_price);
+
         my $base_usd_price = 0;
         my $base_btc_price = 0;
         if ( $base eq "KMD" ) {
@@ -1227,56 +1252,59 @@ if ( $api eq "dex_gecko" ) {
             if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         }
 
-        if ( ($gecko_price ne "1") && ($base_usd_price ne "0") && ($base_btc_price ne "0") ) {
+        if ( ($base_usd_price ne "0") && ($base_btc_price ne "0") ) {
             foreach my $coin ( keys %{$marginsconf} ) {
                 if ( ($base eq $coin) || (($base eq "ETH-BEP20") && ($coin eq "ETH")) ) { next; }
                 my $geckoid = $marginsconf->{$coin}{'geckoid'};
                 my $type = $marginsconf->{$coin}{'type'};
                 if ( !defined $type ) { $type = "utxo"; }
 
-                my $price = from_json($gecko_price)->{$geckoid}{"usd"} / $base_usd_price;
-
                 my $binance_usd_symbol = $marginsconf->{$coin}{'binance_usd_symbol'};
                 my $binance_btc_symbol = $marginsconf->{$coin}{'binance_btc_symbol'};
                 my $safetrade_btc_symbol = $marginsconf->{$coin}{'safetrade_btc_symbol'};
+                my $freiexchange_btc_symbol = $marginsconf->{$coin}{'freiexchange_btc_symbol'};
+                my $price = undef;
+                my $coinusdprice = undef;
+                my $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
+                my $ethusdprice = from_json($gecko_price)->{"ethereum"}{"usd"};
+                my $change = 0;
+                my $safetrade_volat = undef;
+                my $freiexchange_volat = undef;
+                if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                    $price = from_json($gecko_price)->{$geckoid}{"usd"} / $base_usd_price;
+                    $coinusdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                    if ( defined from_json($gecko_price)->{$geckoid}{"usd_24h_change"} ) { $change = abs(from_json($gecko_price)->{$geckoid}{"usd_24h_change"}); }
+                    if ( ($coin ~~ @stablecoins_usd) && (defined from_json($gecko_price)->{$geckoid}{"btc_24h_change"}) ) { $change = abs(from_json($gecko_price)->{$geckoid}{"btc_24h_change"}); }
+                }
+
                 if ( defined $binance_usd_symbol ) {
                     my $binance_price = binance_latest_price($binance_usd_symbol);
                     if ( $binance_price ne "1" ) {
                         $price = from_json($binance_price)->{"price"} / $base_usd_price;
                     }
-                }
-                if ( defined $binance_btc_symbol ) {
+                } elsif ( defined $binance_btc_symbol ) {
                     my $binance_price = binance_latest_price($binance_btc_symbol);
                     if ( $binance_price ne "1" ) {
                         $price = from_json($binance_price)->{"price"} / $base_btc_price;
                     }
-                }
-
-                my $safetrade_volat = undef;
-                if ( defined $safetrade_btc_symbol ) {
+                } elsif ( defined $safetrade_btc_symbol ) {
                     my $safetrade_price = safetrade_latest_price($safetrade_btc_symbol);
                     if ( $safetrade_price ne "1" ) {
                         $price = from_json($safetrade_price)->{"ticker"}{"last"} / $base_btc_price;
-                        $safetrade_volat = (1 - from_json($safetrade_price)->{"ticker"}{"low"} / from_json($safetrade_price)->{"ticker"}{"high"}) * 100;
+                        $change = (1 - from_json($safetrade_price)->{"ticker"}{"low"} / from_json($safetrade_price)->{"ticker"}{"high"}) * 100;
                     }
+                } elsif ( (defined $freiexchange_btc_symbol) && ($freiexchange_price ne "1") ) {
+                    $price = ( from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"last"} ) / 3 / $base_btc_price;
+                    $change = abs(from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"percent_change_24h"});
+                    $coinusdprice = $price * $btcusdprice;
                 }
 
-                my $change = 0;
-                if ( defined $safetrade_volat ) {
-                    $change = $safetrade_volat;
-                } elsif ( ($coin ~~ @stablecoins_usd) && (defined from_json($gecko_price)->{$geckoid}{"btc_24h_change"}) ) {
-                    $change = abs(from_json($gecko_price)->{$geckoid}{"btc_24h_change"});
-                } elsif ( defined from_json($gecko_price)->{$geckoid}{"usd_24h_change"} ) {
-                    $change = abs(from_json($gecko_price)->{$geckoid}{"usd_24h_change"});
-                }
-
-                my $marginadd = undef;
+                my $marginadd = 0;
                 if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
-                    $marginadd = 0;
                     $price = 1;
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) ) {
                     $marginadd = $change/100/15;
-                } elsif ( defined $safetrade_btc_symbol ) {
+                } elsif ( (defined $safetrade_btc_symbol) || (defined $freiexchange_btc_symbol) ) {
                     $marginadd = $change/100/6;
                 } else {
                     $marginadd = $change/100/4;
@@ -1317,9 +1345,6 @@ if ( $api eq "dex_gecko" ) {
                     $bid2 = sprintf("%.10f", 1 / ($price - $price * $bidmargin2));
                 }
 
-                my $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
-                my $ethusdprice = from_json($gecko_price)->{"ethereum"}{"usd"};
-                my $coinusdprice = from_json($gecko_price)->{$geckoid}{"usd"};
                 my $minaskvolume_btc = undef;
                 my $minbidvolume_btc = undef;
                 my $minaskvolume_eth = undef;
