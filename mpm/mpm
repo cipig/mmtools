@@ -237,7 +237,7 @@ sub binance_kline {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
             return 1;
         }
@@ -258,7 +258,7 @@ sub coinex_latest_price {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
             return 1;
         }
@@ -300,7 +300,26 @@ sub bitvavo_depth {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
+sub bittrex_latest_price {
+    my $url = "https://api.bittrex.com/v3/markets/".$_[0]."/ticker";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
             return 1;
         }
@@ -319,7 +338,7 @@ sub crex24_latest_price {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
             return 1;
         }
@@ -1283,6 +1302,7 @@ if ( $api eq "dex_gecko" ) {
                 my $safetrade_btc_symbol = $marginsconf->{$coin}{'safetrade_btc_symbol'};
                 my $freiexchange_btc_symbol = $marginsconf->{$coin}{'freiexchange_btc_symbol'};
                 my $crex24_btc_symbol = $marginsconf->{$coin}{'crex24_btc_symbol'};
+                my $bittrex_btc_symbol = $marginsconf->{$coin}{'bittrex_btc_symbol'};
                 my $price = 0;
                 my $coinusdprice = undef;
                 my $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
@@ -1322,6 +1342,11 @@ if ( $api eq "dex_gecko" ) {
                     if ( $crex24_price ne "1" ) {
                         $price = ( from_json($crex24_price)->[0]{"ask"} + from_json($crex24_price)->[0]{"bid"} + from_json($crex24_price)->[0]{"last"} ) / 3 / $base_btc_price;
                         $change = abs(from_json($crex24_price)->[0]{"percentChange"});
+                    }
+                } elsif ( defined $bittrex_btc_symbol ) {
+                    my $bittrex_price = bittrex_latest_price($bittrex_btc_symbol);
+                    if ( $bittrex_price ne "1" ) {
+                        $price = ( from_json($bittrex_price)->{"askRate"} + from_json($bittrex_price)->{"bidRate"} + from_json($bittrex_price)->{"lastTradeRate"} ) / 3 / $base_btc_price;
                     }
                 }
 
