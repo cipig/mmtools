@@ -52,7 +52,7 @@ sub paprika_latest_price {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
             return 1;
         }
@@ -72,7 +72,7 @@ sub gecko_latest_price {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
             return 1;
         }
@@ -92,7 +92,7 @@ sub safetrade_latest_price {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
             return 1;
         }
@@ -112,7 +112,7 @@ sub freiexchange_latest_price {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
             return 1;
         }
@@ -290,6 +290,25 @@ sub bitvavo_depth {
     my $base = $_[0];
     my $coin = $_[1];
     my $url = "https://api.bitvavo.com/v2/".$base."-".$coin."/book";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
+sub crex24_latest_price {
+    my $url = "https://api.crex24.com/v2/public/tickers?instrument=".$_[0];
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -1263,7 +1282,8 @@ if ( $api eq "dex_gecko" ) {
                 my $binance_btc_symbol = $marginsconf->{$coin}{'binance_btc_symbol'};
                 my $safetrade_btc_symbol = $marginsconf->{$coin}{'safetrade_btc_symbol'};
                 my $freiexchange_btc_symbol = $marginsconf->{$coin}{'freiexchange_btc_symbol'};
-                my $price = undef;
+                my $crex24_btc_symbol = $marginsconf->{$coin}{'crex24_btc_symbol'};
+                my $price = 0;
                 my $coinusdprice = undef;
                 my $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
                 my $ethusdprice = from_json($gecko_price)->{"ethereum"}{"usd"};
@@ -1297,17 +1317,23 @@ if ( $api eq "dex_gecko" ) {
                     $price = ( from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"last"} ) / 3 / $base_btc_price;
                     $change = abs(from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"percent_change_24h"});
                     $coinusdprice = $price * $btcusdprice;
+                } elsif ( defined $crex24_btc_symbol ) {
+                    my $crex24_price = crex24_latest_price($crex24_btc_symbol);
+                    if ( $crex24_price ne "1" ) {
+                        $price = ( from_json($crex24_price)->[0]{"ask"} + from_json($crex24_price)->[0]{"bid"} + from_json($crex24_price)->[0]{"last"} ) / 3 / $base_btc_price;
+                        $change = abs(from_json($crex24_price)->[0]{"percentChange"});
+                    }
                 }
 
                 my $marginadd = 0;
                 if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                     $price = 1;
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) ) {
-                    $marginadd = $change/100/15;
-                } elsif ( (defined $safetrade_btc_symbol) || (defined $freiexchange_btc_symbol) ) {
-                    $marginadd = $change/100/6;
+                    $marginadd = $change/100/12;
+                } elsif ( (defined $safetrade_btc_symbol) || (defined $freiexchange_btc_symbol) || (defined $crex24_btc_symbol) ) {
+                    $marginadd = $change/100/5;
                 } else {
-                    $marginadd = $change/100/4;
+                    $marginadd = $change/100/3;
                 }
                 if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $marginadd = $marginadd*0.9; }
                 #print "marginadd: $marginadd\n";
@@ -1386,7 +1412,7 @@ if ( $api eq "dex_gecko" ) {
                     $minbidvolume = sprintf("%.8f", 5 / $base_usd_price);
                 }
 
-                if (!defined $price) {
+                if ($price eq "0") {
                     dex_deleteprice($base,$coin);
                 } else {
                     dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin1,$askmargin1,$bidmargin2,$askmargin2);
