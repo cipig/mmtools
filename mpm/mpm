@@ -1381,7 +1381,7 @@ if ( $api eq "dex_gecko" ) {
                 }
 
                 my $marginadd = 0;
-                if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
+                if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                     $price = 1;
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) ) {
                     $marginadd = $change/100/10;
@@ -1404,7 +1404,7 @@ if ( $api eq "dex_gecko" ) {
                 if ( defined $marginsconf->{$coin}{'askmargin'} ) {
                     $askmargin1 = $marginsconf->{$coin}{'askmargin'} + $marginadd;
                     $askmargin2 = $askmargin1 * 2;
-                    if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
+                    if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                         $askmargin1 = $askmargin1/2;
                         $askmargin2 = $askmargin2/2;
                     }
@@ -1414,7 +1414,7 @@ if ( $api eq "dex_gecko" ) {
                 if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
                     $bidmargin1 = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
                     $bidmargin2 = $bidmargin1 * 2;
-                    if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
+                    if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                         $bidmargin1 = $bidmargin1/2;
                         $bidmargin2 = $bidmargin2/2;
                     }
@@ -1459,9 +1459,9 @@ if ( $api eq "dex_gecko" ) {
                     $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $base_usd_price * 30);
                     $minaskvolume = $minaskvolume_eth;
                     $minbidvolume = $minbidvolume_eth;
-                } elsif ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
-                    $minaskvolume = sprintf("%.8f", 30 / $coinusdprice);
-                    $minbidvolume = sprintf("%.8f", 30 / $base_usd_price);
+                } elsif ( ($base eq "DOGE") || (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
+                    $minaskvolume = sprintf("%.8f", 20 / $coinusdprice);
+                    $minbidvolume = sprintf("%.8f", 20 / $base_usd_price);
                 } elsif ( ($type eq "bep20") || ($base eq "BTC-BEP20") || ($base eq "ETH-BEP20") || ($base eq "DOGE-BEP20") || ($base ~~ @stablecoins_usd) ) {
                     $minaskvolume = sprintf("%.8f", 5 / $coinusdprice);
                     $minbidvolume = sprintf("%.8f", 5 / $base_usd_price);
