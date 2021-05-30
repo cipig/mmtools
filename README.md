@@ -21,5 +21,6 @@ The config file is `mpm.conf.dex` and is located in the same directory as the sc
 - `coinex_usd_symbol`
 - `hitbtc_btc_symbol`
 
+For all the above sources, except Binance, the script use (ask + bid + last) / 3 as reference price.  
 All volumes (`minaskvolume`, `minbidvolume`, `maxbidvolume`) set in the config file are expressed in USD.  
 
