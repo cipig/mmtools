@@ -1390,8 +1390,6 @@ if ( $api eq "dex_gecko" ) {
                 } else {
                     $marginadd = $change/100/2;
                 }
-                if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $marginadd = $marginadd * 0.7; }
-                #print "marginadd: $marginadd\n";
 
                 my $bid1 = undef;
                 my $bid2 = undef;
@@ -1403,6 +1401,7 @@ if ( $api eq "dex_gecko" ) {
                 my $bidmargin2 = undef;
                 if ( defined $marginsconf->{$coin}{'askmargin'} ) {
                     $askmargin1 = $marginsconf->{$coin}{'askmargin'} + $marginadd;
+                    if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $askmargin1 = $askmargin1 * 0.85; }
                     $askmargin2 = $askmargin1 * 2;
                     if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                         $askmargin1 = $askmargin1/2;
@@ -1413,6 +1412,7 @@ if ( $api eq "dex_gecko" ) {
                 }
                 if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
                     $bidmargin1 = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
+                    if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $bidmargin1 = $bidmargin1 * 0.85; }
                     $bidmargin2 = $bidmargin1 * 2;
                     if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                         $bidmargin1 = $bidmargin1/2;
