@@ -1390,7 +1390,7 @@ if ( $api eq "dex_gecko" ) {
                 } else {
                     $marginadd = $change/100/2;
                 }
-                if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $marginadd = $marginadd*0.9; }
+                if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $marginadd = $marginadd * 0.7; }
                 #print "marginadd: $marginadd\n";
 
                 my $bid1 = undef;
