@@ -1357,7 +1357,9 @@ if ( $api eq "dex_gecko" ) {
                 } elsif ( defined $crex24_btc_symbol ) {
                     my $crex24_price = crex24_latest_price($crex24_btc_symbol);
                     if ( $crex24_price ne "1" ) {
-                        $price = ( from_json($crex24_price)->[0]{"ask"} + from_json($crex24_price)->[0]{"bid"} + from_json($crex24_price)->[0]{"last"} ) / 3 / $base_btc_price;
+                        my $crex24_bid = from_json($crex24_price)->[0]{"bid"};
+                        if ( !defined $crex24_bid ) { $crex24_bid = 0; }
+                        $price = ( from_json($crex24_price)->[0]{"ask"} + $crex24_bid + from_json($crex24_price)->[0]{"last"} ) / 3 / $base_btc_price;
                         $change = abs(from_json($crex24_price)->[0]{"percentChange"});
                     }
                 } elsif ( defined $bittrex_btc_symbol ) {
@@ -1473,7 +1475,7 @@ if ( $api eq "dex_gecko" ) {
                     dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin1,$askmargin1,$bidmargin2,$askmargin2);
                 }
 
-#                Time::HiRes::sleep(0.1);
+                Time::HiRes::sleep(0.3);
             }
         }
     }
