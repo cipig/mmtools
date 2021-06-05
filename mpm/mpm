@@ -282,6 +282,25 @@ sub hitbtc_latest_price {
 }
 
 
+sub bithumb_latest_price {
+    my $url = "https://global-openapi.bithumb.pro/openapi/v1/spot/ticker?symbol=".$_[0];
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub binance_depth {
     my $base = $_[0];
     my $coin = $_[1];
@@ -1322,6 +1341,7 @@ if ( $api eq "dex_gecko" ) {
                 my $bittrex_btc_symbol = $marginsconf->{$coin}{'bittrex_btc_symbol'};
                 my $coinex_usd_symbol = $marginsconf->{$coin}{'coinex_usd_symbol'};
                 my $hitbtc_btc_symbol = $marginsconf->{$coin}{'hitbtc_btc_symbol'};
+                my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
                 my $price = 0;
                 my $coinusdprice = undef;
                 my $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
@@ -1378,6 +1398,12 @@ if ( $api eq "dex_gecko" ) {
                     if ( $hitbtc_price ne "1" ) {
                         $price = ( from_json($hitbtc_price)->{"ask"} + from_json($hitbtc_price)->{"bid"} + from_json($hitbtc_price)->{"last"} ) / 3 / $base_btc_price;
                         $change = (1 - from_json($hitbtc_price)->{"low"} / from_json($hitbtc_price)->{"high"}) * 100;
+                    }
+                } elsif ( defined $bithumb_usd_symbol ) {
+                    my $bithumb_price = bithumb_latest_price($bithumb_usd_symbol);
+                    if ( $bithumb_price ne "1" ) {
+                        $price = from_json($bithumb_price)->{"data"}[0]{"c"} / $base_usd_price;
+                        $change = (1 - from_json($bithumb_price)->{"data"}[0]{"l"} / from_json($bithumb_price)->{"data"}[0]{"h"}) * 100;
                         #print "==========   price $price   myprice $test_price         change $change    mychange $test_change    =====\n";
                     }
                 }
@@ -1387,8 +1413,8 @@ if ( $api eq "dex_gecko" ) {
                     $price = 1;
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) ) {
                     $marginadd = $change/100/10;
-                } elsif ( (defined $safetrade_btc_symbol) || (defined $freiexchange_btc_symbol) || (defined $crex24_btc_symbol) || (defined $bittrex_btc_symbol) || (defined $coinex_usd_symbol) || (defined $hitbtc_btc_symbol) ) {
-                    $marginadd = $change/100/4;
+                } elsif ( (defined $safetrade_btc_symbol) || (defined $freiexchange_btc_symbol) || (defined $crex24_btc_symbol) || (defined $bittrex_btc_symbol) || (defined $coinex_usd_symbol) || (defined $hitbtc_btc_symbol) || (defined $bithumb_usd_symbol) ) {
+                    $marginadd = $change/100/5;
                 } else {
                     $marginadd = $change/100/2;
                 }
