@@ -974,11 +974,11 @@ sub dex_setprice {
                 my $minaskvolume2 = $minaskvolume * (1 - $askmargin2);
                 if ( ($base eq "BTC") && ($minaskvolume1 < 0.00777/$ask1) ) { $minaskvolume1 = sprintf("%.8f", 0.00777/$ask1*1.1); }
                 if ( ($base eq "BTC") && ($minaskvolume2 < 0.00777/$ask2) ) { $minaskvolume2 = sprintf("%.8f", 0.00777/$ask2*1.1); }
-                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.',"min_volume":'.$minaskvolume1.'}';
-                $command2 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask2.',"volume":'.$askvolume2.',"min_volume":'.$minaskvolume2.',"cancel_previous":false}';
+                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.',"min_volume":'.$minaskvolume1.'}';
+                $command2 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask2.',"volume":'.$askvolume2.',"min_volume":'.$minaskvolume2.',"cancel_previous":false}';
             } else {
-                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.'}';
-                $command2 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$rel.'","rel":"'.$base.'","price":'.$ask2.',"volume":'.$askvolume2.',"cancel_previous":false}';
+                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.'}';
+                $command2 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask2.',"volume":'.$askvolume2.',"cancel_previous":false}';
             }
 
             $req->content($command1);
@@ -1012,11 +1012,11 @@ sub dex_setprice {
                 my $minbidvolume2 = $minbidvolume * (1 - $bidmargin2);
                 if ( ($base eq "BTC") && ($minbidvolume1 < 0.00777) ) { $minbidvolume1 = 0.00777; }
                 if ( ($base eq "BTC") && ($minbidvolume2 < 0.00777) ) { $minbidvolume2 = 0.00777; }
-                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid1.',"volume":'.$bidvolume1.',"min_volume":'.$minbidvolume1.'}';
-                $command2 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid2.',"volume":'.$bidvolume2.',"min_volume":'.$minbidvolume2.',"cancel_previous":false}';
+                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid1.',"volume":'.$bidvolume1.',"min_volume":'.$minbidvolume1.'}';
+                $command2 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid2.',"volume":'.$bidvolume2.',"min_volume":'.$minbidvolume2.',"cancel_previous":false}';
             } else {
-                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid1.',"volume":'.$bidvolume1.'}';
-                $command2 = '{"userpass":"'.$userpass.'","method":"setprice","base":"'.$base.'","rel":"'.$rel.'","price":'.$bid2.',"volume":'.$bidvolume2.',"cancel_previous":false}';
+                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid1.',"volume":'.$bidvolume1.'}';
+                $command2 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid2.',"volume":'.$bidvolume2.',"cancel_previous":false}';
             }
 
             $req->content($command1);
@@ -1435,8 +1435,10 @@ if ( $api eq "dex_gecko" ) {
                         $askmargin1 = $askmargin1/2;
                         $askmargin2 = $askmargin2/2;
                     }
-                    $ask1 = sprintf("%.10f", $price + $price * $askmargin1);
-                    $ask2 = sprintf("%.10f", $price + $price * $askmargin2);
+                    if ($price ne "0") {
+                        $ask1 = sprintf("%.10f", $price + $price * $askmargin1);
+                        $ask2 = sprintf("%.10f", $price + $price * $askmargin2);
+                    }
                 }
                 if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
                     $bidmargin1 = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
@@ -1446,12 +1448,14 @@ if ( $api eq "dex_gecko" ) {
                         $bidmargin1 = $bidmargin1/2;
                         $bidmargin2 = $bidmargin2/2;
                     }
-                    if ( $bidmargin1 > 0.94 ) { $bidmargin1 = 0.94; }
-                    if ( $bidmargin2 > 0.96 ) { $bidmargin2 = 0.96; }
+                    if ( $bidmargin1 > 0.96 ) { $bidmargin1 = 0.96; }
+                    if ( $bidmargin2 > 0.98 ) { $bidmargin2 = 0.98; }
                     my $low = $price - $price * $bidmargin2;
                     if ( $low < 0.00000001 ) { print "kaputt: $coin, price: $low\n"; }
-                    $bid1 = sprintf("%.10f", 1 / ($price - $price * $bidmargin1));
-                    $bid2 = sprintf("%.10f", 1 / ($price - $price * $bidmargin2));
+                    if ($price ne "0") {
+                        $bid1 = sprintf("%.10f", 1 / ($price - $price * $bidmargin1));
+                        $bid2 = sprintf("%.10f", 1 / ($price - $price * $bidmargin2));
+                    }
                 }
 
                 my $minaskvolume_btc = undef;
@@ -1488,11 +1492,11 @@ if ( $api eq "dex_gecko" ) {
                     $minaskvolume = $minaskvolume_eth;
                     $minbidvolume = $minbidvolume_eth;
                 } elsif ( ($base eq "DOGE") || (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
-                    $minaskvolume = sprintf("%.8f", 20 / $coinusdprice);
-                    $minbidvolume = sprintf("%.8f", 20 / $base_usd_price);
+                    $minaskvolume = sprintf("%.8f", 15 / $coinusdprice);
+                    $minbidvolume = sprintf("%.8f", 15 / $base_usd_price);
                 } elsif ( ($type eq "bep20") || ($base eq "BTC-BEP20") || ($base eq "ETH-BEP20") || ($base eq "DOGE-BEP20") || ($base ~~ @stablecoins_usd) ) {
-                    $minaskvolume = sprintf("%.8f", 5 / $coinusdprice);
-                    $minbidvolume = sprintf("%.8f", 5 / $base_usd_price);
+                    $minaskvolume = sprintf("%.8f", 4 / $coinusdprice);
+                    $minbidvolume = sprintf("%.8f", 4 / $base_usd_price);
                 }
 
                 if ($price eq "0") {
