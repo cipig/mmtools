@@ -1311,6 +1311,11 @@ if ( $api eq "dex_gecko" ) {
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("DOGEBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
+        } elsif ( ($base eq "FIRO") || ($base eq "FIRO-BEP20") ) {
+            my $binance_price_usd = binance_latest_price("FIROUSDT");
+            if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
+            my $binance_price_btc = binance_latest_price("FIROBTC");
+            if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         } elsif ( ($base eq "ETH") || ($base eq "ETH-BEP20") ) {
             my $binance_price_usd = binance_latest_price("ETHUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
