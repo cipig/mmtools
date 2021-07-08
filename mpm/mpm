@@ -962,11 +962,14 @@ sub dex_setprice {
         my $command2 = undef;
         my $askvolume1 = 0;
         my $askvolume2 = 0;
+        my $rel_balance = dex_getbalance($rel);
         if ( defined $maxaskvolume ) {
             $askvolume1 = $maxaskvolume/2;
             $askvolume2 = $maxaskvolume*0.9;
+            if ($askvolume1 > $rel_balance) { $askvolume1 = sprintf("%.8f", $rel_balance/2); }
+            if ($askvolume2 > $rel_balance) { $askvolume2 = sprintf("%.8f", $rel_balance*0.9); }
         } else {
-            $askvolume2 = dex_getbalance($rel)*0.9;
+            $askvolume2 = $rel_balance*0.9;
             if ( $askvolume2 > 0 ) { $askvolume1 = $askvolume2/2; }
         }
 
@@ -1002,11 +1005,14 @@ sub dex_setprice {
         my $command2 = undef;
         my $bidvolume1 = 0;
         my $bidvolume2 = 0;
+        my $base_balance = dex_getbalance($base);
         if ( defined $maxbidvolume ) {
             $bidvolume1 = $maxbidvolume/2;
             $bidvolume2 = $maxbidvolume*0.9;
+            if ($bidvolume1 > $base_balance) { $bidvolume1 = sprintf("%.8f", $base_balance/2); }
+            if ($bidvolume2 > $base_balance) { $bidvolume2 = sprintf("%.8f", $base_balance*0.9); }
         } else {
-            $bidvolume2 = dex_getbalance($base)*0.9;
+            $bidvolume2 = $base_balance*0.9;
             if ( $bidvolume2 > 0 ) { $bidvolume1 = $bidvolume2/2; }
         }
 
