@@ -948,6 +948,8 @@ sub dex_setprice {
     my $askmargin1 = $_[11];
     my $bidmargin2 = $_[12];
     my $askmargin2 = $_[13];
+    my $rel_mintradevol = dex_getmintradevol($rel);
+    my $base_mintradevol = dex_getmintradevol($base);
 
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
@@ -972,8 +974,10 @@ sub dex_setprice {
             if (defined $minaskvolume) {
                 my $minaskvolume1 = $minaskvolume * (1 - $askmargin1);
                 my $minaskvolume2 = $minaskvolume * (1 - $askmargin2);
-                if ( ($base eq "BTC") && ($minaskvolume1 < 0.00777/$ask1) ) { $minaskvolume1 = sprintf("%.8f", 0.00777/$ask1*1.1); }
-                if ( ($base eq "BTC") && ($minaskvolume2 < 0.00777/$ask2) ) { $minaskvolume2 = sprintf("%.8f", 0.00777/$ask2*1.1); }
+                if ($minaskvolume1 < $rel_mintradevol) { $minaskvolume1 = $rel_mintradevol; }
+                if ($minaskvolume2 < $rel_mintradevol) { $minaskvolume2 = $rel_mintradevol; }
+                if ($minaskvolume1 < $base_mintradevol/$ask1) { $minaskvolume1 = sprintf("%.8f", $base_mintradevol/$ask1*1.1); }
+                if ($minaskvolume2 < $base_mintradevol/$ask2) { $minaskvolume2 = sprintf("%.8f", $base_mintradevol/$ask2*1.1); }
                 $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.',"min_volume":'.$minaskvolume1.'}';
                 $command2 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask2.',"volume":'.$askvolume2.',"min_volume":'.$minaskvolume2.',"cancel_previous":false}';
             } else {
@@ -1010,8 +1014,8 @@ sub dex_setprice {
             if ( defined $minbidvolume ) {
                 my $minbidvolume1 = $minbidvolume * (1 - $bidmargin1);
                 my $minbidvolume2 = $minbidvolume * (1 - $bidmargin2);
-                if ( ($base eq "BTC") && ($minbidvolume1 < 0.00777) ) { $minbidvolume1 = 0.00777; }
-                if ( ($base eq "BTC") && ($minbidvolume2 < 0.00777) ) { $minbidvolume2 = 0.00777; }
+                if ($minbidvolume1 < $base_mintradevol) { $minbidvolume1 = $base_mintradevol; }
+                if ($minbidvolume2 < $base_mintradevol) { $minbidvolume2 = $base_mintradevol; }
                 $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid1.',"volume":'.$bidvolume1.',"min_volume":'.$minbidvolume1.'}';
                 $command2 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid2.',"volume":'.$bidvolume2.',"min_volume":'.$minbidvolume2.',"cancel_previous":false}';
             } else {
@@ -1176,6 +1180,24 @@ sub dex_getbalance {
     my $resp = $ua->request($req);
         if ($resp->is_success) {
             return from_json($resp->content)->{'balance'};
+        } else {
+            return 0;
+        }
+}
+
+
+sub dex_getmintradevol {
+    my $coin = $_[0];
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
+    $req->content_type('application/x-www-form-urlencoded');
+
+    $command = '{"userpass":"'.$userpass.'","method":"min_trading_vol","coin":"'.$coin.'"}';
+    $req->content($command);
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return from_json($resp->content)->{'result'}{'min_trading_vol'};
         } else {
             return 0;
         }
