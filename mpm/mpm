@@ -1525,11 +1525,11 @@ if ( $api eq "dex_gecko" ) {
                     $minaskvolume = $minaskvolume_eth;
                     $minbidvolume = $minbidvolume_eth;
                 } elsif ( ($base eq "DOGE") || (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
-                    $minaskvolume = 15 / $coinusdprice;
-                    $minbidvolume = 15 / $base_usd_price;
+                    $minaskvolume = 9 / $coinusdprice;
+                    $minbidvolume = 9 / $base_usd_price;
                 } elsif ( ($type eq "bep20") || ($base eq "BTC-BEP20") || ($base eq "ETH-BEP20") || ($base eq "DOGE-BEP20") || ($base ~~ @stablecoins_usd) ) {
-                    $minaskvolume = 4 / $coinusdprice;
-                    $minbidvolume = 4 / $base_usd_price;
+                    $minaskvolume = 3 / $coinusdprice;
+                    $minbidvolume = 3 / $base_usd_price;
                 }
 
                 if ($price eq "0") {
