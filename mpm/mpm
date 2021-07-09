@@ -964,13 +964,13 @@ sub dex_setprice {
         my $askvolume2 = 0;
         my $rel_balance = dex_getbalance($rel);
         if ( defined $maxaskvolume ) {
-            $askvolume1 = $maxaskvolume/2;
-            $askvolume2 = $maxaskvolume*0.9;
-            if ($askvolume1 > $rel_balance) { $askvolume1 = sprintf("%.8f", $rel_balance/2); }
-            if ($askvolume2 > $rel_balance) { $askvolume2 = sprintf("%.8f", $rel_balance*0.9); }
+            $askvolume1 = $maxaskvolume*0.3;
+            $askvolume2 = $maxaskvolume*0.6;
+            if ($askvolume1 > $rel_balance*0.3) { $askvolume1 = $rel_balance*0.3; }
+            if ($askvolume2 > $rel_balance*0.6) { $askvolume2 = $rel_balance*0.6; }
         } else {
-            $askvolume2 = $rel_balance*0.9;
-            if ( $askvolume2 > 0 ) { $askvolume1 = $askvolume2/2; }
+            $askvolume1 = $rel_balance*0.3;
+            $askvolume2 = $rel_balance*0.6;
         }
 
         if ( $askvolume2 > 0 ) {
@@ -979,8 +979,8 @@ sub dex_setprice {
                 my $minaskvolume2 = $minaskvolume * (1 - $askmargin2);
                 if ($minaskvolume1 < $rel_mintradevol) { $minaskvolume1 = $rel_mintradevol; }
                 if ($minaskvolume2 < $rel_mintradevol) { $minaskvolume2 = $rel_mintradevol; }
-                if ($minaskvolume1 < $base_mintradevol/$ask1) { $minaskvolume1 = sprintf("%.8f", $base_mintradevol/$ask1*1.1); }
-                if ($minaskvolume2 < $base_mintradevol/$ask2) { $minaskvolume2 = sprintf("%.8f", $base_mintradevol/$ask2*1.1); }
+                if ($minaskvolume1 < $base_mintradevol/$ask1) { $minaskvolume1 = $base_mintradevol/$ask1*1.1; }
+                if ($minaskvolume2 < $base_mintradevol/$ask2) { $minaskvolume2 = $base_mintradevol/$ask2*1.1; }
                 $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.',"min_volume":'.$minaskvolume1.'}';
                 $command2 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask2.',"volume":'.$askvolume2.',"min_volume":'.$minaskvolume2.',"cancel_previous":false}';
             } else {
@@ -1007,13 +1007,13 @@ sub dex_setprice {
         my $bidvolume2 = 0;
         my $base_balance = dex_getbalance($base);
         if ( defined $maxbidvolume ) {
-            $bidvolume1 = $maxbidvolume/2;
-            $bidvolume2 = $maxbidvolume*0.9;
-            if ($bidvolume1 > $base_balance) { $bidvolume1 = sprintf("%.8f", $base_balance/2); }
-            if ($bidvolume2 > $base_balance) { $bidvolume2 = sprintf("%.8f", $base_balance*0.9); }
+            $bidvolume1 = $maxbidvolume*0.3;
+            $bidvolume2 = $maxbidvolume*0.6;
+            if ($bidvolume1 > $base_balance*0.3) { $bidvolume1 = $base_balance*0.3; }
+            if ($bidvolume2 > $base_balance*0.6) { $bidvolume2 = $base_balance*0.6; }
         } else {
-            $bidvolume2 = $base_balance*0.9;
-            if ( $bidvolume2 > 0 ) { $bidvolume1 = $bidvolume2/2; }
+            $bidvolume1 = $base_balance*0.3;
+            $bidvolume2 = $base_balance*0.6;
         }
 
         if ( $bidvolume2 > 0 ) {
@@ -1508,28 +1508,28 @@ if ( $api eq "dex_gecko" ) {
                 my $minaskvolume_usd = $marginsconf->{$coin}{'minaskvolume'};
                 if ( defined $minaskvolume_usd ) { $minaskvolume = $minaskvolume_usd / $coinusdprice; }
                 if ( ($base eq "BTC") && ($type eq "erc20") ) {
-                    $minaskvolume_btc = sprintf("%.8f",$btcfee * $btcusdprice / $coinusdprice * 15);
-                    $minbidvolume_btc = sprintf("%.8f",$btcfee * 15);
-                    $minaskvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 30);
-                    $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $base_usd_price * 30);
+                    $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 15;
+                    $minbidvolume_btc = $btcfee * 15;
+                    $minaskvolume_eth = $erc20fee * $ethusdprice / $coinusdprice * 30;
+                    $minbidvolume_eth = $erc20fee * $ethusdprice / $base_usd_price * 30;
                     $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
                     $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
                 } elsif ( $base eq "BTC" ) {
-                    $minaskvolume_btc = sprintf("%.8f",$btcfee * $btcusdprice / $coinusdprice * 15);
-                    $minbidvolume_btc = sprintf("%.8f",$btcfee * 15);
+                    $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 15;
+                    $minbidvolume_btc = $btcfee * 15;
                     $minaskvolume = $minaskvolume_btc;
                     $minbidvolume = $minbidvolume_btc;
                 } elsif ( $type eq "erc20" ) {
-                    $minaskvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $coinusdprice * 30);
-                    $minbidvolume_eth = sprintf("%.8f",$erc20fee * $ethusdprice / $base_usd_price * 30);
+                    $minaskvolume_eth = $erc20fee * $ethusdprice / $coinusdprice * 30;
+                    $minbidvolume_eth = $erc20fee * $ethusdprice / $base_usd_price * 30;
                     $minaskvolume = $minaskvolume_eth;
                     $minbidvolume = $minbidvolume_eth;
                 } elsif ( ($base eq "DOGE") || (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
-                    $minaskvolume = sprintf("%.8f", 15 / $coinusdprice);
-                    $minbidvolume = sprintf("%.8f", 15 / $base_usd_price);
+                    $minaskvolume = 15 / $coinusdprice;
+                    $minbidvolume = 15 / $base_usd_price;
                 } elsif ( ($type eq "bep20") || ($base eq "BTC-BEP20") || ($base eq "ETH-BEP20") || ($base eq "DOGE-BEP20") || ($base ~~ @stablecoins_usd) ) {
-                    $minaskvolume = sprintf("%.8f", 4 / $coinusdprice);
-                    $minbidvolume = sprintf("%.8f", 4 / $base_usd_price);
+                    $minaskvolume = 4 / $coinusdprice;
+                    $minbidvolume = 4 / $base_usd_price;
                 }
 
                 if ($price eq "0") {
