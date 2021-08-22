@@ -4,5 +4,5 @@ while true; do
   echo -n "================================================================================================== "
   date
   ~/mmtools/mpm/mpm dex_gecko $@
-  sleep 10
+  sleep 90
 done

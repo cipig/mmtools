@@ -1303,7 +1303,7 @@ if ( $api eq "dex_gecko" ) {
     my $erc20fee = dex_gettradefee("ETH");
     my $btcfee = dex_gettradefee("BTC");
 
-    my $ids = "ethereum,bitcoin,litecoin,bitcoin-cash,komodo,dogecoin";
+    my $ids = "ethereum,bitcoin,litecoin,bitcoin-cash,komodo,dogecoin,dash";
     foreach my $coin ( keys %{$marginsconf} ) {
         if ( defined $marginsconf->{$coin}{'geckoid'} ) {
             $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
@@ -1333,6 +1333,11 @@ if ( $api eq "dex_gecko" ) {
             my $binance_price_usd = binance_latest_price("BCHUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("BCHBTC");
+            if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
+        } elsif ( $base eq "DASH" ) {
+            my $binance_price_usd = binance_latest_price("DASHUSDT");
+            if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
+            my $binance_price_btc = binance_latest_price("DASHBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         } elsif ( ($base eq "DOGE") || ($base eq "DOGE-BEP20") ) {
             my $binance_price_usd = binance_latest_price("DOGEUSDT");
@@ -1538,7 +1543,7 @@ if ( $api eq "dex_gecko" ) {
                     dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin1,$askmargin1,$bidmargin2,$askmargin2);
                 }
 
-                Time::HiRes::sleep(0.3);
+                Time::HiRes::sleep(0.5);
             }
         }
     }
