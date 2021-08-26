@@ -1,7 +1,7 @@
 ## mpm
 
 ```
-sudo apt-get install jq libdatetime-perl libdatetime-format-strptime-perl libjson-perl libjson-rpc-perl libfile-slurp-perl liblwp-protocol-https-perl
+sudo apt-get install jq libdatetime-perl libdatetime-format-strptime-perl libjson-perl libjson-rpc-perl libfile-slurp-perl liblwp-protocol-https-perl liblwp-protocol-socks-perl
 cd && git clone https://github.com/cipig/mmtools
 ```
 

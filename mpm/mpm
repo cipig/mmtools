@@ -1533,8 +1533,8 @@ if ( $api eq "dex_gecko" ) {
                     $minaskvolume = 9 / $coinusdprice;
                     $minbidvolume = 9 / $base_usd_price;
                 } elsif ( ($type eq "bep20") || ($base eq "BTC-BEP20") || ($base eq "ETH-BEP20") || ($base eq "DOGE-BEP20") || ($base ~~ @stablecoins_usd) ) {
-                    $minaskvolume = 3 / $coinusdprice;
-                    $minbidvolume = 3 / $base_usd_price;
+                    $minaskvolume = 3.5 / $coinusdprice;
+                    $minbidvolume = 3.5 / $base_usd_price;
                 }
 
                 if ($price eq "0") {
