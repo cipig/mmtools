@@ -10,7 +10,7 @@ The script expects a file `~/atomicDEX-API/etomic_build/client/userpass` that co
 `stdbuf -oL nohup ~/mmtools/mpm/mpm.sh.dex_gecko KMD LTC USDT-BEP20 > /tmp/mpm.log.dex &` to start and set prices for all coins using KMD, LTC and USDT-BEP20 as base coins  
 `tail -f /tmp/mpm.log.dex` to watch mpm TV  
 
-The following base coins are supported: KMD, KMD-BEP20, BTC, BTC-BEP20, ETH-BEP20, LTC, BCH, DOGE, DOGE-BEP20, USDT-BEP20, BUSD-BEP20, DAI-BEP20, PAX-BEP20, TUSD-BEP20, USDC-BEP20  
+The following base coins are supported: KMD, KMD-BEP20, BTC, BTC-BEP20, ETH-BEP20, LTC, BCH, DASH, DGB, DOGE, DOGE-BEP20, USDT-BEP20, BUSD-BEP20, DAI-BEP20, PAX-BEP20, TUSD-BEP20, USDC-BEP20  
 The config file is `mpm.conf.dex` and is located in the same directory as the script. The following price sources are supported in addition to `geckoid`:  
 - `binance_usd_symbol`
 - `binance_btc_symbol`
