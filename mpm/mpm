@@ -30,6 +30,8 @@ my $timeout = 30;
 
 my $binance_apikey = "";
 my $binance_seckey = "";
+my $mandala_apikey = "";
+my $mandala_seckey = "";
 my $crex24_apikey = "";
 my $crex24_seckey = decode_base64("");
 my $coinex_accessid = "";
@@ -494,6 +496,58 @@ sub binance_cancelorders {
 }
 
 
+sub mandala_getorders {
+    my $base = $_[0];
+    my $coin = $_[1];
+
+    my $command = "symbol=".$base."_".$coin."&type=1&recvWindow=15000&timestamp=".time()*1000;
+    my $signature = hmac_sha256_hex($command, $mandala_seckey);
+    my $url = "https://trade.mandala.exchange/open/v1/orders?".$command."&signature=".$signature;
+
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('X-MBX-APIKEY' => $mandala_apikey);
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
+sub mandala_cancelorders {
+    my $base = $_[0];
+    my $coin = $_[1];
+
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    $req = HTTP::Request->new(POST => 'https://trade.mandala.exchange/open/v1/orders/cancel');
+    $req->header('X-MBX-APIKEY' => $mandala_apikey);
+    $req->header('content-type' => 'application/x-www-form-urlencoded');
+
+    my $mandala_orders = mandala_getorders($base,$coin);
+    if ( $mandala_orders ne "1" ) {
+        my $orders = decode_json($mandala_orders)->{'data'}{'list'};
+        foreach my $order( @$orders ) {
+            my $orderid = $order->{'orderId'};
+            $command = "orderId=".$orderid."&recvWindow=15000&timestamp=".time()*1000;
+            $signature = hmac_sha256_hex($command, $mandala_seckey);
+            $body = $command."&signature=".$signature;
+            $req->content($body);
+            $resp = $ua->request($req);
+            #print $resp->content."\n";
+        }
+    }
+}
+
+
 sub bitvavo_cancelorders {
     my $base = $_[0];
     my $coin = $_[1];
@@ -682,6 +736,62 @@ sub binance_setprice {
             print " ask ".$ask."\n";
         } else {
             print " ask ".$resp->content."\n";
+        }
+    }
+}
+
+
+sub mandala_setprice {
+    my $base = $_[0];
+    my $coin = $_[1];
+    my $bid = undef;
+    my $ask = undef;
+    if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+        $bid = sprintf("%.4f",$_[2]);
+        $ask = sprintf("%.4f",$_[3]);
+    } elsif ( $coin eq "ETH" ) {
+        $bid = sprintf("%.6f",$_[2]);
+        $ask = sprintf("%.6f",$_[3]);
+    } else {
+        $bid = sprintf("%.8f",$_[2]);
+        $ask = sprintf("%.8f",$_[3]);
+    }
+    my $quantity = sprintf("%u",$_[4]);
+
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(POST => 'https://trade.mandala.exchange/open/v1/orders');
+    $req->header('X-MBX-APIKEY' => $mandala_apikey);
+    $req->header('content-type' => 'application/x-www-form-urlencoded');
+
+    print "$base/$coin size ".sprintf("%04d",$quantity);
+
+    if ( defined $bid ) {
+        my $command = "symbol=".$base."_".$coin."&side=0&type=1&quantity=".$quantity."&price=".$bid."&clientId=buy".$coin.$base.$quantity."&recvWindow=15000&timestamp=".time()*1000;
+        my $signature = hmac_sha256_hex($command, $mandala_seckey);
+        my $body = $command."&signature=".$signature;
+        $req->content($body);
+        my $resp = $ua->request($req);
+        my $resp_code = decode_json($resp->content)->{'code'};
+        if ($resp_code eq "0") {
+            print " bid ".$bid;
+        } else {
+            print " bid ".decode_json($resp->content)->{'msg'};
+        }
+    }
+
+    if ( defined $ask ) {
+        my $command = "symbol=".$base."_".$coin."&side=1&type=1&quantity=".$quantity."&price=".$ask."&clientId=sell".$coin.$base.$quantity."&recvWindow=15000&timestamp=".time()*1000;
+        my $signature = hmac_sha256_hex($command, $mandala_seckey);
+        my $body = $command."&signature=".$signature;
+        $req->content($body);
+        my $resp = $ua->request($req);
+        my $resp_code = decode_json($resp->content)->{'code'};
+        if ($resp_code eq "0") {
+            print " ask ".$ask."\n";
+        } else {
+            print " ask ".decode_json($resp->content)->{'msg'}."\n";
         }
     }
 }
@@ -1682,6 +1792,85 @@ if ( $api eq "dex_gecko" ) {
             binance_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
             binance_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
             binance_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity_3);
+        }
+    }
+
+} elsif ( $api eq "mandala" ) {
+    my $json = read_file("$cwd/mpm.conf.mandala");
+    my $marginsconf = decode_json($json);
+    #my $marginadd = mandala_volat();
+    my $marginadd = 0;
+
+    foreach my $coin ( keys %{$marginsconf} ) {
+        my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/50);
+        my $bidmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_2'} + $marginadd/25);
+        my $bidmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_3'} + $marginadd/10);
+        my $askmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_1'} + $marginadd/50);
+        my $askmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_2'} + $marginadd/25);
+        my $askmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_3'} + $marginadd/10);
+        my $quantity_1 = $marginsconf->{$coin}{'quantity_1'};
+        my $quantity_2 = $marginsconf->{$coin}{'quantity_2'};
+        my $quantity_3 = $marginsconf->{$coin}{'quantity_3'};
+        my $maxsum_1 = $marginsconf->{$coin}{'maxsum_1'};
+        my $maxsum_2 = $marginsconf->{$coin}{'maxsum_2'};
+        my $maxsum_3 = $marginsconf->{$coin}{'maxsum_3'};
+
+        mandala_cancelorders($base,$coin);
+
+        my $mandala_book_price = decode_json(binance_book_price($base,$coin));
+        my $cex_price = sprintf("%.8f", ($mandala_book_price->{'bidPrice'} + $mandala_book_price->{'askPrice'})/2);
+        my $mandala_depth = decode_json(binance_depth($base,$coin));
+
+        if ( ($mandala_depth ne "1") && ($mandala_book_price ne "1") ) {
+            my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_1));
+            my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_1));
+            if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+                $cex_bid_price_1 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_1,$coin) + 0.00010000;
+                $cex_ask_price_1 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_1,$coin) - 0.00010000;
+            } elsif ( $coin eq "ETH" ) {
+                $cex_bid_price_1 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_1,$coin) + 0.00000100;
+                $cex_ask_price_1 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_1,$coin) - 0.00000100;
+            } else {
+                $cex_bid_price_1 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_1,$coin) + 0.00000001;
+                $cex_ask_price_1 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_1,$coin) - 0.00000001;
+            }
+            if ( ( $cex_bid_price_1 eq "0.00000001" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = $maxbidprice; }
+            if ( ( $cex_ask_price_1 eq "0.00000001" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = $minaskprice; }
+
+            $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_2));
+            $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_2));
+            if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+                $cex_bid_price_2 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_2,$coin) + 0.00010000;
+                $cex_ask_price_2 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_2,$coin) - 0.00010000;
+            } elsif ( $coin eq "ETH" ) {
+                $cex_bid_price_2 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_2,$coin) + 0.00000100;
+                $cex_ask_price_2 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_2,$coin) - 0.00000100;
+            } else {
+                $cex_bid_price_2 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_2,$coin) + 0.00000001;
+                $cex_ask_price_2 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_2,$coin) - 0.00000001;
+            }
+            if ( ( $cex_bid_price_2 eq "0.00000001" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
+            if ( ( $cex_ask_price_2 eq "0.00000001" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = $minaskprice; }
+
+            $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_3));
+            $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_3));
+            if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+                $cex_bid_price_3 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_3,$coin) + 0.00010000;
+                $cex_ask_price_3 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_3,$coin) - 0.00010000;
+            } elsif ( $coin eq "ETH" ) {
+                $cex_bid_price_3 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_3,$coin) + 0.00000100;
+                $cex_ask_price_3 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_3,$coin) - 0.00000100;
+            } else {
+                $cex_bid_price_3 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_3,$coin) + 0.00000001;
+                $cex_ask_price_3 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_3,$coin) - 0.00000001;
+            }
+            if ( ( $cex_bid_price_3 eq "0.00000001" ) || ( $cex_bid_price_3 > $maxbidprice ) ) { $cex_bid_price_3 = $maxbidprice; }
+            if ( ( $cex_ask_price_3 eq "0.00000001" ) || ( $cex_ask_price_3 < $minaskprice ) ) { $cex_ask_price_3 = $minaskprice; }
+
+            #print "$cex_ask_price_1 $cex_ask_price_2 $cex_ask_price_3\n";
+            mandala_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
+            mandala_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
+            mandala_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity_3);
         }
     }
 
