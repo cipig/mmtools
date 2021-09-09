@@ -697,8 +697,8 @@ sub binance_setprice {
         $bid = sprintf("%.4f",$_[2]);
         $ask = sprintf("%.4f",$_[3]);
     } elsif ( $coin eq "ETH" ) {
-        $bid = sprintf("%.6f",$_[2]);
-        $ask = sprintf("%.6f",$_[3]);
+        $bid = sprintf("%.7f",$_[2]);
+        $ask = sprintf("%.7f",$_[3]);
     } else {
         $bid = sprintf("%.8f",$_[2]);
         $ask = sprintf("%.8f",$_[3]);
@@ -750,8 +750,8 @@ sub mandala_setprice {
         $bid = sprintf("%.4f",$_[2]);
         $ask = sprintf("%.4f",$_[3]);
     } elsif ( $coin eq "ETH" ) {
-        $bid = sprintf("%.6f",$_[2]);
-        $ask = sprintf("%.6f",$_[3]);
+        $bid = sprintf("%.7f",$_[2]);
+        $ask = sprintf("%.7f",$_[3]);
     } else {
         $bid = sprintf("%.8f",$_[2]);
         $ask = sprintf("%.8f",$_[3]);
@@ -1749,8 +1749,8 @@ if ( $api eq "dex_gecko" ) {
                 $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_1,$coin) + 0.00010000;
                 $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_1,$coin) - 0.00010000;
             } elsif ( $coin eq "ETH" ) {
-                $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_1,$coin) + 0.00000100;
-                $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_1,$coin) - 0.00000100;
+                $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_1,$coin) + 0.00000010;
+                $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_1,$coin) - 0.00000010;
             } else {
                 $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_1,$coin) + 0.00000001;
                 $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_1,$coin) - 0.00000001;
@@ -1764,8 +1764,8 @@ if ( $api eq "dex_gecko" ) {
                 $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_2,$coin) + 0.00010000;
                 $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_2,$coin) - 0.00010000;
             } elsif ( $coin eq "ETH" ) {
-                $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_2,$coin) + 0.00000100;
-                $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_2,$coin) - 0.00000100;
+                $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_2,$coin) + 0.00000010;
+                $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_2,$coin) - 0.00000010;
             } else {
                 $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_2,$coin) + 0.00000001;
                 $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_2,$coin) - 0.00000001;
@@ -1779,8 +1779,8 @@ if ( $api eq "dex_gecko" ) {
                 $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_3,$coin) + 0.00010000;
                 $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_3,$coin) - 0.00010000;
             } elsif ( $coin eq "ETH" ) {
-                $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_3,$coin) + 0.00000100;
-                $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_3,$coin) - 0.00000100;
+                $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_3,$coin) + 0.00000010;
+                $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_3,$coin) - 0.00000010;
             } else {
                 $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_3,$coin) + 0.00000001;
                 $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_3,$coin) - 0.00000001;
@@ -1828,8 +1828,8 @@ if ( $api eq "dex_gecko" ) {
                 $cex_bid_price_1 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_1,$coin) + 0.00010000;
                 $cex_ask_price_1 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_1,$coin) - 0.00010000;
             } elsif ( $coin eq "ETH" ) {
-                $cex_bid_price_1 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_1,$coin) + 0.00000100;
-                $cex_ask_price_1 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_1,$coin) - 0.00000100;
+                $cex_bid_price_1 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_1,$coin) + 0.00000010;
+                $cex_ask_price_1 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_1,$coin) - 0.00000010;
             } else {
                 $cex_bid_price_1 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_1,$coin) + 0.00000001;
                 $cex_ask_price_1 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_1,$coin) - 0.00000001;
@@ -1843,8 +1843,8 @@ if ( $api eq "dex_gecko" ) {
                 $cex_bid_price_2 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_2,$coin) + 0.00010000;
                 $cex_ask_price_2 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_2,$coin) - 0.00010000;
             } elsif ( $coin eq "ETH" ) {
-                $cex_bid_price_2 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_2,$coin) + 0.00000100;
-                $cex_ask_price_2 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_2,$coin) - 0.00000100;
+                $cex_bid_price_2 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_2,$coin) + 0.00000010;
+                $cex_ask_price_2 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_2,$coin) - 0.00000010;
             } else {
                 $cex_bid_price_2 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_2,$coin) + 0.00000001;
                 $cex_ask_price_2 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_2,$coin) - 0.00000001;
@@ -1858,8 +1858,8 @@ if ( $api eq "dex_gecko" ) {
                 $cex_bid_price_3 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_3,$coin) + 0.00010000;
                 $cex_ask_price_3 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_3,$coin) - 0.00010000;
             } elsif ( $coin eq "ETH" ) {
-                $cex_bid_price_3 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_3,$coin) + 0.00000100;
-                $cex_ask_price_3 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_3,$coin) - 0.00000100;
+                $cex_bid_price_3 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_3,$coin) + 0.00000010;
+                $cex_ask_price_3 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_3,$coin) - 0.00000010;
             } else {
                 $cex_bid_price_3 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_3,$coin) + 0.00000001;
                 $cex_ask_price_3 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_3,$coin) - 0.00000001;
