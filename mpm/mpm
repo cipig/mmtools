@@ -10,7 +10,7 @@ use File::Slurp qw(read_file);
 use File::Basename;
 use List::Util qw[min max];
 use MIME::Base64;
-use Digest::SHA qw(hmac_sha256_hex hmac_sha512_base64);
+use Digest::SHA qw(hmac_sha256_hex hmac_sha256_base64 hmac_sha512_base64);
 use Digest::MD5 qw(md5_hex);
 use DateTime;
 use DateTime::Format::Strptime;
@@ -40,6 +40,9 @@ my $vcc_apikey = "";
 my $vcc_seckey = "";
 my $bitvavo_apikey = "";
 my $bitvavo_seckey = "";
+my $kucoin_apikey = "";
+my $kucoin_seckey = "";
+my $kucoin_passphrase = "";
 
 
 sub paprika_latest_price {
@@ -202,6 +205,27 @@ sub binance_book_price {
 }
 
 
+sub kucoin_book_price {
+    my $base = $_[0];
+    my $coin = $_[1];
+    my $url = "https://api.kucoin.com/api/v1/market/orderbook/level1?symbol=".$base."-".$coin;
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return decode_json($resp->content)->{'data'};
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub bitvavo_book_price {
     my $base = $_[0];
     my $coin = $_[1];
@@ -315,6 +339,27 @@ sub binance_depth {
     my $resp = $ua->request($req);
         if ($resp->is_success) {
             return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
+sub kucoin_depth {
+    my $base = $_[0];
+    my $coin = $_[1];
+    my $url = "https://api.kucoin.com/api/v1/market/orderbook/level2_100?symbol=".$base."-".$coin;
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return decode_json($resp->content)->{'data'};
         } else {
             print "HTTP GET url: ", $url, "\n";
             #print "HTTP GET error code: ", $resp->code, "\n";
@@ -493,6 +538,39 @@ sub binance_cancelorders {
             #print $resp->content."\n";
         }
     }
+}
+
+
+sub kucoin_cancelorders {
+    my $base = $_[0];
+    my $coin = $_[1];
+    my $tonce = time()*1000;
+    my $endpoint = "/api/v1/orders?symbol=".$base."-".$coin;
+    my $url = "https://api.kucoin.com".$endpoint;
+
+    my $prehash = $tonce."DELETE".$endpoint; # {timestamp+method+endpoint+body}
+    my $apisign = hmac_sha256_base64($prehash, $kucoin_seckey);
+    while (length($apisign) % 4) {
+        $apisign .= '=';
+    }
+    my $passphrase = hmac_sha256_base64($kucoin_passphrase, $kucoin_seckey); #  Encrypt passphrase with HMAC-sha256 via API-Secret --> Encode contents by base64 before you pass the request
+    while (length($passphrase) % 4) {
+        $passphrase .= '=';
+    }
+
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    $req = HTTP::Request->new(DELETE => $url);
+    $req->header('KC-API-KEY-VERSION' => '2');
+    $req->header('KC-API-KEY' => $kucoin_apikey);
+    $req->header('KC-API-SIGN' => $apisign);
+    $req->header('KC-API-TIMESTAMP' => $tonce);
+    $req->header('KC-API-PASSPHRASE' => $passphrase);
+    $req->header('content-type' => 'application/json');
+    $req->content();
+    $resp = $ua->request($req);
+    #print $resp->content;
 }
 
 
@@ -737,6 +815,92 @@ sub binance_setprice {
         } else {
             print " ask ".$resp->content."\n";
         }
+    }
+}
+
+
+sub kucoin_setprice {
+    my $base = $_[0];
+    my $coin = $_[1];
+    my $bid = undef;
+    my $ask = undef;
+    if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+        $bid = sprintf("%.4f",$_[2]);
+        $ask = sprintf("%.4f",$_[3]);
+    } else {
+        $bid = sprintf("%.8f",$_[2]);
+        $ask = sprintf("%.8f",$_[3]);
+    }
+    my $quantity = sprintf("%u",$_[4]);
+
+    my $endpoint = "/api/v1/orders";
+    my $url = "https://api.kucoin.com".$endpoint;
+
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(POST => 'https://api.kucoin.com/api/v1/orders');
+
+    print "$base/$coin size ".sprintf("%04d",$quantity);
+
+    if ( defined $bid ) {
+        my $tonce = time()*1000;
+        my $body = '{"clientOid":"buy'.$base.$coin.$quantity.'","side":"buy","symbol":"'.$base.'-'.$coin.'","type":"limit","price":'.$bid.',"size":'.$quantity.'}';
+        my $prehash = $tonce."POST".$endpoint.$body; # {timestamp+method+endpoint+body}
+        my $apisign = hmac_sha256_base64($prehash, $kucoin_seckey);
+        while (length($apisign) % 4) {
+            $apisign .= '=';
+        }
+        my $passphrase = hmac_sha256_base64($kucoin_passphrase, $kucoin_seckey); #  Encrypt passphrase with HMAC-sha256 via API-Secret --> Encode contents by base64 before you pass the request
+        while (length($passphrase) % 4) {
+            $passphrase .= '=';
+        }
+        $req->header('KC-API-KEY-VERSION' => '2');
+        $req->header('KC-API-KEY' => $kucoin_apikey);
+        $req->header('KC-API-SIGN' => $apisign);
+        $req->header('KC-API-TIMESTAMP' => $tonce);
+        $req->header('KC-API-PASSPHRASE' => $passphrase);
+        $req->header('content-type' => 'application/json');
+
+        $req->content($body);
+        my $resp = $ua->request($req);
+        my $resp_code = decode_json($resp->content)->{'code'};
+        if ($resp_code eq "200000") {
+            print " bid ".$bid;
+        } else {
+            print " bid ".decode_json($resp->content)->{'msg'};
+        }
+
+    }
+
+    if ( defined $ask ) {
+        my $tonce = time()*1000;
+        my $body = '{"clientOid":"sell'.$base.$coin.$quantity.'","side":"sell","symbol":"'.$base.'-'.$coin.'","type":"limit","price":'.$ask.',"size":'.$quantity.'}';
+        my $prehash = $tonce."POST".$endpoint.$body; # {timestamp+method+endpoint+body}
+        my $apisign = hmac_sha256_base64($prehash, $kucoin_seckey);
+        while (length($apisign) % 4) {
+            $apisign .= '=';
+        }
+        my $passphrase = hmac_sha256_base64($kucoin_passphrase, $kucoin_seckey); #  Encrypt passphrase with HMAC-sha256 via API-Secret --> Encode contents by base64 before you pass the request
+        while (length($passphrase) % 4) {
+            $passphrase .= '=';
+        }
+        $req->header('KC-API-KEY-VERSION' => '2');
+        $req->header('KC-API-KEY' => $kucoin_apikey);
+        $req->header('KC-API-SIGN' => $apisign);
+        $req->header('KC-API-TIMESTAMP' => $tonce);
+        $req->header('KC-API-PASSPHRASE' => $passphrase);
+        $req->header('content-type' => 'application/json');
+
+        $req->content($body);
+        my $resp = $ua->request($req);
+        my $resp_code = decode_json($resp->content)->{'code'};
+        if ($resp_code eq "200000") {
+            print " ask ".$ask."\n";
+        } else {
+            print " ask ".decode_json($resp->content)->{'msg'}."\n";
+        }
+
     }
 }
 
@@ -1794,6 +1958,78 @@ if ( $api eq "dex_gecko" ) {
             binance_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity_3);
         }
     }
+
+
+} elsif ( $api eq "kucoin" ) {
+    my $json = read_file("$cwd/mpm.conf.kucoin");
+    my $marginsconf = decode_json($json);
+    #my $marginadd = binance_volat();
+    my $marginadd = 0;
+
+    foreach my $coin ( keys %{$marginsconf} ) {
+        my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/50);
+        my $bidmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_2'} + $marginadd/25);
+        my $bidmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_3'} + $marginadd/10);
+        my $askmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_1'} + $marginadd/50);
+        my $askmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_2'} + $marginadd/25);
+        my $askmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_3'} + $marginadd/10);
+        my $quantity_1 = $marginsconf->{$coin}{'quantity_1'};
+        my $quantity_2 = $marginsconf->{$coin}{'quantity_2'};
+        my $quantity_3 = $marginsconf->{$coin}{'quantity_3'};
+        my $maxsum_1 = $marginsconf->{$coin}{'maxsum_1'};
+        my $maxsum_2 = $marginsconf->{$coin}{'maxsum_2'};
+        my $maxsum_3 = $marginsconf->{$coin}{'maxsum_3'};
+
+        kucoin_cancelorders($base,$coin);
+
+        my $kucoin_book_price = kucoin_book_price($base,$coin);
+        my $cex_price = sprintf("%.8f", ($kucoin_book_price->{'bestBid'} + $kucoin_book_price->{'bestAsk'})/2);
+        my $kucoin_depth = kucoin_depth($base,$coin);
+        #print Dumper($kucoin_depth);
+
+        if ( ($kucoin_depth ne "1") && ($kucoin_book_price ne "1") ) {
+            my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_1));
+            my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_1));
+            if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+                $cex_bid_price_1 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_1,$coin) + 0.00010000;
+                $cex_ask_price_1 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_1,$coin) - 0.00010000;
+            } else {
+                $cex_bid_price_1 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_1,$coin) + 0.00000001;
+                $cex_ask_price_1 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_1,$coin) - 0.00000001;
+            }
+            if ( ( $cex_bid_price_1 eq "0.00000001" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = $maxbidprice; }
+            if ( ( $cex_ask_price_1 eq "0.00000001" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = $minaskprice; }
+
+            $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_2));
+            $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_2));
+            if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+                $cex_bid_price_2 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_2,$coin) + 0.00010000;
+                $cex_ask_price_2 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_2,$coin) - 0.00010000;
+            } else {
+                $cex_bid_price_2 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_2,$coin) + 0.00000001;
+                $cex_ask_price_2 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_2,$coin) - 0.00000001;
+            }
+            if ( ( $cex_bid_price_2 eq "0.00000001" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
+            if ( ( $cex_ask_price_2 eq "0.00000001" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = $minaskprice; }
+
+            $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_3));
+            $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_3));
+            if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+                $cex_bid_price_3 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_3,$coin) + 0.00010000;
+                $cex_ask_price_3 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_3,$coin) - 0.00010000;
+            } else {
+                $cex_bid_price_3 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_3,$coin) + 0.00000001;
+                $cex_ask_price_3 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_3,$coin) - 0.00000001;
+            }
+            if ( ( $cex_bid_price_3 eq "0.00000001" ) || ( $cex_bid_price_3 > $maxbidprice ) ) { $cex_bid_price_3 = $maxbidprice; }
+            if ( ( $cex_ask_price_3 eq "0.00000001" ) || ( $cex_ask_price_3 < $minaskprice ) ) { $cex_ask_price_3 = $minaskprice; }
+
+            kucoin_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
+            kucoin_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
+            kucoin_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity_3);
+        }
+    }
+
 
 } elsif ( $api eq "mandala" ) {
     my $json = read_file("$cwd/mpm.conf.mandala");

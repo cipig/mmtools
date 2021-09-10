@@ -1,6 +1,6 @@
 #!/bin/bash
 while true; do
   date
-  ~/mmtools/mpm/mpm bitvavo $1
+  ~/mmtools/mpm/mpm kucoin $1
   sleep 40
 done

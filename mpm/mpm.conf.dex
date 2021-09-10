@@ -1,11 +1,4 @@
 {
-    "VRSC": {
-        "geckoid": "verus-coin",
-        "bithumb_usd_symbol": "VRSC-USDT",
-        "bidmargin": 0.48,
-        "askmargin": 0.008,
-        "maxbidvolume": 1000
-    },
     "KMD": {
         "geckoid": "komodo",
         "binance_btc_symbol": "KMDBTC",
@@ -45,13 +38,6 @@
         "type": "bep20",
         "geckoid": "cardano",
         "binance_usd_symbol": "ADAUSDT",
-        "bidmargin": 0.023,
-        "askmargin": 0.023
-    },
-    "ADX-BEP20": {
-        "type": "bep20",
-        "geckoid": "adex",
-        "binance_btc_symbol": "ADXBTC",
         "bidmargin": 0.023,
         "askmargin": 0.023
     },
@@ -209,24 +195,6 @@
         "bidmargin": 0.023,
         "askmargin": 0.023
     },
-    "SFUSD": {
-        "geckoid": "tether",
-        "bidmargin": 0.023,
-        "askmargin": 0.023,
-        "maxbidvolume": 500
-    },
-    "TRYB-BEP20": {
-        "type": "bep20",
-        "geckoid": "bilira",
-        "bidmargin": 0.023,
-        "askmargin": 0.023
-    },
-    "BIDR-BEP20": {
-        "type": "bep20",
-        "geckoid": "binanceidr",
-        "bidmargin": 0.023,
-        "askmargin": 0.023
-    },
     "BUSD-BEP20": {
         "type": "bep20",
         "geckoid": "binance-usd",
@@ -260,6 +228,12 @@
     "USDC-BEP20": {
         "type": "bep20",
         "geckoid": "usd-coin",
+        "bidmargin": 0.023,
+        "askmargin": 0.023
+    },
+    "EURS": {
+        "type": "erc20",
+        "geckoid": "stasis-eurs",
         "bidmargin": 0.023,
         "askmargin": 0.023
     },
@@ -319,10 +293,24 @@
         "bidmargin": 0.023,
         "askmargin": 0.023
     },
+    "CRV": {
+        "type": "erc20",
+        "geckoid": "curve-dao-token",
+        "binance_usd_symbol": "CRVUSDT",
+        "bidmargin": 0.023,
+        "askmargin": 0.023
+    },
     "DODO-BEP20": {
         "type": "bep20",
         "geckoid": "dodo",
         "binance_usd_symbol": "DODOUSDT",
+        "bidmargin": 0.023,
+        "askmargin": 0.023
+    },
+    "ENJ": {
+        "type": "erc20",
+        "geckoid": "enjincoin",
+        "binance_usd_symbol": "ENJUSDT",
         "bidmargin": 0.023,
         "askmargin": 0.023
     },
@@ -340,10 +328,17 @@
         "bidmargin": 0.023,
         "askmargin": 0.023
     },
-    "OCEAN-BEP20": {
-        "type": "bep20",
-        "geckoid": "ocean-protocol",
-        "binance_usd_symbol": "OCEANUSDT",
+    "REN": {
+        "type": "erc20",
+        "geckoid": "republic-protocol",
+        "binance_usd_symbol": "RENUSDT",
+        "bidmargin": 0.023,
+        "askmargin": 0.023
+    },
+    "RSR": {
+        "type": "erc20",
+        "geckoid": "reserve-rights-token",
+        "binance_usd_symbol": "RSRUSDT",
         "bidmargin": 0.023,
         "askmargin": 0.023
     },
@@ -351,13 +346,6 @@
         "type": "bep20",
         "geckoid": "ontology",
         "binance_usd_symbol": "ONTUSDT",
-        "bidmargin": 0.023,
-        "askmargin": 0.023
-    },
-    "QKC-BEP20": {
-        "type": "bep20",
-        "geckoid": "quark-chain",
-        "binance_btc_symbol": "QKCBTC",
         "bidmargin": 0.023,
         "askmargin": 0.023
     },
@@ -375,10 +363,10 @@
         "bidmargin": 0.023,
         "askmargin": 0.023
     },
-    "SXP-BEP20": {
-        "type": "bep20",
-        "geckoid": "swipe",
-        "binance_usd_symbol": "SXPUSDT",
+    "UMA": {
+        "geckoid": "uma",
+        "binance_usd_symbol": "UMAUSDT",
+        "type": "erc20",
         "bidmargin": 0.023,
         "askmargin": 0.023
     },
@@ -396,47 +384,54 @@
         "bidmargin": 0.023,
         "askmargin": 0.023
     },
+    "ZRX": {
+        "type": "erc20",
+        "geckoid": "0x",
+        "binance_usd_symbol": "ZRXUSDT",
+        "bidmargin": 0.023,
+        "askmargin": 0.023
+    },
     "ABY": {
         "geckoid": "artbyte",
         "freiexchange_btc_symbol": "ABY_BTC",
-        "bidmargin": 0.55,
-        "askmargin": 0.55,
-        "maxbidvolume": 20
+        "bidmargin": 0.65,
+        "askmargin": 0.65,
+        "maxbidvolume": 100
     },
     "AUR": {
         "geckoid": "auroracoin",
         "freiexchange_btc_symbol": "AUR_BTC",
-        "bidmargin": 0.20,
+        "bidmargin": 0.25,
         "askmargin": 0.25,
-        "maxbidvolume": 50
+        "maxbidvolume": 100
     },
     "AXE": {
         "geckoid": "axe",
         "crex24_btc_symbol": "AXE-BTC",
-        "bidmargin": 0.25,
+        "bidmargin": 0.35,
         "askmargin": 0.25,
-        "maxbidvolume": 50
+        "maxbidvolume": 100
     },
     "BLK": {
         "geckoid": "blackcoin",
         "bittrex_btc_symbol": "BLK-BTC",
         "bidmargin": 0.25,
         "askmargin": 0.25,
-        "maxbidvolume": 50
+        "maxbidvolume": 100
     },
     "BSTY": {
         "geckoid": "globalboost",
         "freiexchange_btc_symbol": "BSTY_BTC",
         "bidmargin": 0.25,
         "askmargin": 0.25,
-        "maxbidvolume": 50
+        "maxbidvolume": 100
     },
     "BTCZ": {
         "geckoid": "bitcoinz",
         "crex24_btc_symbol": "BTCZ-BTC",
-        "bidmargin": 0.35,
+        "bidmargin": 0.25,
         "askmargin": 0.25,
-        "maxbidvolume": 50
+        "maxbidvolume": 100
     },
     "BCH": {
         "geckoid": "bitcoin-cash",
@@ -446,9 +441,9 @@
     },
     "CDN": {
         "freiexchange_btc_symbol": "CDN_BTC",
-        "bidmargin": 0.35,
-        "askmargin": 0.35,
-        "maxbidvolume": 50
+        "bidmargin": 0.25,
+        "askmargin": 0.25,
+        "maxbidvolume": 100
     },
     "DASH": {
         "geckoid": "dash",
@@ -467,55 +462,63 @@
         "freiexchange_btc_symbol": "DGC_BTC",
         "bidmargin": 0.25,
         "askmargin": 0.25,
-        "maxbidvolume": 50
+        "maxbidvolume": 100
+    },
+    "DP": {
+        "geckoid": "digitalprice",
+        "bidmargin": 0.75,
+        "askmargin": 0.25,
+        "maxbidvolume": 20
     },
     "ECA": {
         "geckoid": "electra",
         "crex24_btc_symbol": "ECA-BTC",
-        "bidmargin": 0.45,
+        "bidmargin": 0.55,
         "askmargin": 0.25,
-        "maxbidvolume": 50
+        "maxbidvolume": 100
     },
     "DIMI": {
         "geckoid": "diminutive-coin",
         "freiexchange_btc_symbol": "DIMI_BTC",
         "bidmargin": 0.25,
         "askmargin": 0.25,
-        "maxbidvolume": 50
+        "maxbidvolume": 100
     },
     "EFL": {
         "geckoid": "electronicgulden",
         "bidmargin": 0.65,
-        "askmargin": 0.25,
-        "maxbidvolume": 20
+        "askmargin": 0.15,
+        "maxbidvolume": 100
     },
     "EMC2": {
         "geckoid": "einsteinium",
         "bittrex_btc_symbol": "EMC2-BTC",
-        "bidmargin": 0.45,
-        "askmargin": 0.45,
-        "maxbidvolume": 50
+        "bidmargin": 0.55,
+        "askmargin": 0.0023,
+        "maxbidvolume": 100
+    },
+    "FJC": {
+        "geckoid": "fujicoin",
+        "askmargin": 0.0023
     },
     "FTC": {
         "geckoid": "feathercoin",
         "bittrex_btc_symbol": "FTC-BTC",
-        "bidmargin": 0.35,
+        "bidmargin": 0.25,
         "askmargin": 0.25,
-        "maxbidvolume": 50
+        "maxbidvolume": 100
     },
     "GLEEC-OLD": {
         "geckoid": "gleec-coin",
         "bittrex_btc_symbol": "GLEEC-BTC",
-        "bidmargin": 0.35,
-        "askmargin": 0.25,
-        "maxbidvolume": 500
+        "bidmargin": 0.25,
+        "askmargin": 0.25
     },
     "GLEEC": {
         "geckoid": "gleec-coin",
         "bittrex_btc_symbol": "GLEEC-BTC",
-        "bidmargin": 0.35,
-        "askmargin": 0.25,
-        "maxbidvolume": 500
+        "bidmargin": 0.25,
+        "askmargin": 0.25
     },
     "GRS": {
         "geckoid": "groestlcoin",
@@ -527,13 +530,13 @@
         "freiexchange_btc_symbol": "IL8P_BTC",
         "bidmargin": 0.35,
         "askmargin": 0.25,
-        "maxbidvolume": 50
+        "maxbidvolume": 100
     },
     "KOIN": {
         "geckoid": "koinon",
-        "bidmargin": 0.85,
+        "bidmargin": 0.75,
         "askmargin": 0.15,
-        "maxbidvolume": 10
+        "maxbidvolume": 20
     },
     "LCC": {
         "geckoid": "litecoin-cash",
@@ -553,14 +556,14 @@
         "freiexchange_btc_symbol": "LYNX_BTC",
         "bidmargin": 0.65,
         "askmargin": 0.65,
-        "maxbidvolume": 50
+        "maxbidvolume": 100
     },
     "MONA": {
         "geckoid": "monacoin",
         "bittrex_btc_symbol": "MONA-BTC",
         "bidmargin": 0.15,
         "askmargin": 0.15,
-        "maxbidvolume": 300
+        "maxbidvolume": 100
     },
     "NAV": {
         "geckoid": "nav-coin",
@@ -573,7 +576,7 @@
         "coinex_usd_symbol": "NMCUSDT",
         "bidmargin": 0.15,
         "askmargin": 0.15,
-        "maxbidvolume": 200
+        "maxbidvolume": 100
     },
     "QC": {
         "geckoid": "qcash",
@@ -601,7 +604,7 @@
     "THC": {
         "geckoid": "hempcoin-thc",
         "bittrex_btc_symbol": "THC-BTC",
-        "bidmargin": 0.25,
+        "bidmargin": 0.35,
         "askmargin": 0.25,
         "maxbidvolume": 100
     },
@@ -610,21 +613,14 @@
         "freiexchange_btc_symbol": "TRC_BTC",
         "bidmargin": 0.45,
         "askmargin": 0.45,
-        "maxbidvolume": 50
+        "maxbidvolume": 100
     },
     "UIS": {
         "geckoid": "unitus",
         "freiexchange_btc_symbol": "UIS_BTC",
         "bidmargin": 0.45,
         "askmargin": 0.45,
-        "maxbidvolume": 50
-    },
-    "UNO": {
-        "geckoid": "unobtanium",
-        "freiexchange_btc_symbol": "UNO_BTC",
-        "bidmargin": 0.35,
-        "askmargin": 0.25,
-        "maxbidvolume": 50
+        "maxbidvolume": 100
     },
     "VAL": {
         "geckoid": "radium",
@@ -632,6 +628,12 @@
         "bidmargin": 0.25,
         "askmargin": 0.25,
         "maxbidvolume": 100
+    },
+    "VRSC": {
+        "geckoid": "verus-coin",
+        "safetrade_btc_symbol": "vrscbtc",
+        "bidmargin": 0.12,
+        "askmargin": 0.12
     },
     "FIRO": {
         "geckoid": "zcoin",
@@ -645,20 +647,6 @@
         "binance_usd_symbol": "FIROUSDT",
         "bidmargin": 0.023,
         "askmargin": 0.023
-    },
-    "XMY": {
-        "geckoid": "myriadcoin",
-        "bittrex_btc_symbol": "XMY-BTC",
-        "bidmargin": 0.35,
-        "askmargin": 0.35,
-        "maxbidvolume": 50
-    },
-    "XVC-BEP20": {
-        "type": "bep20",
-        "freiexchange_btc_symbol": "XVC_BTC",
-        "bidmargin": 0.75,
-        "askmargin": 0.35,
-        "maxbidvolume": 20
     },
     "ZEC": {
         "geckoid": "zcash",
@@ -677,6 +665,6 @@
         "freiexchange_btc_symbol": "ZET_BTC",
         "bidmargin": 0.25,
         "askmargin": 0.25,
-        "maxbidvolume": 50
+        "maxbidvolume": 100
     }
 }
