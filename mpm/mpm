@@ -964,14 +964,14 @@ sub mandala_setprice {
 sub bitvavo_setprice {
     my $base = $_[0];
     my $coin = $_[1];
-    my $bid = undef;
-    my $ask = undef;
-    if ( $coin eq "EUR" ) {
+    my $bid = $_[2];
+    my $ask = $_[3];
+    if ( ($ask < 1) && ($bid < 1) ) {
+        $bid = sprintf("%.5f",$_[2]);
+        $ask = sprintf("%.5f",$_[3]);
+    } else {
         $bid = sprintf("%.4f",$_[2]);
         $ask = sprintf("%.4f",$_[3]);
-    } else {
-        $bid = sprintf("%.8f",$_[2]);
-        $ask = sprintf("%.8f",$_[3]);
     }
     my $quantity = sprintf("%u",$_[4]);
 
@@ -1981,13 +1981,17 @@ if ( $api eq "dex_gecko" ) {
         my $maxsum_3 = $marginsconf->{$coin}{'maxsum_3'};
 
         kucoin_cancelorders($base,$coin);
+        Time::HiRes::sleep(1);
 
         my $kucoin_book_price = kucoin_book_price($base,$coin);
         my $cex_price = sprintf("%.8f", ($kucoin_book_price->{'bestBid'} + $kucoin_book_price->{'bestAsk'})/2);
+#        my $binance_book_price = decode_json(binance_book_price($base,$coin));
+#        my $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
+
         my $kucoin_depth = kucoin_depth($base,$coin);
-        #print Dumper($kucoin_depth);
 
         if ( ($kucoin_depth ne "1") && ($kucoin_book_price ne "1") ) {
+#        if ( ($kucoin_depth ne "1") && ($binance_book_price ne "1") ) {
             my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_1));
             my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_1));
             if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
@@ -2113,7 +2117,8 @@ if ( $api eq "dex_gecko" ) {
 } elsif ( $api eq "crex24" ) {
     my $json = read_file("$cwd/mpm.conf.crex24");
     my $marginsconf = decode_json($json);
-    my $marginadd = binance_volat();
+    #my $marginadd = binance_volat();
+    my $marginadd = 0;
     my $nonce = time();
 
     foreach my $coin ( keys %{$marginsconf} ) {
@@ -2180,31 +2185,31 @@ if ( $api eq "dex_gecko" ) {
 #        my $vav_btc_eur_price = decode_json(bitvavo_book_price("BTC","EUR"));
 #        my $btc_eur_price = sprintf("%.2f", ($vav_btc_eur_price->{'bid'} + $vav_btc_eur_price->{'ask'})/2);
 #        my $binance_book_price = decode_json(binance_book_price($base,"BTC"));
-#        my $cex_price = sprintf("%.4f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2*$btc_eur_price);
+#        my $cex_price = sprintf("%.5f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2*$btc_eur_price);
         my $bitvavo_book_price = decode_json(bitvavo_book_price($base,$coin));
-        my $cex_price = sprintf("%.4f", ($bitvavo_book_price->{'bid'} + $bitvavo_book_price->{'ask'})/2);
+        my $cex_price = sprintf("%.5f", ($bitvavo_book_price->{'bid'} + $bitvavo_book_price->{'ask'})/2);
         my $bitvavo_depth = decode_json(bitvavo_depth($base,$coin));
 #        print "btceur: $btc_eur_price, cex: $cex_price\n";
 
         if ( ($bitvavo_depth ne "1") && ($bitvavo_book_price ne "1") ) {
-            my $maxbidprice = sprintf("%.4f", ($cex_price - $cex_price * $bidmargin_1));
-            my $minaskprice = sprintf("%.4f", ($cex_price + $cex_price * $askmargin_1));
-            $cex_bid_price_1 = sprintf("%.4f", (calc_bestprice_sum($bitvavo_depth->{'bids'},$maxsum_1,$coin) + 0.0001));
-            $cex_ask_price_1 = sprintf("%.4f", (calc_bestprice_sum($bitvavo_depth->{'asks'},$maxsum_1,$coin) - 0.0001));
+            my $maxbidprice = sprintf("%.5f", ($cex_price - $cex_price * $bidmargin_1));
+            my $minaskprice = sprintf("%.5f", ($cex_price + $cex_price * $askmargin_1));
+            $cex_bid_price_1 = sprintf("%.5f", (calc_bestprice_sum($bitvavo_depth->{'bids'},$maxsum_1,$coin) + 0.00001));
+            $cex_ask_price_1 = sprintf("%.5f", (calc_bestprice_sum($bitvavo_depth->{'asks'},$maxsum_1,$coin) - 0.00001));
             if ( ( $cex_bid_price_1 eq "0.0001" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = $maxbidprice; }
             if ( ( $cex_ask_price_1 eq "0.0001" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = $minaskprice; }
 
-            $maxbidprice = sprintf("%.4f", ($cex_price - $cex_price * $bidmargin_2));
-            $minaskprice = sprintf("%.4f", ($cex_price + $cex_price * $askmargin_2));
-            $cex_bid_price_2 = sprintf("%.4f", (calc_bestprice_sum($bitvavo_depth->{'bids'},$maxsum_2,$coin) + 0.0001));
-            $cex_ask_price_2 = sprintf("%.4f", (calc_bestprice_sum($bitvavo_depth->{'asks'},$maxsum_2,$coin) - 0.0001));
+            $maxbidprice = sprintf("%.5f", ($cex_price - $cex_price * $bidmargin_2));
+            $minaskprice = sprintf("%.5f", ($cex_price + $cex_price * $askmargin_2));
+            $cex_bid_price_2 = sprintf("%.5f", (calc_bestprice_sum($bitvavo_depth->{'bids'},$maxsum_2,$coin) + 0.00001));
+            $cex_ask_price_2 = sprintf("%.5f", (calc_bestprice_sum($bitvavo_depth->{'asks'},$maxsum_2,$coin) - 0.00001));
             if ( ( $cex_bid_price_2 eq "0.0001" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
             if ( ( $cex_ask_price_2 eq "0.0001" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = $minaskprice; }
 
-            $maxbidprice = sprintf("%.4f", ($cex_price - $cex_price * $bidmargin_3));
-            $minaskprice = sprintf("%.4f", ($cex_price + $cex_price * $askmargin_3));
-            $cex_bid_price_3 = sprintf("%.4f", (calc_bestprice_sum($bitvavo_depth->{'bids'},$maxsum_3,$coin) + 0.0001));
-            $cex_ask_price_3 = sprintf("%.4f", (calc_bestprice_sum($bitvavo_depth->{'asks'},$maxsum_3,$coin) - 0.0001));
+            $maxbidprice = sprintf("%.5f", ($cex_price - $cex_price * $bidmargin_3));
+            $minaskprice = sprintf("%.5f", ($cex_price + $cex_price * $askmargin_3));
+            $cex_bid_price_3 = sprintf("%.5f", (calc_bestprice_sum($bitvavo_depth->{'bids'},$maxsum_3,$coin) + 0.00001));
+            $cex_ask_price_3 = sprintf("%.5f", (calc_bestprice_sum($bitvavo_depth->{'asks'},$maxsum_3,$coin) - 0.00001));
             if ( ( $cex_bid_price_3 eq "0.0001" ) || ( $cex_bid_price_3 > $maxbidprice ) ) { $cex_bid_price_3 = $maxbidprice; }
             if ( ( $cex_ask_price_3 eq "0.0001" ) || ( $cex_ask_price_3 < $minaskprice ) ) { $cex_ask_price_3 = $minaskprice; }
 
@@ -2217,7 +2222,8 @@ if ( $api eq "dex_gecko" ) {
 } elsif ( $api eq "coinex" ) {
     my $json = read_file("$cwd/mpm.conf.coinex");
     my $marginsconf = decode_json($json);
-    my $marginadd = binance_volat();
+    #my $marginadd = binance_volat();
+    my $marginadd = 0;
 
     foreach my $coin ( keys %{$marginsconf} ) {
         my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/15);
@@ -2231,12 +2237,20 @@ if ( $api eq "dex_gecko" ) {
 
         coinex_cancelorders($base,$coin);
 
-        if ( $coin eq "BTC" ) {
-            my $binance_book_price = decode_json(binance_book_price($base,$coin));
-            $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
-        } else {
-            $cex_price = decode_json(coinex_latest_price($base.$coin))->{'data'}{'ticker'}{'last'};
-        }
+        my $coinex_latest_price = decode_json(coinex_latest_price($base.$coin))->{'data'}{'ticker'};
+        my $cex_price = sprintf("%.8f", ($coinex_latest_price->{'buy'} + $coinex_latest_price->{'sell'})/2);
+        #print "coinex: $cex_price\n";
+
+#        my $binance_book_price = decode_json(binance_book_price($base,$coin));
+#        if ( $coin eq "BTC" ) {
+#            $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
+#            print "binance: $cex_price\n";
+#        } elsif ( $coin eq "USDT" ) {
+#            $cex_price = sprintf("%.4f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
+#            print "binance: $cex_price\n";
+#        } else {
+#            $cex_price = decode_json(coinex_latest_price($base.$coin))->{'data'}{'ticker'}{'last'};
+#        }
         my $coinex_depth = coinex_depth($base,$coin);
 
         if ( $coinex_depth ne "1" ) {
