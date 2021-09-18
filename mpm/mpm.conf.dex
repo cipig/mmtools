@@ -540,7 +540,7 @@
     },
     "LCC": {
         "geckoid": "litecoin-cash",
-        "hitbtc_btc_symbol": "LCCBTC",
+        "southxchange_btc_symbol": "LCC/BTC",
         "bidmargin": 0.25,
         "askmargin": 0.25,
         "maxbidvolume": 100

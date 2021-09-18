@@ -104,6 +104,26 @@ sub safetrade_latest_price {
 }
 
 
+sub southxchange_latest_price {
+    my $url = "https://www.southxchange.com/api/v4/price/".$_[0];
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub freiexchange_latest_price {
     my $url = "https://api.freiexchange.com/public/ticker";
     my $ua = LWP::UserAgent->new;
@@ -1665,6 +1685,7 @@ if ( $api eq "dex_gecko" ) {
                 my $coinex_usd_symbol = $marginsconf->{$coin}{'coinex_usd_symbol'};
                 my $hitbtc_btc_symbol = $marginsconf->{$coin}{'hitbtc_btc_symbol'};
                 my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
+                my $southxchange_btc_symbol = $marginsconf->{$coin}{'southxchange_btc_symbol'};
                 my $price = 0;
                 my $coinusdprice = undef;
                 my $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
@@ -1692,6 +1713,14 @@ if ( $api eq "dex_gecko" ) {
                     if ( $safetrade_price ne "1" ) {
                         $price = ( from_json($safetrade_price)->{"ticker"}{"sell"} + from_json($safetrade_price)->{"ticker"}{"buy"} + from_json($safetrade_price)->{"ticker"}{"last"} ) / 3 / $base_btc_price;
                         $change = (1 - from_json($safetrade_price)->{"ticker"}{"low"} / from_json($safetrade_price)->{"ticker"}{"high"}) * 100;
+                    }
+                } elsif ( defined $southxchange_btc_symbol ) {
+                    my $southxchange_price = southxchange_latest_price($southxchange_btc_symbol);
+                    if ( $southxchange_price ne "1" ) {
+                        $price = ( from_json($southxchange_price)->{"Bid"} + from_json($southxchange_price)->{"Ask"} + from_json($southxchange_price)->{"Last"} ) / 3 / $base_btc_price;
+                        $change = abs(from_json($southxchange_price)->{"Variation24Hr"});
+                        $coinusdprice = $price * $btcusdprice;
+                        #print "==========   price $price   myprice $testprice         change $change    mychange $testchange    =====\n";
                     }
                 } elsif ( (defined $freiexchange_btc_symbol) && ($freiexchange_price ne "1") ) {
                     $price = ( from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"last"} ) / 3 / $base_btc_price;
@@ -1727,7 +1756,6 @@ if ( $api eq "dex_gecko" ) {
                     if ( $bithumb_price ne "1" ) {
                         $price = from_json($bithumb_price)->{"data"}[0]{"c"} / $base_usd_price;
                         $change = (1 - from_json($bithumb_price)->{"data"}[0]{"l"} / from_json($bithumb_price)->{"data"}[0]{"h"}) * 100;
-                        #print "==========   price $price   myprice $test_price         change $change    mychange $test_change    =====\n";
                     }
                 }
 
@@ -1736,7 +1764,7 @@ if ( $api eq "dex_gecko" ) {
                     $price = 1;
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) ) {
                     $marginadd = $change/100/7;
-                } elsif ( (defined $safetrade_btc_symbol) || (defined $freiexchange_btc_symbol) || (defined $crex24_btc_symbol) || (defined $bittrex_btc_symbol) || (defined $coinex_usd_symbol) || (defined $hitbtc_btc_symbol) || (defined $bithumb_usd_symbol) ) {
+                } elsif ( (defined $safetrade_btc_symbol) || (defined $freiexchange_btc_symbol) || (defined $crex24_btc_symbol) || (defined $bittrex_btc_symbol) || (defined $coinex_usd_symbol) || (defined $hitbtc_btc_symbol) || (defined $bithumb_usd_symbol) || (defined $southxchange_btc_symbol) ) {
                     $marginadd = $change/100/4;
                 } else {
                     $marginadd = $change/100/3;
