@@ -1,4 +1,10 @@
 {
+    "MCL": {
+        "komodolive_usd_symbol": "MCL",
+        "bidmargin": 0.50,
+        "askmargin": 0.50,
+        "maxbidvolume": 10
+    },
     "KMD": {
         "geckoid": "komodo",
         "binance_btc_symbol": "KMDBTC",

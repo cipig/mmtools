@@ -104,6 +104,26 @@ sub safetrade_latest_price {
 }
 
 
+sub komodolive_latest_price {
+    my $coin = $_[0];
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(POST => 'https://prices.komodo.live:1313/api/v1/ticker_infos');
+    #$req->content_type('application/x-www-form-urlencoded');
+    $req->content_type('application/json');
+
+    $command = '{"ticker": "'.$coin.'"}';
+    $req->content($command);
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            #print Dumper($resp->content);
+            return $resp->content;
+        } else {
+            return 1;
+        }
+}
+
+
 sub southxchange_latest_price {
     my $url = "https://www.southxchange.com/api/v4/price/".$_[0];
     my $ua = LWP::UserAgent->new;
@@ -1686,6 +1706,7 @@ if ( $api eq "dex_gecko" ) {
                 my $hitbtc_btc_symbol = $marginsconf->{$coin}{'hitbtc_btc_symbol'};
                 my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
                 my $southxchange_btc_symbol = $marginsconf->{$coin}{'southxchange_btc_symbol'};
+                my $komodolive_usd_symbol = $marginsconf->{$coin}{'komodolive_usd_symbol'};
                 my $price = 0;
                 my $coinusdprice = undef;
                 my $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
@@ -1719,7 +1740,13 @@ if ( $api eq "dex_gecko" ) {
                     if ( $southxchange_price ne "1" ) {
                         $price = ( from_json($southxchange_price)->{"Bid"} + from_json($southxchange_price)->{"Ask"} + from_json($southxchange_price)->{"Last"} ) / 3 / $base_btc_price;
                         $change = abs(from_json($southxchange_price)->{"Variation24Hr"});
-                        $coinusdprice = $price * $btcusdprice;
+                    }
+                } elsif ( defined $komodolive_usd_symbol ) {
+                    my $komodolive_price = komodolive_latest_price($komodolive_usd_symbol);
+                    if ( $komodolive_price ne "1" ) {
+                        $price = from_json($komodolive_price)->{"last_price"} / $base_usd_price;
+                        $coinusdprice = $price;
+                        $change = abs(from_json($komodolive_price)->{"change_24h"});
                         #print "==========   price $price   myprice $testprice         change $change    mychange $testchange    =====\n";
                     }
                 } elsif ( (defined $freiexchange_btc_symbol) && ($freiexchange_price ne "1") ) {
