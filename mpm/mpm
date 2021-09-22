@@ -1279,13 +1279,13 @@ sub dex_setprice {
         my $rel_balance = dex_getbalance($rel);
         if ( defined $maxaskvolume ) {
             $askvolume1 = $maxaskvolume;
-            if ($askvolume1 > $rel_balance*0.95) { $askvolume1 = $rel_balance*0.95; }
+            if ($askvolume1 > $rel_balance*0.9) { $askvolume1 = $rel_balance*0.9; }
             #$askvolume1 = $maxaskvolume*0.33;
             #$askvolume2 = $maxaskvolume*0.66;
             #if ($askvolume1 > $rel_balance*0.33) { $askvolume1 = $rel_balance*0.33; }
             #if ($askvolume2 > $rel_balance*0.66) { $askvolume2 = $rel_balance*0.66; }
         } else {
-            $askvolume1 = $rel_balance*0.95;
+            $askvolume1 = $rel_balance*0.9;
             #$askvolume1 = $rel_balance*0.33;
             #$askvolume2 = $rel_balance*0.66;
         }
@@ -1325,13 +1325,13 @@ sub dex_setprice {
         my $base_balance = dex_getbalance($base);
         if ( defined $maxbidvolume ) {
             $bidvolume1 = $maxbidvolume;
-            if ($bidvolume1 > $base_balance*0.95) { $bidvolume1 = $base_balance*0.95; }
+            if ($bidvolume1 > $base_balance*0.9) { $bidvolume1 = $base_balance*0.9; }
             #$bidvolume1 = $maxbidvolume*0.33;
             #$bidvolume2 = $maxbidvolume*0.66;
             #if ($bidvolume1 > $base_balance*0.33) { $bidvolume1 = $base_balance*0.33; }
             #if ($bidvolume2 > $base_balance*0.66) { $bidvolume2 = $base_balance*0.66; }
         } else {
-            $bidvolume1 = $base_balance*0.95;
+            $bidvolume1 = $base_balance*0.9;
             #$bidvolume1 = $base_balance*0.33;
             #$bidvolume2 = $base_balance*0.66;
         }
