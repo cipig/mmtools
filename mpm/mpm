@@ -1790,11 +1790,11 @@ if ( $api eq "dex_gecko" ) {
                 if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                     $price = 1;
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) ) {
-                    $marginadd = $change/100/7;
+                    $marginadd = $change/100/5;
                 } elsif ( (defined $safetrade_btc_symbol) || (defined $freiexchange_btc_symbol) || (defined $crex24_btc_symbol) || (defined $bittrex_btc_symbol) || (defined $coinex_usd_symbol) || (defined $hitbtc_btc_symbol) || (defined $bithumb_usd_symbol) || (defined $southxchange_btc_symbol) ) {
-                    $marginadd = $change/100/4;
-                } else {
                     $marginadd = $change/100/3;
+                } else {
+                    $marginadd = $change/100/2;
                 }
 
                 my $bid1 = undef;
@@ -1883,7 +1883,7 @@ if ( $api eq "dex_gecko" ) {
                     dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin1,$askmargin1,$bidmargin2,$askmargin2);
                 }
 
-                Time::HiRes::sleep(0.6);
+                Time::HiRes::sleep(0.4);
             }
         }
     }
