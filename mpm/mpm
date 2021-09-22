@@ -1792,9 +1792,9 @@ if ( $api eq "dex_gecko" ) {
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) ) {
                     $marginadd = $change/100/4;
                 } elsif ( (defined $safetrade_btc_symbol) || (defined $freiexchange_btc_symbol) || (defined $crex24_btc_symbol) || (defined $bittrex_btc_symbol) || (defined $coinex_usd_symbol) || (defined $hitbtc_btc_symbol) || (defined $bithumb_usd_symbol) || (defined $southxchange_btc_symbol) ) {
-                    $marginadd = $change/100/2;
+                    $marginadd = $change/100/3;
                 } else {
-                    $marginadd = $change/100;
+                    $marginadd = $change/100/2;
                 }
 
                 my $bid1 = undef;
