@@ -164,6 +164,26 @@ sub freiexchange_latest_price {
 }
 
 
+sub smartfi_latest_price {
+    my $url = "https://node1.smartfi.com/market/get-market-summary";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub dex_ticker_24h {
     my $url = "https://dexapi.cipig.net/public/ticker_24h.php?market=".$_[0]."-".$_[1];
     my $ua = LWP::UserAgent->new;
@@ -1635,7 +1655,8 @@ if ( $api eq "dex_gecko" ) {
 
         my $gecko_price = gecko_latest_price($ids);
         my $freiexchange_price = freiexchange_latest_price();
-        #print Dumper($freiexchange_price);
+        my $smartfi_price = smartfi_latest_price();
+        #print Dumper($smartfi_price);
 
         my $base_usd_price = 0;
         my $base_btc_price = 0;
@@ -1712,6 +1733,7 @@ if ( $api eq "dex_gecko" ) {
                 my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
                 my $southxchange_btc_symbol = $marginsconf->{$coin}{'southxchange_btc_symbol'};
                 my $komodolive_usd_symbol = $marginsconf->{$coin}{'komodolive_usd_symbol'};
+                my $smartfi_usd_symbol = $marginsconf->{$coin}{'smartfi_usd_symbol'};
                 my $price = 0;
                 my $coinusdprice = undef;
                 my $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
@@ -1749,15 +1771,19 @@ if ( $api eq "dex_gecko" ) {
                 } elsif ( defined $komodolive_usd_symbol ) {
                     my $komodolive_price = komodolive_latest_price($komodolive_usd_symbol);
                     if ( $komodolive_price ne "1" ) {
-                        $price = from_json($komodolive_price)->{"last_price"} / $base_usd_price;
-                        $coinusdprice = $price;
+                        $coinusdprice = from_json($komodolive_price)->{"last_price"};
+                        $price = $coinusdprice / $base_usd_price;
                         $change = abs(from_json($komodolive_price)->{"change_24h"});
-                        #print "==========   price $price   myprice $testprice         change $change    mychange $testchange    =====\n";
                     }
                 } elsif ( (defined $freiexchange_btc_symbol) && ($freiexchange_price ne "1") ) {
                     $price = ( from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"last"} ) / 3 / $base_btc_price;
+                    $coinusdprice = ( from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"last"} ) / 3 * $btcusdprice;
                     $change = abs(from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"percent_change_24h"});
-                    $coinusdprice = $price * $btcusdprice;
+                } elsif ( (defined $smartfi_usd_symbol) && ($smartfi_price ne "1") ) {
+                    $price = ( from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"HeighestBid"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"LowestAsk"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"Last"} ) / 3 / $base_usd_price;
+                    $coinusdprice = ( from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"HeighestBid"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"LowestAsk"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"Last"} ) / 3;
+                    $change = abs(from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"PercentChange"});
+                    #print "==========   price $price   myprice $testprice         change $change    mychange $testchange    =====\n";
                 } elsif ( defined $crex24_btc_symbol ) {
                     my $crex24_price = crex24_latest_price($crex24_btc_symbol);
                     if ( $crex24_price ne "1" ) {
