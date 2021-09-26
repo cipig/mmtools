@@ -1690,6 +1690,16 @@ if ( $api eq "dex_gecko" ) {
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("ZECBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
+        } elsif ( $base eq "RVN" ) {
+            my $binance_price_usd = binance_latest_price("RVNUSDT");
+            if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
+            my $binance_price_btc = binance_latest_price("RVNBTC");
+            if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
+        } elsif ( $base eq "QTUM" ) {
+            my $binance_price_usd = binance_latest_price("QTUMUSDT");
+            if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
+            my $binance_price_btc = binance_latest_price("QTUMBTC");
+            if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         } elsif ( ($base eq "DOGE") || ($base eq "DOGE-BEP20") ) {
             my $binance_price_usd = binance_latest_price("DOGEUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
