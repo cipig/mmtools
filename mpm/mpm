@@ -112,6 +112,7 @@ sub komodolive_latest_price {
     #$req->content_type('application/x-www-form-urlencoded');
     $req->content_type('application/json');
 
+    #$command = '{"expire_at":"600","ticker": "'.$coin.'"}';
     $command = '{"ticker": "'.$coin.'"}';
     $req->content($command);
     my $resp = $ua->request($req);
@@ -1745,7 +1746,7 @@ if ( $api eq "dex_gecko" ) {
                 my $komodolive_usd_symbol = $marginsconf->{$coin}{'komodolive_usd_symbol'};
                 my $smartfi_usd_symbol = $marginsconf->{$coin}{'smartfi_usd_symbol'};
                 my $price = 0;
-                my $coinusdprice = undef;
+                my $coinusdprice = 0;
                 my $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
                 my $ethusdprice = from_json($gecko_price)->{"ethereum"}{"usd"};
                 my $change = 0;
@@ -1890,31 +1891,31 @@ if ( $api eq "dex_gecko" ) {
                 my $minbidvolume_usd = $marginsconf->{$coin}{'minbidvolume'};
                 if ( defined $minbidvolume_usd ) { $minbidvolume = $minbidvolume_usd / $base_usd_price; }
                 my $maxaskvolume_usd = $marginsconf->{$coin}{'maxaskvolume'};
-                if ( defined $maxaskvolume_usd ) { $maxaskvolume = $maxaskvolume_usd / $coinusdprice; }
+                if ( defined $maxaskvolume_usd && $coinusdprice ne "0" ) { $maxaskvolume = $maxaskvolume_usd / $coinusdprice; }
                 my $minaskvolume_usd = $marginsconf->{$coin}{'minaskvolume'};
-                if ( defined $minaskvolume_usd ) { $minaskvolume = $minaskvolume_usd / $coinusdprice; }
+                if ( defined $minaskvolume_usd && $coinusdprice ne "0" ) { $minaskvolume = $minaskvolume_usd / $coinusdprice; }
                 if ( ($base eq "BTC") && ($type eq "erc20") ) {
-                    $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 15;
+                    if ( $coinusdprice ne "0" ) { $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 15; }
                     $minbidvolume_btc = $btcfee * 15;
-                    $minaskvolume_eth = $erc20fee * $ethusdprice / $coinusdprice * 30;
+                    if ( $coinusdprice ne "0" ) { $minaskvolume_eth = $erc20fee * $ethusdprice / $coinusdprice * 30; }
                     $minbidvolume_eth = $erc20fee * $ethusdprice / $base_usd_price * 30;
                     $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
                     $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
                 } elsif ( $base eq "BTC" ) {
-                    $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 15;
+                    if ( $coinusdprice ne "0" ) { $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 15; }
                     $minbidvolume_btc = $btcfee * 15;
                     $minaskvolume = $minaskvolume_btc;
                     $minbidvolume = $minbidvolume_btc;
                 } elsif ( $type eq "erc20" ) {
-                    $minaskvolume_eth = $erc20fee * $ethusdprice / $coinusdprice * 30;
+                    if ( $coinusdprice ne "0" ) { $minaskvolume_eth = $erc20fee * $ethusdprice / $coinusdprice * 30; }
                     $minbidvolume_eth = $erc20fee * $ethusdprice / $base_usd_price * 30;
                     $minaskvolume = $minaskvolume_eth;
                     $minbidvolume = $minbidvolume_eth;
                 } elsif ( ($base eq "DOGE") || (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
-                    $minaskvolume = 9 / $coinusdprice;
+                    if ( $coinusdprice ne "0" ) { $minaskvolume = 9 / $coinusdprice; }
                     $minbidvolume = 9 / $base_usd_price;
                 } elsif ( ($type eq "bep20") || ($base eq "BTC-BEP20") || ($base eq "ETH-BEP20") || ($base eq "DOGE-BEP20") || ($base ~~ @stablecoins_usd) ) {
-                    $minaskvolume = 3.5 / $coinusdprice;
+                    if ( $coinusdprice ne "0" ) { $minaskvolume = 3.5 / $coinusdprice; }
                     $minbidvolume = 3.5 / $base_usd_price;
                 }
 
