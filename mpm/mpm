@@ -1925,7 +1925,7 @@ if ( $api eq "dex_gecko" ) {
                     dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin1,$askmargin1,$bidmargin2,$askmargin2);
                 }
 
-                Time::HiRes::sleep(0.5);
+                Time::HiRes::sleep(0.6);
             }
         }
     }
