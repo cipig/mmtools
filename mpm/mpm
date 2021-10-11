@@ -1664,7 +1664,7 @@ if ( $api eq "dex_gecko" ) {
     $userpass =  $ENV{'userpass'};
     my $json = read_file("$cwd/mpm.conf.dex");
     $marginsconf = decode_json($json);
-    my @stablecoins_usd = ("USDT-BEP20", "USDT-PLG20", "BUSD-BEP20", "DAI-BEP20", "PAX-BEP20", "TUSD-BEP20", "USDC-BEP20", "SFUSD");
+    my @stablecoins_usd = ("USDT-BEP20", "USDT-PLG20", "BUSD-BEP20", "DAI-BEP20", "PAX-BEP20", "TUSD-BEP20", "USDC-BEP20", "USDC-PLG20", "SFUSD");
 
     my $erc20fee = dex_gettradefee("ETH");
     my $btcfee = dex_gettradefee("BTC");
