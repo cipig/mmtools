@@ -74,11 +74,13 @@ sub gecko_latest_price {
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
         if ($resp->is_success) {
+            #print Dumper($resp->content);
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
             print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
+            print Dumper($resp->content);
             return 1;
         }
 }
@@ -120,6 +122,25 @@ sub komodolive_latest_price {
             #print Dumper($resp->content);
             return $resp->content;
         } else {
+            return 1;
+        }
+}
+
+
+sub komodolive_usdrates {
+    my $url = "https://rates.komodo.live/api/v1/usd_rates";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
             return 1;
         }
 }
@@ -1508,8 +1529,12 @@ sub dex_gettradefee {
     $req->content($command);
     my $resp = $ua->request($req);
         if ($resp->is_success) {
+            print Dumper($resp->content);
             return from_json($resp->content)->{'result'}{'amount'};
         } else {
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            print Dumper($resp->content);
             return 1;
         }
 }
@@ -1639,7 +1664,7 @@ if ( $api eq "dex_gecko" ) {
     $userpass =  $ENV{'userpass'};
     my $json = read_file("$cwd/mpm.conf.dex");
     $marginsconf = decode_json($json);
-    my @stablecoins_usd = ("USDT-BEP20", "BUSD-BEP20", "DAI-BEP20", "PAX-BEP20", "TUSD-BEP20", "USDC-BEP20", "SFUSD");
+    my @stablecoins_usd = ("USDT-BEP20", "USDT-PLG20", "BUSD-BEP20", "DAI-BEP20", "PAX-BEP20", "TUSD-BEP20", "USDC-BEP20", "SFUSD");
 
     my $erc20fee = dex_gettradefee("ETH");
     my $btcfee = dex_gettradefee("BTC");
@@ -1657,6 +1682,7 @@ if ( $api eq "dex_gecko" ) {
         my $gecko_price = gecko_latest_price($ids);
         my $freiexchange_price = freiexchange_latest_price();
         my $smartfi_price = smartfi_latest_price();
+        my $usdrate_price = komodolive_usdrates();
         #print Dumper($smartfi_price);
 
         my $base_usd_price = 0;
@@ -1720,6 +1746,13 @@ if ( $api eq "dex_gecko" ) {
             my $binance_price_usd = binance_latest_price("BTCUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             $base_btc_price = 1;
+        } elsif ( $base eq "EURS-PLG20" ) {
+            #my $binance_price_usd = binance_latest_price("EURUSDT");
+            #if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
+            if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"EUR"}; }
+            #print "==========   base_usd_price $base_usd_price   myprice $test_base_usd_price   =======\n";
+            my $binance_price_btc = binance_latest_price("BTCEUR");
+            if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         } elsif ( $base ~~ @stablecoins_usd ) {
             $base_usd_price = 1;
             my $binance_price_btc = binance_latest_price("BTCUSDT");
@@ -1745,6 +1778,7 @@ if ( $api eq "dex_gecko" ) {
                 my $southxchange_btc_symbol = $marginsconf->{$coin}{'southxchange_btc_symbol'};
                 my $komodolive_usd_symbol = $marginsconf->{$coin}{'komodolive_usd_symbol'};
                 my $smartfi_usd_symbol = $marginsconf->{$coin}{'smartfi_usd_symbol'};
+                my $usdrate_symbol = $marginsconf->{$coin}{'usdrate_symbol'};
                 my $price = 0;
                 my $coinusdprice = 0;
                 my $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
@@ -1794,6 +1828,9 @@ if ( $api eq "dex_gecko" ) {
                     $price = ( from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"HeighestBid"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"LowestAsk"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"Last"} ) / 3 / $base_usd_price;
                     $coinusdprice = ( from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"HeighestBid"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"LowestAsk"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"Last"} ) / 3;
                     $change = abs(from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"PercentChange"});
+                } elsif ( (defined $usdrate_symbol) && ($usdrate_price ne "1") ) {
+                    $coinusdprice = 1 / from_json($usdrate_price)->{"rates"}{"$usdrate_symbol"};
+                    $price = $coinusdprice / $base_usd_price;
                     #print "==========   price $price   myprice $testprice         change $change    mychange $testchange    =====\n";
                 } elsif ( defined $crex24_btc_symbol ) {
                     my $crex24_price = crex24_latest_price($crex24_btc_symbol);
@@ -1925,7 +1962,7 @@ if ( $api eq "dex_gecko" ) {
                     dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin1,$askmargin1,$bidmargin2,$askmargin2);
                 }
 
-                Time::HiRes::sleep(0.6);
+                Time::HiRes::sleep(0.7);
             }
         }
     }
