@@ -80,7 +80,7 @@ sub gecko_latest_price {
             print "HTTP GET url: ", $url, "\n";
             print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
-            print Dumper($resp->content);
+            #print Dumper($resp->content);
             return 1;
         }
 }
@@ -1780,10 +1780,20 @@ if ( $api eq "dex_gecko" ) {
                 my $smartfi_usd_symbol = $marginsconf->{$coin}{'smartfi_usd_symbol'};
                 my $usdrate_symbol = $marginsconf->{$coin}{'usdrate_symbol'};
                 my $price = 0;
-                my $coinusdprice = 0;
-                my $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
-                my $ethusdprice = from_json($gecko_price)->{"ethereum"}{"usd"};
                 my $change = 0;
+                my $coinusdprice = 0;
+                my $btcusdprice = 0;
+                my $ethusdprice = 0;
+                if ( $gecko_price ne "1" ) {
+                    $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
+                    $ethusdprice = from_json($gecko_price)->{"ethereum"}{"usd"};
+                } else {
+                    my $binance_btcusdprice = binance_latest_price("BTCUSDT");
+                    if ( $binance_btcusdprice ne "1" ) { $btcusdprice = from_json($binance_btcusdprice)->{"price"}; }
+                    my $binance_ethusdprice = binance_latest_price("ETHUSDT");
+                    if ( $binance_ethusdprice ne "1" ) { $ethusdprice = from_json($binance_ethusdprice)->{"price"}; }
+                }
+
                 if ( (defined $geckoid) && ($gecko_price ne "1") ) {
                     $price = from_json($gecko_price)->{$geckoid}{"usd"} / $base_usd_price;
                     $coinusdprice = from_json($gecko_price)->{$geckoid}{"usd"};
