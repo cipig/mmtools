@@ -1880,9 +1880,12 @@ if ( $api eq "dex_gecko" ) {
                     $price = 1;
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usdrate_symbol) ) {
                     $marginadd = $change/100/4;
+                } elsif ( defined $komodolive_usd_symbol ) {
+                    $marginadd = $change/100;
                 } else {
                     $marginadd = $change/100/2;
                 }
+                print "change: $change, marginadd: $marginadd\n";
 
                 my $bid1 = undef;
                 my $bid2 = undef;
