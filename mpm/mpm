@@ -1665,6 +1665,7 @@ if ( $api eq "dex_gecko" ) {
     my $json = read_file("$cwd/mpm.conf.dex");
     $marginsconf = decode_json($json);
     my @stablecoins_usd = ("USDT-BEP20", "USDT-PLG20", "BUSD-BEP20", "DAI-BEP20", "PAX-BEP20", "TUSD-BEP20", "USDC-BEP20", "USDC-PLG20", "SFUSD");
+    my @stablecoins_other = ("TRYB-BEP20", "TRYB-AVX20", "BIDR-BEP20", "JPYC-PLG20", "EURS-PLG20", "BRZ-BEP20", "QC", "CADC-PLG20", "XSGD-PLG20");
 
     my $erc20fee = dex_gettradefee("ETH");
     my $btcfee = dex_gettradefee("BTC");
@@ -1798,7 +1799,7 @@ if ( $api eq "dex_gecko" ) {
                     $price = from_json($gecko_price)->{$geckoid}{"usd"} / $base_usd_price;
                     $coinusdprice = from_json($gecko_price)->{$geckoid}{"usd"};
                     if ( defined from_json($gecko_price)->{$geckoid}{"usd_24h_change"} ) { $change = abs(from_json($gecko_price)->{$geckoid}{"usd_24h_change"}); }
-                    if ( ($coin ~~ @stablecoins_usd) && (defined from_json($gecko_price)->{$geckoid}{"btc_24h_change"}) ) { $change = abs(from_json($gecko_price)->{$geckoid}{"btc_24h_change"}); }
+                    if ( (($coin ~~ @stablecoins_usd) || ($coin ~~ @stablecoins_other)) && (defined from_json($gecko_price)->{$geckoid}{"btc_24h_change"}) ) { $change = abs(from_json($gecko_price)->{$geckoid}{"btc_24h_change"}); }
                 }
 
                 if ( defined $binance_usd_symbol ) {
