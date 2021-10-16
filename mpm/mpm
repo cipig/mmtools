@@ -1304,8 +1304,11 @@ sub dex_setprice {
     my $askmargin1 = $_[11];
     my $bidmargin2 = $_[12];
     my $askmargin2 = $_[13];
+    my $coinusdprice = $_[14];
     my $rel_mintradevol = dex_getmintradevol($rel);
     my $base_mintradevol = dex_getmintradevol($base);
+    my $rel_balance = dex_getbalance($rel);
+    my $base_balance = dex_getbalance($base);
 
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
@@ -1318,7 +1321,6 @@ sub dex_setprice {
         my $command2 = undef;
         my $askvolume1 = 0;
         my $askvolume2 = 0;
-        my $rel_balance = dex_getbalance($rel);
         if ( defined $maxaskvolume ) {
             $askvolume1 = $maxaskvolume;
             if ($askvolume1 > $rel_balance*0.8) { $askvolume1 = $rel_balance*0.8; }
@@ -1364,7 +1366,6 @@ sub dex_setprice {
         my $command2 = undef;
         my $bidvolume1 = 0;
         my $bidvolume2 = 0;
-        my $base_balance = dex_getbalance($base);
         if ( defined $maxbidvolume ) {
             $bidvolume1 = $maxbidvolume;
             if ($bidvolume1 > $base_balance*0.8) { $bidvolume1 = $base_balance*0.8; }
@@ -1402,7 +1403,7 @@ sub dex_setprice {
             #if ( defined $biderror2 ) { print $biderror2; } else { print "bid2 ".sprintf("%.10f",1/$bid2); }
         }
     }
-    print "\n";
+    print "balance_in_usd: ".sprintf("%.2f",$rel_balance*$coinusdprice)."\n";
 }
 
 
@@ -1886,7 +1887,7 @@ if ( $api eq "dex_gecko" ) {
                 } else {
                     $marginadd = $change/100/2;
                 }
-                print "change: $change, marginadd: $marginadd\n";
+                #print "change: $change, marginadd: $marginadd\n";
 
                 my $bid1 = undef;
                 my $bid2 = undef;
@@ -1971,7 +1972,7 @@ if ( $api eq "dex_gecko" ) {
                 if ($price eq "0") {
                     dex_deleteprice($base,$coin);
                 } else {
-                    dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin1,$askmargin1,$bidmargin2,$askmargin2);
+                    dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin1,$askmargin1,$bidmargin2,$askmargin2,$coinusdprice);
                 }
 
                 Time::HiRes::sleep(0.7);
