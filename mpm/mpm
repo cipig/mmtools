@@ -1754,10 +1754,10 @@ if ( $api eq "dex_gecko" ) {
             if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         } elsif ( $base eq "CADC-PLG20" ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"CAD"}; } else { $base_usd_price = 0; }
-            if ( $gecko_price ne "1" ) { $base_btc_price = from_json($gecko_price)->{"bitcoin"}{"cad"}; } else { $base_btc_price = 0; }
+            if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"cad"}; } else { $base_btc_price = 0; }
         } elsif ( $base eq "XSGD-PLG20" ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"SGD"}; } else { $base_usd_price = 0; }
-            if ( $gecko_price ne "1" ) { $base_btc_price = from_json($gecko_price)->{"bitcoin"}{"sgd"}; } else { $base_btc_price = 0; }
+            if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"sgd"}; } else { $base_btc_price = 0; }
             #print "==========   base_usd_price $base_usd_price   myprice $test_base_usd_price   =======\n";
         } elsif ( $base ~~ @stablecoins_usd ) {
             $base_usd_price = 1;
