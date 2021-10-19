@@ -108,9 +108,10 @@ sub safetrade_latest_price {
 
 sub komodolive_latest_price {
     my $coin = $_[0];
+    my $url = "http://prices.cipig.net:1313/api/v1/ticker_infos";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
-    my $req = HTTP::Request->new(POST => 'http://prices.cipig.net:1313/api/v1/ticker_infos');
+    my $req = HTTP::Request->new(POST => $url);
     #$req->content_type('application/x-www-form-urlencoded');
     $req->content_type('application/json');
 
