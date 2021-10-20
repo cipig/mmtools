@@ -1309,10 +1309,10 @@ sub dex_setprice {
     my $bidmargin2 = $_[12];
     my $askmargin2 = $_[13];
     my $coinusdprice = $_[14];
-    my $rel_mintradevol = dex_getmintradevol($rel);
-    my $base_mintradevol = dex_getmintradevol($base);
-    my $rel_balance = dex_getbalance($rel);
-    my $base_balance = dex_getbalance($base);
+    my $rel_mintradevol = $_[15];
+    my $base_mintradevol = $_[16];
+    my $rel_balance = $_[17];
+    my $base_balance = $_[18];
 
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
@@ -1779,6 +1779,10 @@ if ( $api eq "dex_gecko" ) {
         }
 
         if ( ($base_usd_price ne "0") && ($base_btc_price ne "0") ) {
+
+             my $base_mintradevol = dex_getmintradevol($base);
+             my $base_balance = dex_getbalance($base);
+
             foreach my $coin ( keys %{$marginsconf} ) {
                 if ( ($base eq $coin) || (($base eq "ETH-BEP20") && ($coin eq "ETH")) ) { next; }
                 my $geckoid = $marginsconf->{$coin}{'geckoid'};
@@ -2009,10 +2013,12 @@ if ( $api eq "dex_gecko" ) {
                 if ($price eq "0") {
                     dex_deleteprice($base,$coin);
                 } else {
-                    dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin1,$askmargin1,$bidmargin2,$askmargin2,$coinusdprice);
+                    my $rel_mintradevol = dex_getmintradevol($coin);
+                    my $rel_balance = dex_getbalance($coin);
+                    dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin1,$askmargin1,$bidmargin2,$askmargin2,$coinusdprice,$rel_mintradevol,$base_mintradevol,$rel_balance,$base_balance);
                 }
 
-                Time::HiRes::sleep(0.7);
+                Time::HiRes::sleep(0.6);
             }
         }
     }
