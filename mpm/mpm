@@ -1364,6 +1364,16 @@ sub dex_setprice {
             #my $resp2 = $ua->request($req);
             #my $askerror2 = from_json($resp2->content)->{'error'};
             #if ( defined $askerror2 ) { print $askerror2." "; } else { print "ask2 ".sprintf("%.10f",$ask2)." "; }
+        } else {
+            $command1 = '{"userpass":"'.$userpass.'","method":"cancel_all_orders","cancel_by":{"type":"Pair","data":{"base":"'.$base.'","rel":"'.$rel.'"}}}';
+            $req->content($command1);
+            my $resp = $ua->request($req);
+            if ($resp->is_success) {
+                my $askerror1 = from_json($resp->content)->{'error'};
+            }
+            if ( defined $askerror1 ) { print $askerror1; } else {
+                print "ask1 deleted ";
+            }
         }
     }
 
@@ -1409,6 +1419,16 @@ sub dex_setprice {
             #$resp2 = $ua->request($req);
             #my $biderror2 = from_json($resp2->content)->{'error'};
             #if ( defined $biderror2 ) { print $biderror2; } else { print "bid2 ".sprintf("%.10f",1/$bid2); }
+        } else {
+            $command1 = '{"userpass":"'.$userpass.'","method":"cancel_all_orders","cancel_by":{"type":"Pair","data":{"base":"'.$rel.'","rel":"'.$base.'"}}}';
+            $req->content($command1);
+            my $resp = $ua->request($req);
+            if ($resp->is_success) {
+                my $biderror1 = from_json($resp->content)->{'error'};
+            }
+            if ( defined $biderror1 ) { print $biderror1; } else {
+                print "bid1 deleted ";
+            }
         }
     }
     print "balance_in_usd: ".sprintf("%.2f",$rel_balance*$coinusdprice)."\n";
