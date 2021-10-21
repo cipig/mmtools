@@ -26,7 +26,7 @@ my $recvaddr = $ARGV[4];
 my $recvZaddr = $ARGV[5];
 my $cwd = dirname($0);
 my $useragent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
-my $timeout = 30;
+my $timeout = 10;
 
 my $binance_apikey = "";
 my $binance_seckey = "";
@@ -1355,7 +1355,9 @@ sub dex_setprice {
 
             $req->content($command1);
             my $resp1 = $ua->request($req);
-            my $askerror1 = from_json($resp1->content)->{'error'};
+            if ($resp1->is_success) {
+                my $askerror1 = from_json($resp1->content)->{'error'};
+            }
             if ( defined $askerror1 ) { print $askerror1." "; } else { print "ask1 ".sprintf("%.10f",$ask1)." "; }
 
             #$req->content($command2);
@@ -1398,7 +1400,9 @@ sub dex_setprice {
 
             $req->content($command1);
             $resp1 = $ua->request($req);
-            my $biderror1 = from_json($resp1->content)->{'error'};
+            if ($resp1->is_success) {
+                my $biderror1 = from_json($resp1->content)->{'error'};
+            }
             if ( defined $biderror1 ) { print $biderror1; } else { print "bid1 ".sprintf("%.10f",1/$bid1)." "; }
 
             #$req->content($command2);
@@ -1514,12 +1518,22 @@ sub dex_deleteprice {
     $command = '{"userpass":"'.$userpass.'","method":"cancel_all_orders","cancel_by":{"type":"Pair","data":{"base":"'.$_[1].'","rel":"'.$_[0].'"}}}';
     $req->content($command);
     my $resp = $ua->request($req);
-    print "$_[1]/$_[0] ".$resp->content;
+    if ($resp->is_success) {
+        my $biderror1 = from_json($resp->content)->{'error'};
+    }
+    if ( defined $biderror1 ) { print $biderror1; } else {
+        print "$_[1]/$_[0] ".$resp->content;
+    }
 
     $command = '{"userpass":"'.$userpass.'","method":"cancel_all_orders","cancel_by":{"type":"Pair","data":{"base":"'.$_[0].'","rel":"'.$_[1].'"}}}';
     $req->content($command);
     $resp = $ua->request($req);
-    print " ".$resp->content."\n";
+    if ($resp->is_success) {
+        my $askerror1 = from_json($resp->content)->{'error'};
+    }
+    if ( defined $askerror1 ) { print $askerror1; } else {
+         print " ".$resp->content."\n";
+    }
 }
 
 
@@ -1559,9 +1573,9 @@ sub dex_getbalance {
             return from_json($resp->content)->{'balance'};
         } else {
             print "my_balance for $coin error\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
-            print Dumper($resp->content);
+            #print Dumper($resp->content);
             return 0;
         }
 }
@@ -1582,9 +1596,9 @@ sub dex_getmintradevol {
             return from_json($resp->content)->{'result'}{'min_trading_vol'};
         } else {
             print "min_trading_vol for $coin error\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
-            print Dumper($resp->content);
+            #print Dumper($resp->content);
             return 0;
         }
 }
