@@ -65,7 +65,7 @@ sub paprika_latest_price {
 
 
 sub gecko_latest_price {
-    my $url = "https://api.coingecko.com/api/v3/simple/price?ids=".$_[0]."&vs_currencies=btc,usd,cad,sgd&include_24hr_change=true";
+    my $url = "https://api.coingecko.com/api/v3/simple/price?ids=".$_[0]."&vs_currencies=btc,usd,cad,sgd,chf&include_24hr_change=true";
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -1799,7 +1799,7 @@ if ( $api eq "dex_gecko" ) {
             my $binance_price_usd = binance_latest_price("BTCUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             $base_btc_price = 1;
-        } elsif ( $base eq "EURS-PLG20" ) {
+        } elsif ( ($base eq "EURS-PLG20") || ($base eq "JEUR-PLG20") ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"EUR"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("BTCEUR");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
@@ -1809,7 +1809,13 @@ if ( $api eq "dex_gecko" ) {
         } elsif ( $base eq "XSGD-PLG20" ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"SGD"}; } else { $base_usd_price = 0; }
             if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"sgd"}; } else { $base_btc_price = 0; }
-            #print "==========   base_usd_price $base_usd_price   myprice $test_base_usd_price   =======\n";
+        } elsif ( $base eq "JCHF-PLG20" ) {
+            if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"CHF"}; } else { $base_usd_price = 0; }
+            if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"chf"}; } else { $base_btc_price = 0; }
+        } elsif ( $base eq "JGBP-PLG20" ) {
+            if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"GBP"}; } else { $base_usd_price = 0; }
+            my $binance_price_btc = binance_latest_price("BTCGBP");
+            if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         } elsif ( $base ~~ @stablecoins_usd ) {
             $base_usd_price = 1;
             my $binance_price_btc = binance_latest_price("BTCUSDT");
