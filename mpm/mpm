@@ -26,7 +26,7 @@ my $recvaddr = $ARGV[4];
 my $recvZaddr = $ARGV[5];
 my $cwd = dirname($0);
 my $useragent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
-my $timeout = 10;
+my $timeout = 30;
 
 my $binance_apikey = "";
 my $binance_seckey = "";
@@ -1716,7 +1716,7 @@ if ( $api eq "dex_gecko" ) {
     $userpass =  $ENV{'userpass'};
     my $json = read_file("$cwd/mpm.conf.dex");
     $marginsconf = decode_json($json);
-    my @stablecoins_usd = ("USDT-BEP20", "USDT-PLG20", "BUSD-BEP20", "DAI-BEP20", "PAX-BEP20", "TUSD-BEP20", "USDC-BEP20", "USDC-PLG20", "SFUSD");
+    my @stablecoins_usd = ("USDT-BEP20","USDT-PLG20","USDT-AVX20","BUSD-BEP20","DAI-BEP20","DAI-AVX20","PAX-BEP20","TUSD-BEP20","USDC-BEP20","USDC-PLG20","USDC-AVX20","SFUSD");
     my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","BIDR-BEP20","JPYC-PLG20","EURS-PLG20","BRZ-BEP20","QC","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JEUR-PLG20","JGBP-PLG20");
 
     my $erc20fee = dex_gettradefee("ETH");
