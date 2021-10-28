@@ -26,7 +26,7 @@ my $recvaddr = $ARGV[4];
 my $recvZaddr = $ARGV[5];
 my $cwd = dirname($0);
 my $useragent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
-my $timeout = 30;
+my $timeout = 60;
 
 my $binance_apikey = "";
 my $binance_seckey = "";
@@ -1802,6 +1802,10 @@ if ( $api eq "dex_gecko" ) {
         } elsif ( ($base eq "EURS-PLG20") || ($base eq "JEUR-PLG20") ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"EUR"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("BTCEUR");
+            if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
+        } elsif ( ($base eq "TRYB-BEP20") || ($base eq "TRYB-AVX20") ) {
+            if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"TRY"}; } else { $base_usd_price = 0; }
+            my $binance_price_btc = binance_latest_price("BTCTRY");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         } elsif ( $base eq "CADC-PLG20" ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"CAD"}; } else { $base_usd_price = 0; }
