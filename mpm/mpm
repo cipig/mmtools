@@ -1315,7 +1315,7 @@ sub dex_setprice {
     my $base_balance = $_[18];
 
     my $ua = LWP::UserAgent->new;
-    $ua->timeout($timeout);
+    #$ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
     $req->content_type('application/x-www-form-urlencoded');
 
@@ -1535,7 +1535,7 @@ sub dexp2p_getbalance {
 
 sub dex_deleteprice {
     my $ua = LWP::UserAgent->new;
-    $ua->timeout($timeout);
+    #$ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
     $req->content_type('application/x-www-form-urlencoded');
 
@@ -1564,7 +1564,7 @@ sub dex_deleteprice {
 sub dex_gettradefee {
     my $coin = $_[0];
     my $ua = LWP::UserAgent->new;
-    $ua->timeout($timeout);
+    #$ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
     $req->content_type('application/x-www-form-urlencoded');
 
@@ -1585,7 +1585,7 @@ sub dex_gettradefee {
 sub dex_getbalance {
     my $coin = $_[0];
     my $ua = LWP::UserAgent->new;
-    $ua->timeout($timeout);
+    #$ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
     $req->content_type('application/x-www-form-urlencoded');
 
@@ -1608,7 +1608,7 @@ sub dex_getbalance {
 sub dex_getmintradevol {
     my $coin = $_[0];
     my $ua = LWP::UserAgent->new;
-    $ua->timeout($timeout);
+    #$ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
     $req->content_type('application/x-www-form-urlencoded');
 
