@@ -26,7 +26,7 @@ my $recvaddr = $ARGV[4];
 my $recvZaddr = $ARGV[5];
 my $cwd = dirname($0);
 my $useragent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
-my $timeout = 60;
+my $timeout = 20;
 
 my $binance_apikey = "";
 my $binance_seckey = "";
@@ -2058,7 +2058,7 @@ if ( $api eq "dex_gecko" ) {
                         $minaskvolume = 9 / $coinusdprice;
                         $minbidvolume = 9 / $base_usd_price;
                     }
-                } elsif ( ($type eq "bep20") || ($base eq "BTC-BEP20") || ($base eq "ETH-BEP20") || ($base eq "DOGE-BEP20") || ($base ~~ @stablecoins_usd) ) {
+                } elsif ( ($type eq "bep20") || (index($base, "BEP20") != -1) ) {
                     if ($coinusdprice eq "0") {
                         $price = 0;
                     } else {
