@@ -1959,11 +1959,11 @@ if ( $api eq "dex_gecko" ) {
                 if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                     $price = 1;
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usdrate_symbol) ) {
-                    $marginadd = $change/100/4;
+                    $marginadd = $change/100/4.5;
                 } elsif ( defined $komodolive_usd_symbol ) {
-                    $marginadd = $change/100/1.3;
+                    $marginadd = $change/100/1.5;
                 } else {
-                    $marginadd = $change/100/2;
+                    $marginadd = $change/100/2.5;
                 }
                 #print "change: $change, marginadd: $marginadd\n";
 
