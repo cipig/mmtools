@@ -291,6 +291,25 @@ sub binance_book_price {
 }
 
 
+sub kucoin_latest_price {
+    my $url = "https://api.kucoin.com/api/v1/market/orderbook/level1?symbol=".$_[0];
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return decode_json($resp->content)->{'data'};
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub kucoin_book_price {
     my $base = $_[0];
     my $coin = $_[1];
@@ -1844,6 +1863,7 @@ if ( $api eq "dex_gecko" ) {
                 my $crex24_btc_symbol = $marginsconf->{$coin}{'crex24_btc_symbol'};
                 my $bittrex_btc_symbol = $marginsconf->{$coin}{'bittrex_btc_symbol'};
                 my $coinex_usd_symbol = $marginsconf->{$coin}{'coinex_usd_symbol'};
+                my $kucoin_usd_symbol = $marginsconf->{$coin}{'kucoin_usd_symbol'};
                 my $hitbtc_btc_symbol = $marginsconf->{$coin}{'hitbtc_btc_symbol'};
                 my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
                 my $southxchange_btc_symbol = $marginsconf->{$coin}{'southxchange_btc_symbol'};
@@ -1916,7 +1936,6 @@ if ( $api eq "dex_gecko" ) {
                 } elsif ( (defined $usdrate_symbol) && ($usdrate_price ne "1") ) {
                     $coinusdprice = 1 / from_json($usdrate_price)->{"rates"}{"$usdrate_symbol"};
                     $price = $coinusdprice / $base_usd_price;
-                    #print "==========   price $price   myprice $testprice         change $change    mychange $testchange    =====\n";
                 } elsif ( defined $crex24_btc_symbol ) {
                     my $crex24_price = crex24_latest_price($crex24_btc_symbol);
                     if ( $crex24_price ne "1" ) {
@@ -1939,6 +1958,13 @@ if ( $api eq "dex_gecko" ) {
                         $coinusdprice = ( from_json($coinex_price)->{"data"}{"ticker"}{"sell"} + from_json($coinex_price)->{"data"}{"ticker"}{"buy"} + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3;
                         $change = (1 - from_json($coinex_price)->{"data"}{"ticker"}{"low"} / from_json($coinex_price)->{"data"}{"ticker"}{"high"}) * 100;
                     }
+                } elsif ( defined $kucoin_usd_symbol ) {
+                    my $kucoin_price = kucoin_latest_price($kucoin_usd_symbol);
+                    if ( $kucoin_price ne "1" ) {
+                        $testprice = ( from_json($kucoin_price)->{"bestBid"} + from_json($kucoin_price)->{"bestAsk"} + from_json($kucoin_price)->{"price"} ) / 3 / $base_usd_price;
+                        $coinusdprice = ( from_json($kucoin_price)->{"bestBid"} + from_json($kucoin_price)->{"bestAsk"} + from_json($kucoin_price)->{"price"} ) / 3;
+                    }
+                    print "==========   price $price   myprice $testprice    =====\n";
                 } elsif ( defined $hitbtc_btc_symbol ) {
                     my $hitbtc_price = hitbtc_latest_price($hitbtc_btc_symbol);
                     if ( $hitbtc_price ne "1" ) {
