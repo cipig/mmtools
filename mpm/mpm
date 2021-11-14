@@ -1961,10 +1961,10 @@ if ( $api eq "dex_gecko" ) {
                 } elsif ( defined $kucoin_usd_symbol ) {
                     my $kucoin_price = kucoin_latest_price($kucoin_usd_symbol);
                     if ( $kucoin_price ne "1" ) {
-                        $testprice = ( from_json($kucoin_price)->{"bestBid"} + from_json($kucoin_price)->{"bestAsk"} + from_json($kucoin_price)->{"price"} ) / 3 / $base_usd_price;
-                        $coinusdprice = ( from_json($kucoin_price)->{"bestBid"} + from_json($kucoin_price)->{"bestAsk"} + from_json($kucoin_price)->{"price"} ) / 3;
+                        $price = ( $kucoin_price->{"bestBid"} + $kucoin_price->{"bestAsk"} + $kucoin_price->{"price"} ) / 3 / $base_usd_price;
+                        $coinusdprice = ( $kucoin_price->{"bestBid"} + $kucoin_price->{"bestAsk"} + $kucoin_price->{"price"} ) / 3;
                     }
-                    print "==========   price $price   myprice $testprice    =====\n";
+                    #print "==========   price $price   myprice $testprice    =====\n";
                 } elsif ( defined $hitbtc_btc_symbol ) {
                     my $hitbtc_price = hitbtc_latest_price($hitbtc_btc_symbol);
                     if ( $hitbtc_price ne "1" ) {
