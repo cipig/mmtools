@@ -1755,7 +1755,7 @@ if ( $api eq "dex_gecko" ) {
     my $json = read_file("$cwd/mpm.conf.dex");
     $marginsconf = decode_json($json);
     my @stablecoins_usd = ("USDT-BEP20","USDT-PLG20","USDT-AVX20","BUSD-BEP20","BUSD-AVX20","BUSD-PLG20","DAI-BEP20","DAI-AVX20","DAI-PLG20","PAX-BEP20","TUSD-BEP20","USDC-BEP20","USDC-PLG20","USDC-AVX20","SFUSD");
-    my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","BIDR-BEP20","JPYC-PLG20","EURS-PLG20","BRZ-BEP20","QC","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JEUR-PLG20","JGBP-PLG20");
+    my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","BIDR-BEP20","JPYC-PLG20","EURS-PLG20","BRZ-BEP20","QC","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JEUR-PLG20","JGBP-PLG20","NZDS-PLG20");
 
     my $erc20fee = dex_gettradefee("ETH");
     my $btcfee = dex_gettradefee("BTC");
@@ -1841,7 +1841,7 @@ if ( $api eq "dex_gecko" ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"EUR"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("BTCEUR");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-        } elsif ( ($base eq "TRYB-BEP20") || ($base eq "TRYB-AVX20") ) {
+        } elsif ( ($base eq "TRYB-BEP20") || ($base eq "TRYB-AVX20") || ($base eq "TRYB-PLG20") ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"TRY"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("BTCTRY");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
