@@ -1884,6 +1884,7 @@ if ( $api eq "dex_gecko" ) {
                 my $freiexchange_btc_symbol = $marginsconf->{$coin}{'freiexchange_btc_symbol'};
                 my $crex24_btc_symbol = $marginsconf->{$coin}{'crex24_btc_symbol'};
                 my $bittrex_btc_symbol = $marginsconf->{$coin}{'bittrex_btc_symbol'};
+                my $bittrex_usd_symbol = $marginsconf->{$coin}{'bittrex_usd_symbol'};
                 my $coinex_usd_symbol = $marginsconf->{$coin}{'coinex_usd_symbol'};
                 my $kucoin_usd_symbol = $marginsconf->{$coin}{'kucoin_usd_symbol'};
                 my $hitbtc_btc_symbol = $marginsconf->{$coin}{'hitbtc_btc_symbol'};
@@ -1976,8 +1977,16 @@ if ( $api eq "dex_gecko" ) {
                     my $bittrex_sum = bittrex_summary($bittrex_btc_symbol);
                     if ( $bittrex_sum ne "1" ) {
                         $change = (1 - from_json($bittrex_sum)->{"low"} / from_json($bittrex_sum)->{"high"}) * 100;
-                        #print "==========   change $change   mychange $testchange    =====\n";
-                        #print "==========   price $price   myprice $testprice    =====\n";
+                    }
+                } elsif ( defined $bittrex_usd_symbol ) {
+                    my $bittrex_price = bittrex_latest_price($bittrex_usd_symbol);
+                    if ( $bittrex_price ne "1" ) {
+                        $price = ( from_json($bittrex_price)->{"askRate"} + from_json($bittrex_price)->{"bidRate"} + from_json($bittrex_price)->{"lastTradeRate"} ) / 3 / $base_usd_price;
+                        $coinusdprice = ( from_json($bittrex_price)->{"askRate"} + from_json($bittrex_price)->{"bidRate"} + from_json($bittrex_price)->{"lastTradeRate"} ) / 3;
+                    }
+                    my $bittrex_sum = bittrex_summary($bittrex_usd_symbol);
+                    if ( $bittrex_sum ne "1" ) {
+                        $change = (1 - from_json($bittrex_sum)->{"low"} / from_json($bittrex_sum)->{"high"}) * 100;
                     }
                 } elsif ( defined $coinex_usd_symbol ) {
                     my $coinex_price = coinex_latest_price($coinex_usd_symbol);
