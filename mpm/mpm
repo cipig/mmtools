@@ -2095,7 +2095,7 @@ if ( $api eq "dex_gecko" ) {
                         $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
                         $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
                     }
-                } elsif ($base eq "BTC") {
+                } elsif ( ($base eq "BTC") || ($coin eq "BTC") ) {
                     if ( ($btcfee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
