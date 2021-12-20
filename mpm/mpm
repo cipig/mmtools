@@ -65,7 +65,7 @@ sub paprika_latest_price {
 
 
 sub gecko_latest_price {
-    my $url = "https://api.coingecko.com/api/v3/simple/price?ids=".$_[0]."&vs_currencies=btc,usd,cad,sgd,chf,cny&include_24hr_change=true";
+    my $url = "https://api.coingecko.com/api/v3/simple/price?ids=".$_[0]."&vs_currencies=btc,usd,cad,sgd,chf,cny,nzd&include_24hr_change=true";
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -1854,6 +1854,9 @@ if ( $api eq "dex_gecko" ) {
         } elsif ( $base eq "XSGD-PLG20" ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"SGD"}; } else { $base_usd_price = 0; }
             if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"sgd"}; } else { $base_btc_price = 0; }
+        } elsif ( $base eq "NZDS-PLG20" ) {
+            if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"NZD"}; } else { $base_usd_price = 0; }
+            if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"nzd"}; } else { $base_btc_price = 0; }
         } elsif ( $base eq "JCHF-PLG20" ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"CHF"}; } else { $base_usd_price = 0; }
             if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"chf"}; } else { $base_btc_price = 0; }
