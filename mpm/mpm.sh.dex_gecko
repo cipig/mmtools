@@ -4,5 +4,5 @@ while true; do
   echo -n "================================================================================================== "
   date
   ~/mmtools/mpm/mpm dex_gecko $@
-  sleep $[ ( $RANDOM % 8 )  + 7 ]s
+  sleep $[ ( $RANDOM % 9 )  + 6 ]s
 done
