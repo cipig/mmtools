@@ -2116,7 +2116,7 @@ if ( $api eq "dex_gecko" ) {
                         $minaskvolume = $minaskvolume_eth;
                         $minbidvolume = $minbidvolume_eth;
                     }
-                } elsif ( ($base eq "DOGE") || (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
+                } elsif ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                     if ($coinusdprice eq "0") {
                         $price = 0;
                     } else {
