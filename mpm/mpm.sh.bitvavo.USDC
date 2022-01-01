@@ -1,6 +1,0 @@
-#!/bin/bash
-while true; do
-  date
-  ~/mmtools/mpm/mpm bitvavo $1
-  sleep 62
-done
