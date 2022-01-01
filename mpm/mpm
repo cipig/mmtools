@@ -2479,7 +2479,7 @@ if ( $api eq "dex_gecko" ) {
     }
 
 } elsif ( $api eq "bitvavo" ) {
-    my $json = read_file("$cwd/mpm.conf.bitvavo");
+    my $json = read_file("$cwd/mpm.conf.bitvavo.$base");
     my $marginsconf = decode_json($json);
     #my $marginadd = binance_volat();
     my $marginadd = 0;

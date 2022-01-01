@@ -1,0 +1,16 @@
+{
+    "EUR": {
+        "bidmargin_1": 0.0015,
+        "askmargin_1": 0.0015,
+        "quantity_1": 100,
+        "maxsum_1": 200,
+        "bidmargin_2": 0.004,
+        "askmargin_2": 0.004,
+        "quantity_2": 300,
+        "maxsum_2": 3500,
+        "bidmargin_3": 0.007,
+        "askmargin_3": 0.007,
+        "quantity_3": 500,
+        "maxsum_3": 9000
+    }
+}
