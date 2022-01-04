@@ -2043,7 +2043,7 @@ if ( $api eq "dex_gecko" ) {
                 } else {
                     $marginadd = max($change,$base_24h_change)/100/2.5;
                 }
-                print "change: $change, base_24h_change: $base_24h_change, marginadd: $marginadd\n";
+                #print "change: $change, base_24h_change: $base_24h_change, marginadd: $marginadd\n";
 
                 my $bid1 = undef;
                 my $bid2 = undef;
