@@ -2133,29 +2133,29 @@ if ( $api eq "dex_gecko" ) {
                     if ($coinusdprice eq "0") {
                         $price = 0;
                     } else {
-                        $minaskvolume = 16 / $coinusdprice;
-                        $minbidvolume = 16 / $base_usd_price;
+                        $minaskvolume = 14 / $coinusdprice;
+                        $minbidvolume = 14 / $base_usd_price;
                     }
                 } elsif ( ($type eq "avx20") || (index($base, "AVX20") != -1) ) {
                     if ($coinusdprice eq "0") {
                         $price = 0;
                     } else {
-                        $minaskvolume = 8 / $coinusdprice;
-                        $minbidvolume = 8 / $base_usd_price;
+                        $minaskvolume = 6 / $coinusdprice;
+                        $minbidvolume = 6 / $base_usd_price;
                     }
                 } elsif ( ($type eq "bep20") || (index($base, "BEP20") != -1) ) {
                     if ($coinusdprice eq "0") {
                         $price = 0;
                     } else {
-                        $minaskvolume = 8 / $coinusdprice;
-                        $minbidvolume = 8 / $base_usd_price;
+                        $minaskvolume = 6 / $coinusdprice;
+                        $minbidvolume = 6 / $base_usd_price;
                     }
                 } elsif ( ($type eq "plg20") || (index($base, "PLG20") != -1) ) {
                     if ($coinusdprice eq "0") {
                         $price = 0;
                     } else {
-                        $minaskvolume = 4 / $coinusdprice;
-                        $minbidvolume = 4 / $base_usd_price;
+                        $minaskvolume = 3 / $coinusdprice;
+                        $minbidvolume = 3 / $base_usd_price;
                     }
                 }
 
