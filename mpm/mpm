@@ -2133,29 +2133,36 @@ if ( $api eq "dex_gecko" ) {
                     if ($coinusdprice eq "0") {
                         $price = 0;
                     } else {
-                        $minaskvolume = 14 / $coinusdprice;
-                        $minbidvolume = 14 / $base_usd_price;
+                        $minaskvolume = 10 / $coinusdprice;
+                        $minbidvolume = 10 / $base_usd_price;
                     }
                 } elsif ( ($type eq "avx20") || (index($base, "AVX20") != -1) ) {
                     if ($coinusdprice eq "0") {
                         $price = 0;
                     } else {
-                        $minaskvolume = 6 / $coinusdprice;
-                        $minbidvolume = 6 / $base_usd_price;
+                        $minaskvolume = 5 / $coinusdprice;
+                        $minbidvolume = 5 / $base_usd_price;
                     }
                 } elsif ( ($type eq "bep20") || (index($base, "BEP20") != -1) ) {
                     if ($coinusdprice eq "0") {
                         $price = 0;
                     } else {
-                        $minaskvolume = 6 / $coinusdprice;
-                        $minbidvolume = 6 / $base_usd_price;
+                        $minaskvolume = 5 / $coinusdprice;
+                        $minbidvolume = 5 / $base_usd_price;
                     }
                 } elsif ( ($type eq "plg20") || (index($base, "PLG20") != -1) ) {
                     if ($coinusdprice eq "0") {
                         $price = 0;
                     } else {
-                        $minaskvolume = 3 / $coinusdprice;
-                        $minbidvolume = 3 / $base_usd_price;
+                        $minaskvolume = 2 / $coinusdprice;
+                        $minbidvolume = 2 / $base_usd_price;
+                    }
+                } elsif ( ($type eq "ftm20") || (index($base, "FTM20") != -1) ) {
+                    if ($coinusdprice eq "0") {
+                        $price = 0;
+                    } else {
+                        $minaskvolume = 1 / $coinusdprice;
+                        $minbidvolume = 1 / $base_usd_price;
                     }
                 }
 
