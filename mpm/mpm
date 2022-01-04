@@ -2130,6 +2130,13 @@ if ( $api eq "dex_gecko" ) {
                         $minaskvolume = 3.5 / $coinusdprice;
                         $minbidvolume = 3.5 / $base_usd_price;
                     }
+                } elsif ( ($type eq "plg20") || (index($base, "PLG20") != -1) ) {
+                    if ($coinusdprice eq "0") {
+                        $price = 0;
+                    } else {
+                        $minaskvolume = 3.5 / $coinusdprice;
+                        $minbidvolume = 3.5 / $base_usd_price;
+                    }
                 }
 
                 if ($price eq "0") {
