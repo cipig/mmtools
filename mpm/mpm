@@ -2106,26 +2106,31 @@ if ( $api eq "dex_gecko" ) {
                     } else {
                         $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 15;
                         $minbidvolume_btc = $btcfee * 15;
-                        $minaskvolume_eth = $erc20fee * $ethusdprice / $coinusdprice * 30;
-                        $minbidvolume_eth = $erc20fee * $ethusdprice / $base_usd_price * 30;
+                        $minaskvolume_eth = $erc20fee * $ethusdprice / $coinusdprice * 20;
+                        $minbidvolume_eth = $erc20fee * $ethusdprice / $base_usd_price * 20;
                         $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
                         $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
                     }
-                } elsif ( ($base eq "BTC") || ($coin eq "BTC") ) {
+                } elsif ($base eq "BTC") {
                     if ( ($btcfee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 15;
-                        $minbidvolume_btc = $btcfee * 15;
-                        $minaskvolume = $minaskvolume_btc;
-                        $minbidvolume = $minbidvolume_btc;
+                        $minaskvolume = $btcfee * $btcusdprice / $coinusdprice * 15;
+                        $minbidvolume = $btcfee * 15;
+                    }
+                } elsif ($coin eq "BTC") {
+                    if ( ($btcfee eq "1") || ($coinusdprice eq "0") ) {
+                        $price = 0;
+                    } else {
+                        $minaskvolume = $btcfee * 15;
+                        $minbidvolume = $btcfee * $btcusdprice / $base_usd_price * 15;
                     }
                 } elsif ($type eq "erc20") {
                     if ( ($erc20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume_eth = $erc20fee * $ethusdprice / $coinusdprice * 30;
-                        $minbidvolume_eth = $erc20fee * $ethusdprice / $base_usd_price * 30;
+                        $minaskvolume_eth = $erc20fee * $ethusdprice / $coinusdprice * 20;
+                        $minbidvolume_eth = $erc20fee * $ethusdprice / $base_usd_price * 20;
                         $minaskvolume = $minaskvolume_eth;
                         $minbidvolume = $minbidvolume_eth;
                     }
