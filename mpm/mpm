@@ -1774,7 +1774,7 @@ if ( $api eq "dex_gecko" ) {
         #print Dumper($smartfi_price);
 
         my $btcfee = dex_gettradefee("BTC");
-        my $erc20fee = dex_gettradefee("ETH");
+        my $erc20fee = dex_gettradefee("ETH") * from_json($gecko_price)->{"ethereum"}{"usd"};
         my $avx20fee = dex_gettradefee("AVAX") * from_json($gecko_price)->{"avalanche-2"}{"usd"};
         my $bep20fee = dex_gettradefee("BNB") * from_json($gecko_price)->{"binancecoin"}{"usd"};
         my $plg20fee = dex_gettradefee("MATIC") * from_json($gecko_price)->{"matic-network"}{"usd"};
@@ -2110,8 +2110,8 @@ if ( $api eq "dex_gecko" ) {
                     } else {
                         $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 15;
                         $minbidvolume_btc = $btcfee * 15;
-                        $minaskvolume_eth = $erc20fee * $ethusdprice / $coinusdprice * 20;
-                        $minbidvolume_eth = $erc20fee * $ethusdprice / $base_usd_price * 20;
+                        $minaskvolume_eth = $erc20fee * 20 / $coinusdprice;
+                        $minbidvolume_eth = $erc20fee * 20 / $base_usd_price;
                         $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
                         $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
                     }
@@ -2137,8 +2137,8 @@ if ( $api eq "dex_gecko" ) {
                     if ( ($erc20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $erc20fee * $ethusdprice / $coinusdprice * 20;
-                        $minbidvolume = $erc20fee * $ethusdprice / $base_usd_price * 20;
+                        $minaskvolume = $erc20fee * 20 / $coinusdprice;
+                        $minbidvolume = $erc20fee * 20 / $base_usd_price;
                     }
                 } elsif ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                     if ($coinusdprice eq "0") {
