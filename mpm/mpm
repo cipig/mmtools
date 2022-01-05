@@ -2116,14 +2116,18 @@ if ( $api eq "dex_gecko" ) {
                         $price = 0;
                     } else {
                         $minaskvolume = $btcfee * $btcusdprice / $coinusdprice * 15;
+                        if ($minaskvolume < 0.00777 * $btcusdprice / $coinusdprice) { $minaskvolume = 0.00777 * $btcusdprice / $coinusdprice * 1.1; }
                         $minbidvolume = $btcfee * 15;
+                        if ($minbidvolume < 0.00777) { $minbidvolume = 0.00777; }
                     }
                 } elsif ($coin eq "BTC") {
                     if ( ($btcfee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
                         $minaskvolume = $btcfee * 15;
+                        if ($minaskvolume < 0.00777) { $minaskvolume = 0.00777; }
                         $minbidvolume = $btcfee * $btcusdprice / $base_usd_price * 15;
+                        if ($minbidvolume < 0.00777 * $btcusdprice / $base_usd_price) { $minbidvolume = 0.00777 * $btcusdprice / $base_usd_price * 1.1; }
                     }
                 } elsif ($type eq "erc20") {
                     if ( ($erc20fee eq "1") || ($coinusdprice eq "0") ) {
