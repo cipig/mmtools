@@ -1757,10 +1757,7 @@ if ( $api eq "dex_gecko" ) {
     my @stablecoins_usd = ("USDT-BEP20","USDT-PLG20","USDT-AVX20","BUSD-BEP20","BUSD-AVX20","BUSD-PLG20","DAI-BEP20","DAI-AVX20","DAI-PLG20","PAX-BEP20","TUSD-BEP20","USDC-BEP20","USDC-PLG20","USDC-AVX20","SFUSD");
     my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","BIDR-BEP20","JPYC-PLG20","EURS-PLG20","BRZ-BEP20","QC","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JEUR-PLG20","JGBP-PLG20","NZDS-PLG20");
 
-    my $erc20fee = dex_gettradefee("ETH");
-    my $btcfee = dex_gettradefee("BTC");
-
-    my $ids = "ethereum,bitcoin,litecoin,bitcoin-cash,komodo,dogecoin,dash";
+    my $ids = "bitcoin,ethereum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,matic-network,fantom";
     foreach my $coin ( keys %{$marginsconf} ) {
         if ( defined $marginsconf->{$coin}{'geckoid'} ) {
             $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
@@ -1775,6 +1772,13 @@ if ( $api eq "dex_gecko" ) {
         my $smartfi_price = smartfi_latest_price();
         my $usdrate_price = komodolive_usdrates();
         #print Dumper($smartfi_price);
+
+        my $btcfee = dex_gettradefee("BTC");
+        my $erc20fee = dex_gettradefee("ETH");
+        my $avx20fee = dex_gettradefee("AVAX") * from_json($gecko_price)->{"avalanche-2"}{"usd"};
+        my $bep20fee = dex_gettradefee("BNB") * from_json($gecko_price)->{"binancecoin"}{"usd"};
+        my $plg20fee = dex_gettradefee("MATIC") * from_json($gecko_price)->{"matic-network"}{"usd"};
+        my $ftm20fee = dex_gettradefee("FTM") * from_json($gecko_price)->{"fantom"}{"usd"};
 
         my $base_usd_price = 0;
         my $base_btc_price = 0;
@@ -2144,32 +2148,32 @@ if ( $api eq "dex_gecko" ) {
                         $minbidvolume = 10 / $base_usd_price;
                     }
                 } elsif ( ($type eq "avx20") || (index($base, "AVX20") != -1) ) {
-                    if ($coinusdprice eq "0") {
+                    if ( ($avx20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = 5 / $coinusdprice;
-                        $minbidvolume = 5 / $base_usd_price;
+                        $minaskvolume = $avx20fee * 10 / $coinusdprice;
+                        $minbidvolume = $avx20fee * 10 / $base_usd_price;
                     }
                 } elsif ( ($type eq "bep20") || (index($base, "BEP20") != -1) ) {
-                    if ($coinusdprice eq "0") {
+                    if ( ($bep20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = 5 / $coinusdprice;
-                        $minbidvolume = 5 / $base_usd_price;
+                        $minaskvolume = $bep20fee * 10 / $coinusdprice;
+                        $minbidvolume = $bep20fee * 10 / $base_usd_price;
                     }
                 } elsif ( ($type eq "plg20") || (index($base, "PLG20") != -1) ) {
-                    if ($coinusdprice eq "0") {
+                    if ( ($plg20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = 2 / $coinusdprice;
-                        $minbidvolume = 2 / $base_usd_price;
+                        $minaskvolume = $plg20fee * 10 / $coinusdprice;
+                        $minbidvolume = $plg20fee * 10 / $base_usd_price;
                     }
                 } elsif ( ($type eq "ftm20") || (index($base, "FTM20") != -1) ) {
-                    if ($coinusdprice eq "0") {
+                    if ( ($ftm20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = 1 / $coinusdprice;
-                        $minbidvolume = 1 / $base_usd_price;
+                        $minaskvolume = $ftm20fee * 10 / $coinusdprice;
+                        $minbidvolume = $ftm20fee * 10 / $base_usd_price;
                     }
                 }
 
