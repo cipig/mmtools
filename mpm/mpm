@@ -1909,6 +1909,7 @@ if ( $api eq "dex_gecko" ) {
                 my $kucoin_usd_symbol = $marginsconf->{$coin}{'kucoin_usd_symbol'};
                 my $hitbtc_btc_symbol = $marginsconf->{$coin}{'hitbtc_btc_symbol'};
                 my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
+                my $sane_price = $marginsconf->{$coin}{'sane_price'};
                 my $southxchange_btc_symbol = $marginsconf->{$coin}{'southxchange_btc_symbol'};
                 my $komodolive_usd_symbol = $marginsconf->{$coin}{'komodolive_usd_symbol'};
                 my $smartfi_usd_symbol = $marginsconf->{$coin}{'smartfi_usd_symbol'};
@@ -2175,6 +2176,11 @@ if ( $api eq "dex_gecko" ) {
                         $minaskvolume = $ftm20fee * 15 / $coinusdprice;
                         $minbidvolume = $ftm20fee * 15 / $base_usd_price;
                     }
+                }
+
+                if ((defined $sane_price) && (($coinusdprice < $sane_price / (1 + $bidmargin1 * 1.2)) || ($coinusdprice > $sane_price * (1 + $askmargin1 * 1.2)))) {
+                    $price = 0;
+                    print "================= bullshit price for $coin\n";
                 }
 
                 if ($price eq "0") {
