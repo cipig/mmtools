@@ -1365,45 +1365,29 @@ sub dex_setprice {
         my $askvolume2 = 0;
         if ( defined $maxaskvolume ) {
             $askvolume1 = $maxaskvolume;
-            if ($askvolume1 > $rel_balance*0.8) { $askvolume1 = $rel_balance*0.8; }
-            #$askvolume1 = $maxaskvolume*0.33;
-            #$askvolume2 = $maxaskvolume*0.66;
-            #if ($askvolume1 > $rel_balance*0.33) { $askvolume1 = $rel_balance*0.33; }
-            #if ($askvolume2 > $rel_balance*0.66) { $askvolume2 = $rel_balance*0.66; }
+            if ($askvolume1 > $rel_balance*0.85) { $askvolume1 = $rel_balance*0.85; }
         } else {
-            $askvolume1 = $rel_balance*0.8;
-            #$askvolume1 = $rel_balance*0.33;
-            #$askvolume2 = $rel_balance*0.66;
+            $askvolume1 = $rel_balance*0.85;
         }
 
         if ( $askvolume1 > 0 ) {
             if (defined $minaskvolume) {
                 my $minaskvolume1 = $minaskvolume * (1 - $askmargin1);
-                #my $minaskvolume2 = $minaskvolume * (1 - $askmargin2);
                 if ($minaskvolume1 < $rel_mintradevol) { $minaskvolume1 = $rel_mintradevol; }
-                #if ($minaskvolume2 < $rel_mintradevol) { $minaskvolume2 = $rel_mintradevol; }
                 if ($minaskvolume1 < $base_mintradevol/$ask1) { $minaskvolume1 = $base_mintradevol/$ask1*1.1; }
-                #if ($minaskvolume2 < $base_mintradevol/$ask2) { $minaskvolume2 = $base_mintradevol/$ask2*1.1; }
                 $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.',"min_volume":'.$minaskvolume1.'}';
-                #$command2 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask2.',"volume":'.$askvolume2.',"min_volume":'.$minaskvolume2.',"cancel_previous":false}';
             } else {
                 $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.'}';
-                #$command2 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask2.',"volume":'.$askvolume2.',"cancel_previous":false}';
             }
 
             $req->content($command1);
             my $resp1 = $ua->request($req);
             if ($resp1->is_success) {
-                print "ask1 ".sprintf("%.10f",$ask1)." ";
+                print "ask1 ".sprintf("%.8f",$ask1)." ";
             } else {
                 my $askerror1 = eval {from_json($resp1->content)->{'error'}};
                 if ($@) { print "unknown error $@"; } else { print $askerror1." "; }
             }
-
-            #$req->content($command2);
-            #my $resp2 = $ua->request($req);
-            #my $askerror2 = from_json($resp2->content)->{'error'};
-            #if ( defined $askerror2 ) { print $askerror2." "; } else { print "ask2 ".sprintf("%.10f",$ask2)." "; }
         } else {
             $command1 = '{"userpass":"'.$userpass.'","method":"cancel_all_orders","cancel_by":{"type":"Pair","data":{"base":"'.$rel.'","rel":"'.$base.'"}}}';
             $req->content($command1);
@@ -1424,43 +1408,28 @@ sub dex_setprice {
         my $bidvolume2 = 0;
         if ( defined $maxbidvolume ) {
             $bidvolume1 = $maxbidvolume;
-            if ($bidvolume1 > $base_balance*0.8) { $bidvolume1 = $base_balance*0.8; }
-            #$bidvolume1 = $maxbidvolume*0.33;
-            #$bidvolume2 = $maxbidvolume*0.66;
-            #if ($bidvolume1 > $base_balance*0.33) { $bidvolume1 = $base_balance*0.33; }
-            #if ($bidvolume2 > $base_balance*0.66) { $bidvolume2 = $base_balance*0.66; }
+            if ($bidvolume1 > $base_balance*0.85) { $bidvolume1 = $base_balance*0.85; }
         } else {
-            $bidvolume1 = $base_balance*0.8;
-            #$bidvolume1 = $base_balance*0.33;
-            #$bidvolume2 = $base_balance*0.66;
+            $bidvolume1 = $base_balance*0.85;
         }
 
         if ( $bidvolume1 > 0 ) {
             if ( defined $minbidvolume ) {
                 my $minbidvolume1 = $minbidvolume * (1 - $bidmargin1);
-                #my $minbidvolume2 = $minbidvolume * (1 - $bidmargin2);
                 if ($minbidvolume1 < $base_mintradevol) { $minbidvolume1 = $base_mintradevol; }
-                #if ($minbidvolume2 < $base_mintradevol) { $minbidvolume2 = $base_mintradevol; }
                 $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid1.',"volume":'.$bidvolume1.',"min_volume":'.$minbidvolume1.'}';
-                #$command2 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid2.',"volume":'.$bidvolume2.',"min_volume":'.$minbidvolume2.',"cancel_previous":false}';
             } else {
                 $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid1.',"volume":'.$bidvolume1.'}';
-                #$command2 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid2.',"volume":'.$bidvolume2.',"cancel_previous":false}';
             }
 
             $req->content($command1);
             $resp1 = $ua->request($req);
             if ($resp1->is_success) {
-                print "bid1 ".sprintf("%.10f",1/$bid1)." ";
+                print "bid1 ".sprintf("%.8f",1/$bid1)." ";
             } else {
                 my $biderror1 = eval {from_json($resp1->content)->{'error'}};
                 if ($@) { print "unknown error $@"; } else { print $biderror1." "; }
             }
-
-            #$req->content($command2);
-            #$resp2 = $ua->request($req);
-            #my $biderror2 = from_json($resp2->content)->{'error'};
-            #if ( defined $biderror2 ) { print $biderror2; } else { print "bid2 ".sprintf("%.10f",1/$bid2); }
         } else {
             $command1 = '{"userpass":"'.$userpass.'","method":"cancel_all_orders","cancel_by":{"type":"Pair","data":{"base":"'.$base.'","rel":"'.$rel.'"}}}';
             $req->content($command1);
