@@ -2013,7 +2013,7 @@ if ( $api eq "dex_gecko" ) {
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usdrate_symbol) ) {
                     $marginadd = max($change,$base_24h_change)/100/4.5;
                 } elsif ( defined $komodolive_usd_symbol ) {
-                    $marginadd = max($change,$base_24h_change)/100/1.5;
+                    $marginadd = max($change,$base_24h_change)/100/1.4;
                 } else {
                     $marginadd = max($change,$base_24h_change)/100/2.5;
                 }
@@ -2030,31 +2030,24 @@ if ( $api eq "dex_gecko" ) {
                 if ( defined $marginsconf->{$coin}{'askmargin'} ) {
                     $askmargin1 = $marginsconf->{$coin}{'askmargin'} + $marginadd;
                     if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $askmargin1 = $askmargin1 * 0.85; }
-                    $askmargin2 = $askmargin1 * 1.5;
                     if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                         $askmargin1 = $askmargin1/2;
-                        $askmargin2 = $askmargin2/2;
                     }
                     if ($price ne "0") {
                         $ask1 = sprintf("%.10f", $price + $price * $askmargin1);
-                        $ask2 = sprintf("%.10f", $price + $price * $askmargin2);
                     }
                 }
                 if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
                     $bidmargin1 = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
                     if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $bidmargin1 = $bidmargin1 * 0.85; }
-                    $bidmargin2 = $bidmargin1 * 1.5;
                     if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                         $bidmargin1 = $bidmargin1/2;
-                        $bidmargin2 = $bidmargin2/2;
                     }
-                    if ( $bidmargin1 > 0.96 ) { $bidmargin1 = 0.96; }
-                    if ( $bidmargin2 > 0.98 ) { $bidmargin2 = 0.98; }
-                    my $low = $price - $price * $bidmargin2;
+                    if ( $bidmargin1 > 0.99 ) { $bidmargin1 = 0.99; }
+                    my $low = $price - $price * $bidmargin1;
                     if ( $low < 0.00000001 ) { print "kaputt: $coin, price: $low\n"; }
                     if ($price ne "0") {
                         $bid1 = sprintf("%.10f", 1 / ($price - $price * $bidmargin1));
-                        $bid2 = sprintf("%.10f", 1 / ($price - $price * $bidmargin2));
                     }
                 }
 
