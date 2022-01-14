@@ -1373,8 +1373,7 @@ sub dex_setprice {
         if ( $askvolume1 > 0 ) {
             if (defined $minaskvolume) {
                 my $minaskvolume1 = $minaskvolume * (1 - $askmargin1);
-                if ($minaskvolume1 < $rel_mintradevol) { $minaskvolume1 = $rel_mintradevol; }
-                if ($minaskvolume1 < $base_mintradevol/$ask1) { $minaskvolume1 = $base_mintradevol/$ask1*1.1; }
+                if (($minaskvolume1 < $rel_mintradevol) || ($minaskvolume1 < $base_mintradevol/$ask1)) { $minaskvolume1 = max($rel_mintradevol,$base_mintradevol/$ask1)*1.1; }
                 $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.',"min_volume":'.$minaskvolume1.'}';
             } else {
                 $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.'}';
@@ -1416,7 +1415,7 @@ sub dex_setprice {
         if ( $bidvolume1 > 0 ) {
             if ( defined $minbidvolume ) {
                 my $minbidvolume1 = $minbidvolume * (1 - $bidmargin1);
-                if ($minbidvolume1 < $base_mintradevol) { $minbidvolume1 = $base_mintradevol; }
+                if (($minbidvolume1 < $base_mintradevol) || ($minbidvolume1 < $rel_mintradevol/$bid1)) { $minbidvolume1 = max($base_mintradevol,$rel_mintradevol/$bid1)*1.1; }
                 $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid1.',"volume":'.$bidvolume1.',"min_volume":'.$minbidvolume1.'}';
             } else {
                 $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid1.',"volume":'.$bidvolume1.'}';
