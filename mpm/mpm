@@ -1360,9 +1360,7 @@ sub dex_setprice {
     print "$rel/$base ";
     if ( defined $ask1 ) {
         my $command1 = undef;
-        my $command2 = undef;
         my $askvolume1 = 0;
-        my $askvolume2 = 0;
         if ( defined $maxaskvolume ) {
             $askvolume1 = $maxaskvolume;
             if ($askvolume1 > $rel_balance*0.9) { $askvolume1 = $rel_balance*0.9; }
@@ -1371,7 +1369,7 @@ sub dex_setprice {
         }
 
         if ( $askvolume1 > 0 ) {
-            if (defined $minaskvolume) {
+            if ( defined $minaskvolume ) {
                 my $minaskvolume1 = $minaskvolume * (1 - $askmargin1);
                 if (($minaskvolume1 < $rel_mintradevol) || ($minaskvolume1 < $base_mintradevol/$ask1)) { $minaskvolume1 = max($rel_mintradevol,$base_mintradevol/$ask1)*1.01; }
                 $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.',"min_volume":'.$minaskvolume1.'}';
@@ -1402,9 +1400,7 @@ sub dex_setprice {
 
     if ( defined $bid1 ) {
         my $command1 = undef;
-        my $command2 = undef;
         my $bidvolume1 = 0;
-        my $bidvolume2 = 0;
         if ( defined $maxbidvolume ) {
             $bidvolume1 = $maxbidvolume;
             if ($bidvolume1 > $base_balance*0.9) { $bidvolume1 = $base_balance*0.9; }
