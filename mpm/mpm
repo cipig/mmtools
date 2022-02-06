@@ -1744,6 +1744,7 @@ if ( $api eq "dex_gecko" ) {
         my $plg20fee = dex_gettradefee("MATIC") * from_json($gecko_price)->{"matic-network"}{"usd"};
         my $ftm20fee = dex_gettradefee("FTM") * from_json($gecko_price)->{"fantom"}{"usd"};
         my $hrc20fee = dex_gettradefee("ONE") * from_json($gecko_price)->{"harmony"}{"usd"};
+        my $krc20fee = dex_gettradefee("KCS") * from_json($gecko_price)->{"kucoin-shares"}{"usd"};
 
         my $base_usd_price = 0;
         my $base_btc_price = 0;
@@ -2140,6 +2141,13 @@ if ( $api eq "dex_gecko" ) {
                     } else {
                         $minaskvolume = $hrc20fee * 15 / $coinusdprice;
                         $minbidvolume = $hrc20fee * 15 / $base_usd_price;
+                    }
+                } elsif ( ($type eq "krc20") || (index($base, "KRC20") != -1) ) {
+                    if ( ($krc20fee eq "1") || ($coinusdprice eq "0") ) {
+                        $price = 0;
+                    } else {
+                        $minaskvolume = $krc20fee * 15 / $coinusdprice;
+                        $minbidvolume = $krc20fee * 15 / $base_usd_price;
                     }
                 }
 
