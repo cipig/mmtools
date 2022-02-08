@@ -2106,8 +2106,8 @@ if ( $api eq "dex_gecko" ) {
                     if ( ($qrc20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $qrc20fee * 7 / $coinusdprice;
-                        $minbidvolume = $qrc20fee * 7 / $base_usd_price;
+                        $minaskvolume = $qrc20fee * 5 / $coinusdprice;
+                        $minbidvolume = $qrc20fee * 5 / $base_usd_price;
                     }
                 } elsif ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                     if ($coinusdprice eq "0") {
