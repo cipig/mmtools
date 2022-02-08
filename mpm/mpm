@@ -1781,6 +1781,12 @@ if ( $api eq "dex_gecko" ) {
             my $binance_price_btc = binance_latest_price("DGBBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
             $base_24h_change = abs(from_json($gecko_price)->{"digibyte"}{"usd_24h_change"});
+        } elsif ( $base eq "MATIC" ) {
+            my $binance_price_usd = binance_latest_price("MATICUSDT");
+            if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
+            my $binance_price_btc = binance_latest_price("MATICBTC");
+            if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
+            $base_24h_change = abs(from_json($gecko_price)->{"matic-network"}{"usd_24h_change"});
         } elsif ( $base eq "ZEC" ) {
             my $binance_price_usd = binance_latest_price("ZECUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
