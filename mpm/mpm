@@ -1334,21 +1334,19 @@ sub coinex_setprice {
 sub dex_setprice {
     my $base = $_[0];
     my $rel = $_[1];
-    my $bid1 = $_[2];
-    my $ask1 = $_[3];
-    my $bid2 = $_[4];
-    my $ask2 = $_[5];
-    my $maxbidvolume = $_[6];
-    my $minbidvolume = $_[7];
-    my $maxaskvolume = $_[8];
-    my $minaskvolume = $_[9];
-    my $bidmargin = $_[10];
-    my $askmargin = $_[11];
-    my $coinusdprice = $_[12];
-    my $rel_mintradevol = $_[13];
-    my $base_mintradevol = $_[14];
-    my $rel_balance = $_[15];
-    my $base_balance = $_[16];
+    my $bid = $_[2];
+    my $ask = $_[3];
+    my $maxbidvolume = $_[4];
+    my $minbidvolume = $_[5];
+    my $maxaskvolume = $_[6];
+    my $minaskvolume = $_[7];
+    my $bidmargin = $_[8];
+    my $askmargin = $_[9];
+    my $coinusdprice = $_[10];
+    my $rel_mintradevol = $_[11];
+    my $base_mintradevol = $_[12];
+    my $rel_balance = $_[13];
+    my $base_balance = $_[14];
 
     my $ua = LWP::UserAgent->new;
     #$ua->timeout($timeout);
@@ -1356,8 +1354,8 @@ sub dex_setprice {
     $req->content_type('application/x-www-form-urlencoded');
 
     print "$rel/$base ";
-    if ( defined $ask1 ) {
-        my $command1 = undef;
+    if ( defined $ask ) {
+        my $command = undef;
         my $askvolume1 = 0;
         if ( defined $maxaskvolume ) {
             $askvolume1 = $maxaskvolume;
@@ -1368,36 +1366,36 @@ sub dex_setprice {
 
         if ( $askvolume1 > 0 ) {
             if ( defined $minaskvolume ) {
-                my $minaskvolume1 = $minaskvolume * (1 - $askmargin);
-                if (($minaskvolume1 < $rel_mintradevol) || ($minaskvolume1 < $base_mintradevol/$ask1)) { $minaskvolume1 = max($rel_mintradevol,$base_mintradevol/$ask1)*1.01; }
-                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.',"min_volume":'.$minaskvolume1.'}';
+                my $minaskvolume = $minaskvolume * (1 - $askmargin);
+                if (($minaskvolume < $rel_mintradevol) || ($minaskvolume < $base_mintradevol/$ask)) { $minaskvolume = max($rel_mintradevol,$base_mintradevol/$ask)*1.01; }
+                $command = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask.',"volume":'.$askvolume1.',"min_volume":'.$minaskvolume.'}';
             } else {
-                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask1.',"volume":'.$askvolume1.'}';
+                $command = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask.',"volume":'.$askvolume1.'}';
             }
 
-            $req->content($command1);
+            $req->content($command);
             my $resp1 = $ua->request($req);
             if ($resp1->is_success) {
-                print "ask1 ".sprintf("%.8f",$ask1)." ";
+                print "ask ".sprintf("%.8f",$ask)." ";
             } else {
-                my $askerror1 = eval {from_json($resp1->content)->{'error'}};
-                if ($@) { print "unknown error $@"; } else { print $askerror1." "; }
+                my $askerror = eval {from_json($resp1->content)->{'error'}};
+                if ($@) { print "unknown error $@"; } else { print $askerror." "; }
             }
         } else {
-            $command1 = '{"userpass":"'.$userpass.'","method":"cancel_all_orders","cancel_by":{"type":"Pair","data":{"base":"'.$rel.'","rel":"'.$base.'"}}}';
-            $req->content($command1);
+            $command = '{"userpass":"'.$userpass.'","method":"cancel_all_orders","cancel_by":{"type":"Pair","data":{"base":"'.$rel.'","rel":"'.$base.'"}}}';
+            $req->content($command);
             my $resp = $ua->request($req);
             if ($resp->is_success) {
-                print "ask1 deleted ";
+                print "ask deleted ";
             } else {
-                my $askerror1 = eval {from_json($resp->content)->{'error'}};
-                if ($@) { print "unknown error $@"; } else { print $askerror1." "; }
+                my $askerror = eval {from_json($resp->content)->{'error'}};
+                if ($@) { print "unknown error $@"; } else { print $askerror." "; }
             }
         }
     }
 
-    if ( defined $bid1 ) {
-        my $command1 = undef;
+    if ( defined $bid ) {
+        my $command = undef;
         my $bidvolume1 = 0;
         if ( defined $maxbidvolume ) {
             $bidvolume1 = $maxbidvolume;
@@ -1408,30 +1406,30 @@ sub dex_setprice {
 
         if ( $bidvolume1 > 0 ) {
             if ( defined $minbidvolume ) {
-                my $minbidvolume1 = $minbidvolume * (1 - $bidmargin);
-                if (($minbidvolume1 < $base_mintradevol) || ($minbidvolume1 < $rel_mintradevol/$bid1)) { $minbidvolume1 = max($base_mintradevol,$rel_mintradevol/$bid1)*1.01; }
-                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid1.',"volume":'.$bidvolume1.',"min_volume":'.$minbidvolume1.'}';
+                my $minbidvolume = $minbidvolume * (1 - $bidmargin);
+                if (($minbidvolume < $base_mintradevol) || ($minbidvolume < $rel_mintradevol/$bid)) { $minbidvolume = max($base_mintradevol,$rel_mintradevol/$bid)*1.01; }
+                $command = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"volume":'.$bidvolume1.',"min_volume":'.$minbidvolume.'}';
             } else {
-                $command1 = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid1.',"volume":'.$bidvolume1.'}';
+                $command = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"volume":'.$bidvolume1.'}';
             }
 
-            $req->content($command1);
+            $req->content($command);
             $resp1 = $ua->request($req);
             if ($resp1->is_success) {
-                print "bid1 ".sprintf("%.8f",1/$bid1)." ";
+                print "bid ".sprintf("%.8f",1/$bid)." ";
             } else {
-                my $biderror1 = eval {from_json($resp1->content)->{'error'}};
-                if ($@) { print "unknown error $@"; } else { print $biderror1." "; }
+                my $biderror = eval {from_json($resp1->content)->{'error'}};
+                if ($@) { print "unknown error $@"; } else { print $biderror." "; }
             }
         } else {
-            $command1 = '{"userpass":"'.$userpass.'","method":"cancel_all_orders","cancel_by":{"type":"Pair","data":{"base":"'.$base.'","rel":"'.$rel.'"}}}';
-            $req->content($command1);
+            $command = '{"userpass":"'.$userpass.'","method":"cancel_all_orders","cancel_by":{"type":"Pair","data":{"base":"'.$base.'","rel":"'.$rel.'"}}}';
+            $req->content($command);
             my $resp = $ua->request($req);
             if ($resp->is_success) {
-                print "bid1 deleted ";
+                print "bid deleted ";
             } else {
-                my $biderror1 = eval {from_json($resp->content)->{'error'}};
-                if ($@) { print "unknown error $@"; } else { print $biderror1." "; }
+                my $biderror = eval {from_json($resp->content)->{'error'}};
+                if ($@) { print "unknown error $@"; } else { print $biderror." "; }
             }
         }
     }
@@ -1545,8 +1543,8 @@ sub dex_deleteprice {
     if ($resp->is_success) {
         print "$_[1]/$_[0] ".$resp->content;
     } else {
-        my $biderror1 = eval {from_json($resp->content)->{'error'}};
-        if ($@) { print "unknown error $@"; } else { print $biderror1." "; }
+        my $biderror = eval {from_json($resp->content)->{'error'}};
+        if ($@) { print "unknown error $@"; } else { print $biderror." "; }
     }
 
     $command = '{"userpass":"'.$userpass.'","method":"cancel_all_orders","cancel_by":{"type":"Pair","data":{"base":"'.$_[0].'","rel":"'.$_[1].'"}}}';
@@ -1555,8 +1553,8 @@ sub dex_deleteprice {
     if ($resp->is_success) {
         print " ".$resp->content."\n";
     } else {
-        my $askerror1 = eval {from_json($resp->content)->{'error'}};
-        if ($@) { print "unknown error $@"; } else { print $askerror1; }
+        my $askerror = eval {from_json($resp->content)->{'error'}};
+        if ($@) { print "unknown error $@"; } else { print $askerror; }
     }
 }
 
@@ -2022,10 +2020,8 @@ if ( $api eq "dex_gecko" ) {
                 }
                 #print "change: $change, base_24h_change: $base_24h_change, marginadd: $marginadd\n";
 
-                my $bid1 = undef;
-                my $bid2 = undef;
-                my $ask1 = undef;
-                my $ask2 = undef;
+                my $bid = undef;
+                my $ask = undef;
                 my $askmargin = 0;
                 my $bidmargin = 0;
                 if ( defined $marginsconf->{$coin}{'askmargin'} ) {
@@ -2035,7 +2031,7 @@ if ( $api eq "dex_gecko" ) {
                         $askmargin = $askmargin/2;
                     }
                     if ($price ne "0") {
-                        $ask1 = sprintf("%.10f", $price + $price * $askmargin);
+                        $ask = sprintf("%.10f", $price + $price * $askmargin);
                     }
                 }
                 if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
@@ -2048,7 +2044,7 @@ if ( $api eq "dex_gecko" ) {
                     my $low = $price - $price * $bidmargin;
                     if ( $low < 0.00000001 ) { print "kaputt: $coin, price: $low\n"; }
                     if ($price ne "0") {
-                        $bid1 = sprintf("%.10f", 1 / ($price - $price * $bidmargin));
+                        $bid = sprintf("%.10f", 1 / ($price - $price * $bidmargin));
                     }
                 }
 
@@ -2179,7 +2175,7 @@ if ( $api eq "dex_gecko" ) {
                 } else {
                     my $rel_mintradevol = dex_getmintradevol($coin);
                     my $rel_balance = dex_getbalance($coin);
-                    dex_setprice($base,$coin,$bid1,$ask1,$bid2,$ask2,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin,$askmargin,$coinusdprice,$rel_mintradevol,$base_mintradevol,$rel_balance,$base_balance);
+                    dex_setprice($base,$coin,$bid,$ask,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin,$askmargin,$coinusdprice,$rel_mintradevol,$base_mintradevol,$rel_balance,$base_balance);
                 }
 
                 Time::HiRes::sleep(0.3);
