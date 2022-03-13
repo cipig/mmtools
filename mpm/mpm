@@ -1743,6 +1743,7 @@ if ( $api eq "dex_gecko" ) {
         my $ftm20fee = dex_gettradefee("FTM") * from_json($gecko_price)->{"fantom"}{"usd"};
         my $hrc20fee = dex_gettradefee("ONE") * from_json($gecko_price)->{"harmony"}{"usd"};
         my $krc20fee = dex_gettradefee("KCS") * from_json($gecko_price)->{"kucoin-shares"}{"usd"};
+        my $glm20fee = dex_gettradefee("GLMR") * from_json($gecko_price)->{"moonbeam"}{"usd"};
 
         my $base_usd_price = 0;
         my $base_btc_price = 0;
@@ -2155,6 +2156,13 @@ if ( $api eq "dex_gecko" ) {
                     } else {
                         $minaskvolume = $krc20fee * 15 / $coinusdprice;
                         $minbidvolume = $krc20fee * 15 / $base_usd_price;
+                    }
+                } elsif ( ($type eq "glm20") || (index($base, "GLM20") != -1) || ($base eq "GLMR") ) {
+                    if ( ($glm20fee eq "1") || ($coinusdprice eq "0") ) {
+                        $price = 0;
+                    } else {
+                        $minaskvolume = $glm20fee * 15 / $coinusdprice;
+                        $minbidvolume = $glm20fee * 15 / $base_usd_price;
                     }
                 } elsif ( ($coin eq "QTUM") || ($base eq "QTUM") ) {
                     if ( ($qtumfee eq "1") || ($coinusdprice eq "0") ) {
