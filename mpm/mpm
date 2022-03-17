@@ -1945,8 +1945,10 @@ if ( $api eq "dex_gecko" ) {
                     $coinusdprice = ( from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"last"} ) / 3 * $btcusdprice;
                     $change = abs(from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"percent_change_24h"});
                 } elsif ( (defined $smartfi_usd_symbol) && ($smartfi_price ne "1") ) {
-                    $price = ( from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"HeighestBid"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"LowestAsk"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"Last"} ) / 3 / $base_usd_price;
-                    $coinusdprice = ( from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"HeighestBid"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"LowestAsk"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"Last"} ) / 3;
+                    #$price = ( from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"HeighestBid"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"LowestAsk"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"Last"} ) / 3 / $base_usd_price;
+                    $price = from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"Last"} / $base_usd_price;
+                    #$coinusdprice = ( from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"HeighestBid"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"LowestAsk"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"Last"} ) / 3;
+                    $coinusdprice = from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"Last"};
                     $change = abs(from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"PercentChange"});
                 } elsif ( (defined $usdrate_symbol) && ($usdrate_price ne "1") ) {
                     $coinusdprice = 1 / from_json($usdrate_price)->{"rates"}{"$usdrate_symbol"};
@@ -2186,7 +2188,7 @@ if ( $api eq "dex_gecko" ) {
                     dex_setprice($base,$coin,$bid,$ask,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin,$askmargin,$coinusdprice,$rel_mintradevol,$base_mintradevol,$rel_balance,$base_balance);
                 }
 
-                Time::HiRes::sleep(0.3);
+                Time::HiRes::sleep(0.2);
             }
         }
     }
