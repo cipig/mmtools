@@ -1864,7 +1864,8 @@ if ( $api eq "dex_gecko" ) {
              my $base_balance = dex_getbalance($base);
 
             foreach my $coin ( keys %{$marginsconf} ) {
-                if ( ($base eq $coin) || ( (($base eq "ETH-BEP20") || ($base eq "ETH-PLG20")) && ($coin eq "ETH")) ) { next; }
+                #if ( ($base eq $coin) || ( (($base eq "ETH-BEP20") || ($base eq "ETH-PLG20")) && ($coin eq "ETH")) ) { next; }
+                if ($base eq $coin) { next; }
                 my $geckoid = $marginsconf->{$coin}{'geckoid'};
                 my $type = $marginsconf->{$coin}{'type'};
                 if ( !defined $type ) { $type = "utxo"; }
@@ -2188,7 +2189,7 @@ if ( $api eq "dex_gecko" ) {
                     dex_setprice($base,$coin,$bid,$ask,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin,$askmargin,$coinusdprice,$rel_mintradevol,$base_mintradevol,$rel_balance,$base_balance);
                 }
 
-                Time::HiRes::sleep(0.2);
+                Time::HiRes::sleep(0.25);
             }
         }
     }
