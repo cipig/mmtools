@@ -2018,9 +2018,9 @@ if ( $api eq "dex_gecko" ) {
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usdrate_symbol) ) {
                     $marginadd = max($change,$base_24h_change)/100/4;
                 } elsif ( defined $komodolive_usd_symbol ) {
-                    $marginadd = max($change,$base_24h_change)/100/1.5;
+                    $marginadd = max($change,$base_24h_change)/100/2;
                 } else {
-                    $marginadd = max($change,$base_24h_change)/100/2.5;
+                    $marginadd = max($change,$base_24h_change)/100/3;
                 }
                 #print "change: $change, base_24h_change: $base_24h_change, marginadd: $marginadd\n";
 
@@ -2189,7 +2189,7 @@ if ( $api eq "dex_gecko" ) {
                     dex_setprice($base,$coin,$bid,$ask,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin,$askmargin,$coinusdprice,$rel_mintradevol,$base_mintradevol,$rel_balance,$base_balance);
                 }
 
-                Time::HiRes::sleep(0.25);
+                Time::HiRes::sleep(0.35);
             }
         }
     }
