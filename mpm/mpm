@@ -2034,6 +2034,11 @@ if ( $api eq "dex_gecko" ) {
                     if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE-BEP20") && ($coin eq "DOGE")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                         $askmargin = $askmargin/2;
                     }
+                    my $high = $price + $price * $askmargin;
+                    if ( $high < 0.000000011 ) {
+                        $price = 0;
+                        print "kaputtask: $coin, price: $high\n";
+                    }
                     if ($price ne "0") {
                         $ask = sprintf("%.10f", $price + $price * $askmargin);
                     }
@@ -2046,7 +2051,10 @@ if ( $api eq "dex_gecko" ) {
                     }
                     if ( $bidmargin > 0.99 ) { $bidmargin = 0.99; }
                     my $low = $price - $price * $bidmargin;
-                    if ( $low < 0.00000001 ) { print "kaputt: $coin, price: $low\n"; }
+                    if ( $low < 0.00000001 ) {
+                        $price = 0;
+                        print "kaputtbid: $coin, price: $low\n";
+                    }
                     if ($price ne "0") {
                         $bid = sprintf("%.10f", 1 / ($price - $price * $bidmargin));
                     }
