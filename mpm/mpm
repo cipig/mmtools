@@ -1717,7 +1717,7 @@ if ( $api eq "dex_gecko" ) {
     my @stablecoins_usd = ("USDT-BEP20","USDT-PLG20","USDT-AVX20","USDT-KRC20","BUSD-BEP20","BUSD-AVX20","BUSD-PLG20","DAI-BEP20","DAI-AVX20","DAI-FTM20","DAI-PLG20","PAX-BEP20","PAX-KRC20","TUSD-BEP20","USDC-BEP20","USDC-FTM20","USDC-PLG20","USDC-AVX20","USDC-KRC20","SFUSD","UST-BEP20","UST-PLG20");
     my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","BIDR-BEP20","JPYC-PLG20","EURS-PLG20","BRZ-BEP20","QC","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JEUR-PLG20","JGBP-PLG20","NZDS-PLG20");
 
-    my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,matic-network,fantom,harmony,kucoin-shares,moonbeam";
+    my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,matic-network,fantom,harmony,kucoin-shares,moonbeam,moonriver";
     foreach my $coin ( keys %{$marginsconf} ) {
         if ( defined $marginsconf->{$coin}{'geckoid'} ) {
             $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
@@ -1744,6 +1744,7 @@ if ( $api eq "dex_gecko" ) {
         my $hrc20fee = dex_gettradefee("ONE") * from_json($gecko_price)->{"harmony"}{"usd"};
         my $krc20fee = dex_gettradefee("KCS") * from_json($gecko_price)->{"kucoin-shares"}{"usd"};
         my $glm20fee = dex_gettradefee("GLMR") * from_json($gecko_price)->{"moonbeam"}{"usd"};
+        my $mvr20fee = dex_gettradefee("MOVR") * from_json($gecko_price)->{"moonriver"}{"usd"};
 
         my $base_usd_price = 0;
         my $base_btc_price = 0;
@@ -2174,6 +2175,13 @@ if ( $api eq "dex_gecko" ) {
                     } else {
                         $minaskvolume = $glm20fee * 15 / $coinusdprice;
                         $minbidvolume = $glm20fee * 15 / $base_usd_price;
+                    }
+                } elsif ( ($type eq "mvr20") || (index($base, "MVR20") != -1) || ($base eq "MOVR") ) {
+                    if ( ($mvr20fee eq "1") || ($coinusdprice eq "0") ) {
+                        $price = 0;
+                    } else {
+                        $minaskvolume = $mvr20fee * 15 / $coinusdprice;
+                        $minbidvolume = $mvr20fee * 15 / $base_usd_price;
                     }
                 } elsif ( ($coin eq "QTUM") || ($base eq "QTUM") ) {
                     if ( ($qtumfee eq "1") || ($coinusdprice eq "0") ) {
