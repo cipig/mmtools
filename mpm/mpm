@@ -2035,7 +2035,7 @@ if ( $api eq "dex_gecko" ) {
                         $askmargin = $askmargin/2;
                     }
                     my $high = $price + $price * $askmargin;
-                    if ( $high < 0.000000011 ) {
+                    if ( $high < 0.000000012 ) {
                         $price = 0;
                         print "================= kaputtask: $coin, price: $high\n";
                     }
@@ -2051,7 +2051,7 @@ if ( $api eq "dex_gecko" ) {
                     }
                     if ( $bidmargin > 0.99 ) { $bidmargin = 0.99; }
                     my $low = $price - $price * $bidmargin;
-                    if ( $low < 0.00000001 ) {
+                    if ( $low < 0.000000011 ) {
                         $price = 0;
                         print "================= kaputtbid: $coin, price: $low\n";
                     }
