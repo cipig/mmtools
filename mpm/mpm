@@ -1755,10 +1755,22 @@ if ( $api eq "dex_gecko" ) {
             my $binance_price_btc = binance_latest_price("KMDBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
             $base_24h_change = abs(from_json($gecko_price)->{"komodo"}{"usd_24h_change"});
-        if ( $base eq "BNB" ) {
+        } elsif ( $base eq "BNB" ) {
             my $binance_price_usd = binance_latest_price("BNBUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("BNBBTC");
+            if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
+            $base_24h_change = abs(from_json($gecko_price)->{"komodo"}{"usd_24h_change"});
+        } elsif ( $base eq "SYS" ) {
+            my $binance_price_usd = binance_latest_price("SYSUSDT");
+            if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
+            my $binance_price_btc = binance_latest_price("SYSBTC");
+            if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
+            $base_24h_change = abs(from_json($gecko_price)->{"komodo"}{"usd_24h_change"});
+        } elsif ( $base eq "FLUX" ) {
+            my $binance_price_usd = binance_latest_price("FLUXUSDT");
+            if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
+            my $binance_price_btc = binance_latest_price("FLUXBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
             $base_24h_change = abs(from_json($gecko_price)->{"komodo"}{"usd_24h_change"});
         } elsif ( $base eq "LTC" ) {
