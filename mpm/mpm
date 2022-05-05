@@ -2215,7 +2215,7 @@ if ( $api eq "dex_gecko" ) {
                     }
                 }
 
-                if ((defined $sane_price) && (($coinusdprice < $sane_price - $sane_price * ($bidmargin + 0.15)) || ($coinusdprice > $sane_price + $sane_price * ($askmargin + 0.15)))) {
+                if ((defined $sane_price) && (($coinusdprice < $sane_price - $sane_price * ($bidmargin + 0.1)) || ($coinusdprice > $sane_price + $sane_price * ($askmargin + 0.1)))) {
                     print "================= bullshit_price $coinusdprice for $coin, sane_price $sane_price\n";
                     $price = 0;
                 }
