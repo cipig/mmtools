@@ -1789,24 +1789,25 @@ if ( $api eq "dex_gecko" ) {
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("KMDBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-            $base_24h_change = abs(from_json($gecko_price)->{"komodo"}{"usd_24h_change"});
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"komodo"}{"usd_24h_change"}); } else { my $komodolive_kmd_price = komodolive_latest_price("KMD"); $base_24h_change = abs(from_json($komodolive_kmd_price)->{"change_24h"}); }
         } elsif ( $base eq "BNB" ) {
             my $binance_price_usd = binance_latest_price("BNBUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("BNBBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-            $base_24h_change = abs(from_json($gecko_price)->{"komodo"}{"usd_24h_change"});
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"binancecoin"}{"usd_24h_change"}); } else { my $komodolive_bnb_price = komodolive_latest_price("BNB"); $base_24h_change = abs(from_json($komodolive_bnb_price)->{"change_24h"}); }
         } elsif ( $base eq "KCS" ) {
             my $kucoin_price_usd = kucoin_latest_price("KCS-USDT");
             if ( $kucoin_price_usd ne "1" ) { $base_usd_price = ( $kucoin_price_usd->{"bestBid"} + $kucoin_price_usd->{"bestAsk"} + $kucoin_price_usd->{"price"} ) / 3; } else { $base_usd_price = 0; }
             my $kucoin_price_btc = kucoin_latest_price("KCS-BTC");
             if ( $kucoin_price_btc ne "1" ) { $base_btc_price = ( $kucoin_price_btc->{"bestBid"} + $kucoin_price_btc->{"bestAsk"} + $kucoin_price_btc->{"price"} ) / 3; } else { $base_btc_price = 0; }
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"kucoin-shares"}{"usd_24h_change"}); } else { my $komodolive_kcs_price = komodolive_latest_price("KCS"); $base_24h_change = abs(from_json($komodolive_kcs_price)->{"change_24h"}); }
         } elsif ( $base eq "SYS" ) {
             my $binance_price_usd = binance_latest_price("SYSUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("SYSBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-            $base_24h_change = abs(from_json($gecko_price)->{"komodo"}{"usd_24h_change"});
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"syscoin"}{"usd_24h_change"}); } else { my $komodolive_sys_price = komodolive_latest_price("SYS"); $base_24h_change = abs(from_json($komodolive_sys_price)->{"change_24h"}); }
         } elsif ( $base eq "FLUX" ) {
             my $binance_price_usd = binance_latest_price("FLUXUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
