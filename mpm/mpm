@@ -68,7 +68,7 @@ sub gecko_latest_price {
     my $url = "https://api.coingecko.com/api/v3/simple/price?ids=".$_[0]."&vs_currencies=btc,usd,cad,sgd,chf,cny,nzd&include_24hr_change=true";
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
-    #$ua->timeout($timeout);
+    $ua->timeout($timeout);
     $ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
@@ -1813,78 +1813,78 @@ if ( $api eq "dex_gecko" ) {
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("FLUXBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-            $base_24h_change = abs(from_json($gecko_price)->{"komodo"}{"usd_24h_change"});
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"zelcash"}{"usd_24h_change"}); } else { my $komodolive_flux_price = komodolive_latest_price("FLUX"); $base_24h_change = abs(from_json($komodolive_flux_price)->{"change_24h"}); }
         } elsif ( $base eq "LTC" ) {
             my $binance_price_usd = binance_latest_price("LTCUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("LTCBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-            $base_24h_change = abs(from_json($gecko_price)->{"litecoin"}{"usd_24h_change"});
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"litecoin"}{"usd_24h_change"}); } else { my $komodolive_ltc_price = komodolive_latest_price("LTC"); $base_24h_change = abs(from_json($komodolive_ltc_price)->{"change_24h"}); }
         } elsif ( $base eq "BCH" ) {
             my $binance_price_usd = binance_latest_price("BCHUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("BCHBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-            $base_24h_change = abs(from_json($gecko_price)->{"bitcoin-cash"}{"usd_24h_change"});
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"bitcoin-cash"}{"usd_24h_change"}); } else { my $komodolive_bch_price = komodolive_latest_price("BCH"); $base_24h_change = abs(from_json($komodolive_bch_price)->{"change_24h"}); }
         } elsif ( $base eq "DASH" ) {
             my $binance_price_usd = binance_latest_price("DASHUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("DASHBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-            $base_24h_change = abs(from_json($gecko_price)->{"dash"}{"usd_24h_change"});
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"dash"}{"usd_24h_change"}); } else { my $komodolive_dash_price = komodolive_latest_price("DASH"); $base_24h_change = abs(from_json($komodolive_dash_price)->{"change_24h"}); }
         } elsif ( $base eq "DGB" ) {
             my $binance_price_usd = binance_latest_price("DGBUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("DGBBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-            $base_24h_change = abs(from_json($gecko_price)->{"digibyte"}{"usd_24h_change"});
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"digibyte"}{"usd_24h_change"}); } else { my $komodolive_dgb_price = komodolive_latest_price("DGB"); $base_24h_change = abs(from_json($komodolive_dgb_price)->{"change_24h"}); }
         } elsif ( $base eq "MATIC" ) {
             my $binance_price_usd = binance_latest_price("MATICUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("MATICBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-            $base_24h_change = abs(from_json($gecko_price)->{"matic-network"}{"usd_24h_change"});
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"matic-network"}{"usd_24h_change"}); } else { my $komodolive_matic_price = komodolive_latest_price("MATIC"); $base_24h_change = abs(from_json($komodolive_matic_price)->{"change_24h"}); }
         } elsif ( $base eq "ZEC" ) {
             my $binance_price_usd = binance_latest_price("ZECUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("ZECBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-            $base_24h_change = abs(from_json($gecko_price)->{"zcash"}{"usd_24h_change"});
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"zcash"}{"usd_24h_change"}); } else { my $komodolive_zec_price = komodolive_latest_price("ZEC"); $base_24h_change = abs(from_json($komodolive_zec_price)->{"change_24h"}); }
         } elsif ( $base eq "RVN" ) {
             my $binance_price_usd = binance_latest_price("RVNUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("RVNBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-            $base_24h_change = abs(from_json($gecko_price)->{"ravencoin"}{"usd_24h_change"});
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"ravencoin"}{"usd_24h_change"}); } else { my $komodolive_rvn_price = komodolive_latest_price("RVN"); $base_24h_change = abs(from_json($komodolive_rvn_price)->{"change_24h"}); }
         } elsif ( $base eq "QTUM" ) {
             my $binance_price_usd = binance_latest_price("QTUMUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("QTUMBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-            $base_24h_change = abs(from_json($gecko_price)->{"qtum"}{"usd_24h_change"});
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"qtum"}{"usd_24h_change"}); } else { my $komodolive_qtum_price = komodolive_latest_price("QTUM"); $base_24h_change = abs(from_json($komodolive_qtum_price)->{"change_24h"}); }
         } elsif ( ($base eq "DOGE") || ($base eq "DOGE-BEP20") ) {
             my $binance_price_usd = binance_latest_price("DOGEUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("DOGEBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-            $base_24h_change = abs(from_json($gecko_price)->{"dogecoin"}{"usd_24h_change"});
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"dogecoin"}{"usd_24h_change"}); } else { my $komodolive_doge_price = komodolive_latest_price("DOGE"); $base_24h_change = abs(from_json($komodolive_doge_price)->{"change_24h"}); }
         } elsif ( ($base eq "FIRO") || ($base eq "FIRO-BEP20") ) {
             my $binance_price_usd = binance_latest_price("FIROUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("FIROBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-            $base_24h_change = abs(from_json($gecko_price)->{"zcoin"}{"usd_24h_change"});
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"zcoin"}{"usd_24h_change"}); } else { my $komodolive_firo_price = komodolive_latest_price("FIRO"); $base_24h_change = abs(from_json($komodolive_firo_price)->{"change_24h"}); }
         } elsif ( ($base eq "ETH") || ($base eq "ETH-BEP20") || ($base eq "ETH-PLG20") ) {
             my $binance_price_usd = binance_latest_price("ETHUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("ETHBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-            $base_24h_change = abs(from_json($gecko_price)->{"ethereum"}{"usd_24h_change"});
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"ethereum"}{"usd_24h_change"}); } else { my $komodolive_eth_price = komodolive_latest_price("ETH"); $base_24h_change = abs(from_json($komodolive_eth_price)->{"change_24h"}); }
         } elsif ( ($base eq "BTC") || ($base eq "BTC-BEP20") ) {
             my $binance_price_usd = binance_latest_price("BTCUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             $base_btc_price = 1;
-            $base_24h_change = abs(from_json($gecko_price)->{"bitcoin"}{"usd_24h_change"});
+            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"bitcoin"}{"usd_24h_change"}); } else { my $komodolive_btc_price = komodolive_latest_price("BTC"); $base_24h_change = abs(from_json($komodolive_btc_price)->{"change_24h"}); }
         } elsif ( ($base eq "EURS-PLG20") || ($base eq "JEUR-PLG20") ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"EUR"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("BTCEUR");
