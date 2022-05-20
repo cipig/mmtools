@@ -1734,20 +1734,30 @@ if ( $api eq "dex_gecko" ) {
         #print Dumper($smartfi_price);
 
         my $btcfee = dex_gettradefee("BTC");
+
+        my $erc20fee = 1;
+        my $qtumfee = 1;
+        my $qrc20fee = 1;
+        my $avx20fee = 1;
+        my $bep20fee = 1;
+        my $plg20fee = 1;
+        my $ftm20fee = 1;
+        my $hrc20fee = 1;
+        my $krc20fee = 1;
+        my $glm20fee = 1;
+        my $mvr20fee = 1;
         if ( $gecko_price ne "1" ) {
-            my $erc20fee = dex_gettradefee("ETH") * from_json($gecko_price)->{"ethereum"}{"usd"};
-            my $qtumfee = dex_gettradefee("QTUM") * from_json($gecko_price)->{"qtum"}{"usd"};
-            my $qrc20fee = dex_gettradefee("QC") * from_json($gecko_price)->{"qtum"}{"usd"};
-            my $avx20fee = dex_gettradefee("AVAX") * from_json($gecko_price)->{"avalanche-2"}{"usd"};
-            my $bep20fee = dex_gettradefee("BNB") * from_json($gecko_price)->{"binancecoin"}{"usd"};
-            my $plg20fee = dex_gettradefee("MATIC") * from_json($gecko_price)->{"matic-network"}{"usd"};
-            my $ftm20fee = dex_gettradefee("FTM") * from_json($gecko_price)->{"fantom"}{"usd"};
-            my $hrc20fee = dex_gettradefee("ONE") * from_json($gecko_price)->{"harmony"}{"usd"};
-            my $krc20fee = dex_gettradefee("KCS") * from_json($gecko_price)->{"kucoin-shares"}{"usd"};
-            my $glm20fee = dex_gettradefee("GLMR") * from_json($gecko_price)->{"moonbeam"}{"usd"};
-            my $mvr20fee = dex_gettradefee("MOVR") * from_json($gecko_price)->{"moonriver"}{"usd"};
-        } else {
-            my ($erc20fee,$qtumfee,$qrc20fee,$avx20fee,$bep20fee,$plg20fee,$ftm20fee,$hrc20fee,$krc20fee,$glm20fee,$mvr20fee) = (1);
+            $erc20fee = dex_gettradefee("ETH") * from_json($gecko_price)->{"ethereum"}{"usd"};
+            $qtumfee = dex_gettradefee("QTUM") * from_json($gecko_price)->{"qtum"}{"usd"};
+            $qrc20fee = dex_gettradefee("QC") * from_json($gecko_price)->{"qtum"}{"usd"};
+            $avx20fee = dex_gettradefee("AVAX") * from_json($gecko_price)->{"avalanche-2"}{"usd"};
+            $bep20fee = dex_gettradefee("BNB") * from_json($gecko_price)->{"binancecoin"}{"usd"};
+            $plg20fee = dex_gettradefee("MATIC") * from_json($gecko_price)->{"matic-network"}{"usd"};
+            $ftm20fee = dex_gettradefee("FTM") * from_json($gecko_price)->{"fantom"}{"usd"};
+            $hrc20fee = dex_gettradefee("ONE") * from_json($gecko_price)->{"harmony"}{"usd"};
+            $krc20fee = dex_gettradefee("KCS") * from_json($gecko_price)->{"kucoin-shares"}{"usd"};
+            $glm20fee = dex_gettradefee("GLMR") * from_json($gecko_price)->{"moonbeam"}{"usd"};
+            $mvr20fee = dex_gettradefee("MOVR") * from_json($gecko_price)->{"moonriver"}{"usd"};
         }
 
         my $base_usd_price = 0;
