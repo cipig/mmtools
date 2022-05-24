@@ -895,7 +895,10 @@ sub binance_setprice {
     my $coin = $_[1];
     my $bid = undef;
     my $ask = undef;
-    if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+    if ((($coin eq "BUSD") || ($coin eq "USDT")) && ($base eq "DGB")) {
+        $bid = sprintf("%.5f",$_[2]);
+        $ask = sprintf("%.5f",$_[3]);
+    } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
         $bid = sprintf("%.4f",$_[2]);
         $ask = sprintf("%.4f",$_[3]);
     } elsif ( $coin eq "ETH" ) {
@@ -1034,7 +1037,10 @@ sub mandala_setprice {
     my $coin = $_[1];
     my $bid = undef;
     my $ask = undef;
-    if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+    if ((($coin eq "BUSD") || ($coin eq "USDT")) && ($base eq "DGB")) {
+        $bid = sprintf("%.5f",$_[2]);
+        $ask = sprintf("%.5f",$_[3]);
+    } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
         $bid = sprintf("%.4f",$_[2]);
         $ask = sprintf("%.4f",$_[3]);
     } elsif ( $coin eq "ETH" ) {
@@ -2506,7 +2512,10 @@ if ( $api eq "dex_gecko" ) {
         if ( ($mandala_depth ne "1") && ($mandala_book_price ne "1") ) {
             my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_1));
             my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_1));
-            if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+            if ((($coin eq "BUSD") || ($coin eq "USDT")) && ($base eq "DGB")) {
+                $cex_bid_price_1 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_1,$coin) + 0.00001000;
+                $cex_ask_price_1 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_1,$coin) - 0.00001000;
+            } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
                 $cex_bid_price_1 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_1,$coin) + 0.00010000;
                 $cex_ask_price_1 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_1,$coin) - 0.00010000;
             } elsif ( $coin eq "ETH" ) {
@@ -2521,7 +2530,10 @@ if ( $api eq "dex_gecko" ) {
 
             $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_2));
             $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_2));
-            if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+            if ((($coin eq "BUSD") || ($coin eq "USDT")) && ($base eq "DGB")) {
+                $cex_bid_price_2 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_2,$coin) + 0.00001000;
+                $cex_ask_price_2 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_2,$coin) - 0.00001000;
+            } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
                 $cex_bid_price_2 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_2,$coin) + 0.00010000;
                 $cex_ask_price_2 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_2,$coin) - 0.00010000;
             } elsif ( $coin eq "ETH" ) {
@@ -2536,7 +2548,10 @@ if ( $api eq "dex_gecko" ) {
 
             $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_3));
             $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_3));
-            if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+            if ((($coin eq "BUSD") || ($coin eq "USDT")) && ($base eq "DGB")) {
+                $cex_bid_price_3 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_3,$coin) + 0.00001000;
+                $cex_ask_price_3 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_3,$coin) - 0.00001000;
+            } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
                 $cex_bid_price_3 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_3,$coin) + 0.00010000;
                 $cex_ask_price_3 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_3,$coin) - 0.00010000;
             } elsif ( $coin eq "ETH" ) {
