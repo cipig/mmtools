@@ -2478,7 +2478,7 @@ if ( $api eq "dex_gecko" ) {
 
 
 } elsif ( $api eq "mandala" ) {
-    my $json = read_file("$cwd/mpm.conf.mandala");
+    my $json = read_file("$cwd/mpm.conf.mandala.$base");
     my $marginsconf = decode_json($json);
     #my $marginadd = mandala_volat();
     my $marginadd = 0;
