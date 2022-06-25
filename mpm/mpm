@@ -65,11 +65,11 @@ sub paprika_latest_price {
 
 
 sub gecko_latest_price {
-    my $url = "https://api.coingecko.com/api/v3/simple/price?ids=".$_[0]."&vs_currencies=btc,usd,cad,sgd,chf,cny,nzd&include_24hr_change=true";
+    my $url = "https://api.coingecko.com/api/v3/simple/price?ids=".$_[0]."&vs_currencies=btc,usd,cad,sgd,chf,cny,nzd,jpy&include_24hr_change=true";
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
-    $ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -1721,7 +1721,7 @@ if ( $api eq "dex_gecko" ) {
     my $json = read_file("$cwd/mpm.conf.dex");
     $marginsconf = decode_json($json);
     my @stablecoins_usd = ("USDT-BEP20","USDT-PLG20","USDT-AVX20","USDT-KRC20","BUSD-BEP20","BUSD-AVX20","BUSD-PLG20","DAI-BEP20","DAI-AVX20","DAI-FTM20","DAI-PLG20","PAX-BEP20","PAX-KRC20","TUSD-BEP20","USDC-BEP20","USDC-FTM20","USDC-PLG20","USDC-AVX20","USDC-KRC20","SFUSD","UST-BEP20","UST-PLG20");
-    my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","BIDR-BEP20","JPYC-PLG20","EURS-PLG20","BRZ-BEP20","QC","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JEUR-PLG20","JGBP-PLG20","NZDS-PLG20");
+    my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","BIDR-BEP20","JPYC-PLG20","JJPY-PLG20","EURS-PLG20","BRZ-BEP20","QC","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JEUR-PLG20","JGBP-PLG20","NZDS-PLG20");
 
     my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,matic-network,fantom,harmony,kucoin-shares,moonbeam,moonriver,zelcash,syscoin";
     foreach my $coin ( keys %{$marginsconf} ) {
@@ -1911,6 +1911,9 @@ if ( $api eq "dex_gecko" ) {
         } elsif ( $base eq "NZDS-PLG20" ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"NZD"}; } else { $base_usd_price = 0; }
             if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"nzd"}; } else { $base_btc_price = 0; }
+        } elsif ( ($base eq "JPYC-PLG20") || ($base eq "JJPY-PLG20") ) {
+            if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"JPY"}; } else { $base_usd_price = 0; }
+            if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"jpy"}; } else { $base_btc_price = 0; }
         } elsif ( $base eq "JCHF-PLG20" ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"CHF"}; } else { $base_usd_price = 0; }
             if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"chf"}; } else { $base_btc_price = 0; }
@@ -2270,7 +2273,7 @@ if ( $api eq "dex_gecko" ) {
                     dex_setprice($base,$coin,$bid,$ask,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin,$askmargin,$coinusdprice,$rel_mintradevol,$base_mintradevol,$rel_balance,$base_balance);
                 }
 
-                Time::HiRes::sleep(0.35);
+                Time::HiRes::sleep(0.3);
             }
         }
     }
