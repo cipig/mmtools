@@ -2100,9 +2100,6 @@ if ( $api eq "dex_gecko" ) {
                 if ( defined $marginsconf->{$coin}{'askmargin'} ) {
                     $askmargin = $marginsconf->{$coin}{'askmargin'} + $marginadd;
                     if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $askmargin = $askmargin * 0.85; }
-                    if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "FIRO") && ($coin eq "FIRO-BEP20")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($base eq "FLUX") && ($coin eq "FLUX-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
-                        $askmargin = $askmargin/1.5;
-                    }
                     my $high = $price + $price * $askmargin;
                     if ( $high < 0.000000012 ) {
                         $price = 0;
@@ -2115,9 +2112,6 @@ if ( $api eq "dex_gecko" ) {
                 if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
                     $bidmargin = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
                     if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $bidmargin = $bidmargin * 0.85; }
-                    if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "FIRO") && ($coin eq "FIRO-BEP20")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($base eq "FLUX") && ($coin eq "FLUX-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
-                        $bidmargin = $bidmargin/1.5;
-                    }
                     if ( $bidmargin > 0.99 ) { $bidmargin = 0.99; }
                     my $low = $price - $price * $bidmargin;
                     if ( $low < 0.000000011 ) {
