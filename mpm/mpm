@@ -90,7 +90,7 @@ sub paprika_ticker {
     my $paprika_id = $_[0];
     my $url = "https://api.coinpaprika.com/v1/tickers/".$paprika_id;
     my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
+    #$ua->agent($useragent);
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
