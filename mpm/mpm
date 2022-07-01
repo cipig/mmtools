@@ -64,6 +64,48 @@ sub paprika_latest_price {
 }
 
 
+sub paprika_price {
+    my $base = $_[0];
+    my $rel = $_[1];
+    my $amount = $_[2];
+    my $url = "https://api.coinpaprika.com/v1/price-converter?base_currency_id=".$base."&quote_currency_id=".$rel."&amount=".$amount;
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
+sub paprika_ticker {
+    my $paprika_id = $_[0];
+    my $url = "https://api.coinpaprika.com/v1/tickers/".$paprika_id;
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            #print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub gecko_latest_price {
     my $url = "https://api.coingecko.com/api/v3/simple/price?ids=".$_[0]."&vs_currencies=btc,usd,cad,sgd,chf,cny,nzd,jpy&include_24hr_change=true";
     my $ua = LWP::UserAgent->new;
@@ -225,27 +267,6 @@ sub dex_ticker_24h {
             #print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
             return 1;
-        }
-}
-
-
-sub paprika_price {
-    my $base = $_[0];
-    my $rel = $_[1];
-    my $amount = $_[2];
-    my $url = "https://api.coinpaprika.com/v1/price-converter?base_currency_id=".$base."&quote_currency_id=".$rel."&amount=".$amount;
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    my $req = HTTP::Request->new(GET => $url);
-    $req->header('content-type' => 'application/json');
-    my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
         }
 }
 
@@ -1950,6 +1971,7 @@ if ( $api eq "dex_gecko" ) {
                 my $kucoin_usd_symbol = $marginsconf->{$coin}{'kucoin_usd_symbol'};
                 my $hitbtc_btc_symbol = $marginsconf->{$coin}{'hitbtc_btc_symbol'};
                 my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
+                my $paprika_id = $marginsconf->{$coin}{'paprika_id'};
                 my $sane_price = $marginsconf->{$coin}{'sane_price'};
                 my $southxchange_btc_symbol = $marginsconf->{$coin}{'southxchange_btc_symbol'};
                 my $komodolive_usd_symbol = $marginsconf->{$coin}{'komodolive_usd_symbol'};
@@ -2031,6 +2053,14 @@ if ( $api eq "dex_gecko" ) {
                         $price = ( from_json($crex24_price)->[0]{"ask"} + $crex24_bid + from_json($crex24_price)->[0]{"last"} ) / 3 / $base_btc_price;
                         $coinusdprice = ( from_json($crex24_price)->[0]{"ask"} + $crex24_bid + from_json($crex24_price)->[0]{"last"} ) / 3 * $btcusdprice;
                         $change = abs(from_json($crex24_price)->[0]{"percentChange"});
+                    }
+                } elsif ( defined $paprika_id ) {
+                    my $paprika_price = paprika_ticker($paprika_id);
+                    if ( $paprika_price ne "1" ) {
+                        $price = from_json($paprika_price)->{"quotes"}{"USD"}{"price"} / $base_usd_price;
+                        $coinusdprice = from_json($paprika_price)->{"quotes"}{"USD"}{"price"};
+                        $change = abs(from_json($paprika_price)->{"quotes"}{"USD"}{"percent_change_24h"});
+                        print "###### price $price, coinusdprice $coinusdprice, change $change\n";
                     }
                 } elsif ( defined $bittrex_btc_symbol ) {
                     my $bittrex_price = bittrex_latest_price($bittrex_btc_symbol);
