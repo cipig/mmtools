@@ -148,6 +148,26 @@ sub safetrade_latest_price {
 }
 
 
+sub exbitron_latest_price {
+    my $url = "https://www.exbitron.com/api/v2/peatio/public/markets/".$_[0]."/tickers";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub komodolive_latest_price {
     my $coin = $_[0];
     my $url = "https://myprice.cipig.net:1717/api/v1/ticker_infos";
@@ -1762,7 +1782,8 @@ if ( $api eq "dex_gecko" ) {
 
         my $gecko_price = gecko_latest_price($ids);
         my $freiexchange_price = freiexchange_latest_price();
-        my $smartfi_price = smartfi_latest_price();
+        #my $smartfi_price = smartfi_latest_price();
+        my $smartfi_price = 1;
         my $usdrate_price = komodolive_usdrates();
         #print Dumper($smartfi_price);
 
@@ -1983,6 +2004,7 @@ if ( $api eq "dex_gecko" ) {
                 my $kucoin_usd_symbol = $marginsconf->{$coin}{'kucoin_usd_symbol'};
                 my $hitbtc_btc_symbol = $marginsconf->{$coin}{'hitbtc_btc_symbol'};
                 my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
+                my $exbitron_usd_symbol = $marginsconf->{$coin}{'exbitron_usd_symbol'};
                 my $paprika_id = $marginsconf->{$coin}{'paprika_id'};
                 my $sane_price = $marginsconf->{$coin}{'sane_price'};
                 my $southxchange_btc_symbol = $marginsconf->{$coin}{'southxchange_btc_symbol'};
@@ -2029,6 +2051,13 @@ if ( $api eq "dex_gecko" ) {
                         $price = ( from_json($safetrade_price)->{"ticker"}{"sell"} + from_json($safetrade_price)->{"ticker"}{"buy"} + from_json($safetrade_price)->{"ticker"}{"last"} ) / 3 / $base_btc_price;
                         $coinusdprice = ( from_json($safetrade_price)->{"ticker"}{"sell"} + from_json($safetrade_price)->{"ticker"}{"buy"} + from_json($safetrade_price)->{"ticker"}{"last"} ) / 3 * $btcusdprice;
                         $change = (1 - from_json($safetrade_price)->{"ticker"}{"low"} / from_json($safetrade_price)->{"ticker"}{"high"}) * 100;
+                    }
+                } elsif ( defined $exbitron_usd_symbol ) {
+                    my $exbitron_price = exbitron_latest_price($exbitron_usd_symbol);
+                    if ( $exbitron_price ne "1" ) {
+                        $price = from_json($exbitron_price)->{"ticker"}{"last"} / $base_usd_price;
+                        $coinusdprice = from_json($exbitron_price)->{"ticker"}{"last"};
+                        $change = (1 - from_json($exbitron_price)->{"ticker"}{"low"} / from_json($exbitron_price)->{"ticker"}{"high"}) * 100;
                     }
                 } elsif ( defined $southxchange_btc_symbol ) {
                     my $southxchange_price = southxchange_latest_price($southxchange_btc_symbol);
