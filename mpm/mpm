@@ -2057,7 +2057,7 @@ if ( $api eq "dex_gecko" ) {
                     if ( $exbitron_price ne "1" ) {
                         $price = from_json($exbitron_price)->{"ticker"}{"last"} / $base_usd_price;
                         $coinusdprice = from_json($exbitron_price)->{"ticker"}{"last"};
-                        $change = (1 - from_json($exbitron_price)->{"ticker"}{"low"} / from_json($exbitron_price)->{"ticker"}{"high"}) * 100;
+                        if ( from_json($exbitron_price)->{"ticker"}{"high"} ne "0.0" ) { $change = (1 - from_json($exbitron_price)->{"ticker"}{"low"} / from_json($exbitron_price)->{"ticker"}{"high"}) * 100; }
                     }
                 } elsif ( defined $southxchange_btc_symbol ) {
                     my $southxchange_price = southxchange_latest_price($southxchange_btc_symbol);
