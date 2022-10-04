@@ -2351,13 +2351,16 @@ if ( $api eq "dex_gecko" ) {
                     }
                 }
 
-                my $saneaskmargin = 0;
-                my $sanebidmargin = 0;
-                if ( defined $marginsconf->{$coin}{'askmargin'} ) { $saneaskmargin = $marginsconf->{$coin}{'askmargin'}; }
-                if ( defined $marginsconf->{$coin}{'bidmargin'} ) { $sanebidmargin = $marginsconf->{$coin}{'bidmargin'}; }
-                if ((defined $sane_price) && (($coinusdprice < $sane_price - $sane_price * ($sanebidmargin + 0.1)) || ($coinusdprice > $sane_price + $sane_price * ($saneaskmargin + 0.1)))) {
-                    print "================= bullshit_price $coinusdprice for $coin, sane_price $sane_price\n";
-                    $price = 0;
+                if (defined $sane_price) {
+                    my $saneaskmargin = 0;
+                    my $sanebidmargin = 0;
+                    if ( defined $marginsconf->{$coin}{'askmargin'} ) { $saneaskmargin = $marginsconf->{$coin}{'askmargin'}; }
+                    if ( defined $marginsconf->{$coin}{'bidmargin'} ) { $sanebidmargin = $marginsconf->{$coin}{'bidmargin'}; }
+                    my $sanemargin = ($saneaskmargin + $sanebidmargin) / 2 + 0.1;
+                    if (($coinusdprice < $sane_price - $sane_price * $sanemargin) || ($coinusdprice > $sane_price + $sane_price * $sanemargin)) {
+                        print "================= bullshit_price $coinusdprice for $coin, sane_price $sane_price\n";
+                        $price = 0;
+                    }
                 }
 
                 if ($price eq "0") {
