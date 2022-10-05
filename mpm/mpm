@@ -2097,9 +2097,17 @@ if ( $api eq "dex_gecko" ) {
                 } elsif ( defined $komodolive_usd_symbol ) {
                     my $komodolive_price = komodolive_latest_price($komodolive_usd_symbol);
                     if ( $komodolive_price ne "1" ) {
-                        $coinusdprice = from_json($komodolive_price)->{"last_price"};
-                        $price = $coinusdprice / $base_usd_price;
-                        $change = abs(from_json($komodolive_price)->{"change_24h"});
+                        my $now = time();
+                        my $last_updated = from_json($komodolive_price)->{"last_updated_timestamp"};
+                        my $timediff = $now - $last_updated;
+                        print "================ now: $now, last_updated: $last_updated, diff: $timediff\n";
+                        if ( $timediff < 14400 ) {
+                            $coinusdprice = from_json($komodolive_price)->{"last_price"};
+                            $price = $coinusdprice / $base_usd_price;
+                            $change = abs(from_json($komodolive_price)->{"change_24h"});
+                        } else {
+                            print "================ price too old: $timediff\n";
+                        }
                     }
                 } elsif ( (defined $freiexchange_btc_symbol) && ($freiexchange_price ne "1") ) {
                     $price = ( from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"last"} ) / 3 / $base_btc_price;
