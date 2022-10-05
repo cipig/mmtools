@@ -2100,13 +2100,12 @@ if ( $api eq "dex_gecko" ) {
                         my $now = time();
                         my $last_updated = from_json($komodolive_price)->{"last_updated_timestamp"};
                         my $timediff = $now - $last_updated;
-                        print "================ now: $now, last_updated: $last_updated, diff: $timediff\n";
                         if ( $timediff < 14400 ) {
                             $coinusdprice = from_json($komodolive_price)->{"last_price"};
                             $price = $coinusdprice / $base_usd_price;
                             $change = abs(from_json($komodolive_price)->{"change_24h"});
                         } else {
-                            print "================ price too old: $timediff\n";
+                            print "================ price too old ================ now: $now, last_updated: $last_updated, diff: $timediff ================\n";
                         }
                     }
                 } elsif ( (defined $freiexchange_btc_symbol) && ($freiexchange_price ne "1") ) {
