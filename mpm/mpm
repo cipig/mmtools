@@ -2078,10 +2078,11 @@ if ( $api eq "dex_gecko" ) {
                     if ( $safetrade_price ne "1" ) {
                         if ( from_json($safetrade_price)->{"ticker"}{"buy"} ne "0.0" ) {
                             $price = ( from_json($safetrade_price)->{"ticker"}{"sell"} + from_json($safetrade_price)->{"ticker"}{"buy"} + from_json($safetrade_price)->{"ticker"}{"last"} ) / 3 / $base_btc_price;
+                            $coinusdprice = ( from_json($safetrade_price)->{"ticker"}{"sell"} + from_json($safetrade_price)->{"ticker"}{"buy"} + from_json($safetrade_price)->{"ticker"}{"last"} ) / 3 * $btcusdprice;
                         } else {
                             $price = from_json($safetrade_price)->{"ticker"}{"last"} / $base_btc_price;
+                            $coinusdprice = from_json($safetrade_price)->{"ticker"}{"last"} * $btcusdprice;
                         }
-                        $coinusdprice = ( from_json($safetrade_price)->{"ticker"}{"sell"} + from_json($safetrade_price)->{"ticker"}{"buy"} + from_json($safetrade_price)->{"ticker"}{"last"} ) / 3 * $btcusdprice;
                         if ( from_json($safetrade_price)->{"ticker"}{"high"} ne "0.0" ) { $change = (1 - from_json($safetrade_price)->{"ticker"}{"low"} / from_json($safetrade_price)->{"ticker"}{"high"}) * 100; }
                     }
                 } elsif ( defined $exbitron_usd_symbol ) {
