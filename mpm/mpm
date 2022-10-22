@@ -2048,7 +2048,12 @@ if ( $api eq "dex_gecko" ) {
                 }
 
                 if ( (defined $geckoid) && ($gecko_price ne "1") ) {
-                    $price = from_json($gecko_price)->{$geckoid}{"usd"} / $base_usd_price;
+                    my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                    if (!defined $geckousdprice) {
+                        print "============== geckoid: $geckoid undefined\n";
+                    } else {
+                        $price = $geckousdprice / $base_usd_price;
+                    }
                     $coinusdprice = from_json($gecko_price)->{$geckoid}{"usd"};
                     if ( defined from_json($gecko_price)->{$geckoid}{"usd_24h_change"} ) { $change = abs(from_json($gecko_price)->{$geckoid}{"usd_24h_change"}); }
                     if ( (($coin ~~ @stablecoins_usd) || ($coin ~~ @stablecoins_other)) && (defined from_json($gecko_price)->{$geckoid}{"btc_24h_change"}) ) { $change = abs(from_json($gecko_price)->{$geckoid}{"btc_24h_change"}); }
