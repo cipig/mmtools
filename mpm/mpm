@@ -148,6 +148,26 @@ sub safetrade_latest_price {
 }
 
 
+sub graviex_latest_price {
+    my $url = "https://graviex.net//webapi/v3/tickers/".$_[0].".json";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub exbitron_latest_price {
     my $url = "https://www.exbitron.com/api/v2/peatio/public/markets/".$_[0]."/tickers";
     my $ua = LWP::UserAgent->new;
@@ -2032,6 +2052,7 @@ if ( $api eq "dex_gecko" ) {
                 my $paprika_id = $marginsconf->{$coin}{'paprika_id'};
                 my $sane_price = $marginsconf->{$coin}{'sane_price'};
                 my $southxchange_btc_symbol = $marginsconf->{$coin}{'southxchange_btc_symbol'};
+                my $graviex_btc_symbol = $marginsconf->{$coin}{'graviex_btc_symbol'};
                 my $komodolive_usd_symbol = $marginsconf->{$coin}{'komodolive_usd_symbol'};
                 my $dextrade_usd_symbol = $marginsconf->{$coin}{'dextrade_usd_symbol'};
                 my $smartfi_usd_symbol = $marginsconf->{$coin}{'smartfi_usd_symbol'};
@@ -2107,6 +2128,13 @@ if ( $api eq "dex_gecko" ) {
                         $price = ( from_json($southxchange_price)->{"Bid"} + from_json($southxchange_price)->{"Ask"} + from_json($southxchange_price)->{"Last"} ) / 3 / $base_btc_price;
                         $coinusdprice = ( from_json($southxchange_price)->{"Bid"} + from_json($southxchange_price)->{"Ask"} + from_json($southxchange_price)->{"Last"} ) / 3 * $btcusdprice;
                         $change = abs(from_json($southxchange_price)->{"Variation24Hr"});
+                    }
+                } elsif ( defined $graviex_btc_symbol ) {
+                    my $graviex_price = graviex_latest_price($graviex_btc_symbol);
+                    if ( $graviex_price ne "1" ) {
+                        $price = ( from_json($graviex_price)->{"buy"} + from_json($graviex_price)->{"sell"} + from_json($graviex_price)->{"last"} ) / 3 / $base_btc_price;
+                        $coinusdprice = ( from_json($graviex_price)->{"buy"} + from_json($graviex_price)->{"sell"} + from_json($graviex_price)->{"last"} ) / 3 * $btcusdprice;
+                        $change = (1 - from_json($graviex_price)->{"low"} / from_json($graviex_price)->{"high"}) * 100;
                     }
                 } elsif ( defined $komodolive_usd_symbol ) {
                     my $komodolive_price = komodolive_latest_price($komodolive_usd_symbol);
