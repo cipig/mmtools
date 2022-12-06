@@ -1368,11 +1368,11 @@ sub coinex_setprice {
     my $bid = undef;
     my $ask = undef;
     if ( $coin eq "USDT" ) {
-        $bid = sprintf("%.4f",$_[2]);
-        $ask = sprintf("%.4f",$_[3]);
+        $bid = sprintf("%.5f",$_[2]);
+        $ask = sprintf("%.5f",$_[3]);
     } else {
-        $bid = sprintf("%.8f",$_[2]);
-        $ask = sprintf("%.8f",$_[3]);
+        $bid = sprintf("%.9f",$_[2]);
+        $ask = sprintf("%.9f",$_[3]);
     }
     my $quantity = sprintf("%u",$_[4]);
     my $url = "https://api.coinex.com/v1/order/limit";
@@ -2592,16 +2592,13 @@ if ( $api eq "dex_gecko" ) {
         Time::HiRes::sleep(1);
 
         my $kucoin_book_price = kucoin_book_price($base,$coin);
-        my $cex_price = sprintf("%.8f", ($kucoin_book_price->{'bestBid'} + $kucoin_book_price->{'bestAsk'})/2);
-#        my $binance_book_price = decode_json(binance_book_price($base,$coin));
-#        my $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
+        my $cex_price = sprintf("%.9f", ($kucoin_book_price->{'bestBid'} + $kucoin_book_price->{'bestAsk'})/2);
 
         my $kucoin_depth = kucoin_depth($base,$coin);
 
         if ( ($kucoin_depth ne "1") && ($kucoin_book_price ne "1") ) {
-#        if ( ($kucoin_depth ne "1") && ($binance_book_price ne "1") ) {
-            my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_1));
-            my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_1));
+            my $maxbidprice = sprintf("%.9f", ($cex_price - $cex_price * $bidmargin_1));
+            my $minaskprice = sprintf("%.9f", ($cex_price + $cex_price * $askmargin_1));
             if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
                 $cex_bid_price_1 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_1,$coin) + 0.00010000;
                 $cex_ask_price_1 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_1,$coin) - 0.00010000;
@@ -2615,8 +2612,8 @@ if ( $api eq "dex_gecko" ) {
             if ( ( $cex_bid_price_1 eq "0.00000001" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = $maxbidprice; }
             if ( ( $cex_ask_price_1 eq "0.00000001" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = $minaskprice; }
 
-            $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_2));
-            $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_2));
+            $maxbidprice = sprintf("%.9f", ($cex_price - $cex_price * $bidmargin_2));
+            $minaskprice = sprintf("%.9f", ($cex_price + $cex_price * $askmargin_2));
             if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
                 $cex_bid_price_2 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_2,$coin) + 0.00010000;
                 $cex_ask_price_2 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_2,$coin) - 0.00010000;
@@ -2630,8 +2627,8 @@ if ( $api eq "dex_gecko" ) {
             if ( ( $cex_bid_price_2 eq "0.00000001" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
             if ( ( $cex_ask_price_2 eq "0.00000001" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = $minaskprice; }
 
-            $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_3));
-            $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_3));
+            $maxbidprice = sprintf("%.9f", ($cex_price - $cex_price * $bidmargin_3));
+            $minaskprice = sprintf("%.9f", ($cex_price + $cex_price * $askmargin_3));
             if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
                 $cex_bid_price_3 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_3,$coin) + 0.00010000;
                 $cex_ask_price_3 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_3,$coin) - 0.00010000;
@@ -2882,45 +2879,34 @@ if ( $api eq "dex_gecko" ) {
         coinex_cancelorders($base,$coin);
 
         my $coinex_latest_price = decode_json(coinex_latest_price($base.$coin))->{'data'}{'ticker'};
-        my $cex_price = sprintf("%.8f", ($coinex_latest_price->{'buy'} + $coinex_latest_price->{'sell'})/2);
-        #print "coinex: $cex_price\n";
+        my $cex_price = sprintf("%.9f", ($coinex_latest_price->{'buy'} + $coinex_latest_price->{'sell'})/2);
 
-#        my $binance_book_price = decode_json(binance_book_price($base,$coin));
-#        if ( $coin eq "BTC" ) {
-#            $cex_price = sprintf("%.8f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
-#            print "binance: $cex_price\n";
-#        } elsif ( $coin eq "USDT" ) {
-#            $cex_price = sprintf("%.4f", ($binance_book_price->{'bidPrice'} + $binance_book_price->{'askPrice'})/2);
-#            print "binance: $cex_price\n";
-#        } else {
-#            $cex_price = decode_json(coinex_latest_price($base.$coin))->{'data'}{'ticker'}{'last'};
-#        }
         my $coinex_depth = coinex_depth($base,$coin);
 
         if ( $coinex_depth ne "1" ) {
-            my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_1));
-            my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_1));
+            my $maxbidprice = sprintf("%.9f", ($cex_price - $cex_price * $bidmargin_1));
+            my $minaskprice = sprintf("%.9f", ($cex_price + $cex_price * $askmargin_1));
             if ( $coin eq "USDT" ) {
-                $cex_bid_price_1 = sprintf("%.4f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_1,$coin) + 0.00010000));
-                $cex_ask_price_1 = sprintf("%.4f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_1,$coin) - 0.00010000));
+                $cex_bid_price_1 = sprintf("%.5f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_1,$coin) + 0.000010000));
+                $cex_ask_price_1 = sprintf("%.5f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_1,$coin) - 0.000010000));
             } else {
-                $cex_bid_price_1 = sprintf("%.8f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_1,$coin) + 0.00000001));
-                $cex_ask_price_1 = sprintf("%.8f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_1,$coin) - 0.00000001));
+                $cex_bid_price_1 = sprintf("%.9f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_1,$coin) + 0.000000001));
+                $cex_ask_price_1 = sprintf("%.9f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_1,$coin) - 0.000000001));
             }
-            if ( ( $cex_bid_price_1 eq "0.00000001" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = $maxbidprice; }
-            if ( ( $cex_ask_price_1 eq "0.00000001" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = $minaskprice; }
+            if ( ( $cex_bid_price_1 eq "0.000000001" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = $maxbidprice; }
+            if ( ( $cex_ask_price_1 eq "0.000000001" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = $minaskprice; }
 
-            $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_2));
-            $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_2));
+            $maxbidprice = sprintf("%.9f", ($cex_price - $cex_price * $bidmargin_2));
+            $minaskprice = sprintf("%.9f", ($cex_price + $cex_price * $askmargin_2));
             if ( $coin eq "USDT" ) {
-                $cex_bid_price_2 = sprintf("%.4f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_2,$coin) + 0.00010000));
-                $cex_ask_price_2 = sprintf("%.4f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_2,$coin) - 0.00010000));
+                $cex_bid_price_2 = sprintf("%.5f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_2,$coin) + 0.000010000));
+                $cex_ask_price_2 = sprintf("%.5f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_2,$coin) - 0.000010000));
             } else {
-                $cex_bid_price_2 = sprintf("%.8f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_2,$coin) + 0.00000001));
-                $cex_ask_price_2 = sprintf("%.8f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_2,$coin) - 0.00000001));
+                $cex_bid_price_2 = sprintf("%.9f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_2,$coin) + 0.000000001));
+                $cex_ask_price_2 = sprintf("%.9f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_2,$coin) - 0.000000001));
             }
-            if ( ( $cex_bid_price_2 eq "0.00000001" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
-            if ( ( $cex_ask_price_2 eq "0.00000001" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = $minaskprice; }
+            if ( ( $cex_bid_price_2 eq "0.000000001" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
+            if ( ( $cex_ask_price_2 eq "0.000000001" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = $minaskprice; }
 
             coinex_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
             coinex_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
