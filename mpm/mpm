@@ -1035,6 +1035,9 @@ sub kucoin_setprice {
     if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
         $bid = sprintf("%.4f",$_[2]);
         $ask = sprintf("%.4f",$_[3]);
+    } elsif (( $coin eq "BTC" ) && ( $base eq "KMD" )) {
+        $bid = sprintf("%.9f",$_[2]);
+        $ask = sprintf("%.9f",$_[3]);
     } else {
         $bid = sprintf("%.8f",$_[2]);
         $ask = sprintf("%.8f",$_[3]);
@@ -2232,7 +2235,7 @@ if ( $api eq "dex_gecko" ) {
                 my $marginadd = 0;
                 if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "FIRO") && ($coin eq "FIRO-BEP20")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($base eq "FLUX") && ($coin eq "FLUX-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
                     $price = 1;
-                } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usdrate_symbol) ) {
+                } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usdrate_symbol) || (defined $kucoin_usd_symbol) ) {
                     $marginadd = max($change,$base_24h_change)/100/4.5;
                 } else {
                     $marginadd = max($change,$base_24h_change)/100/3.5;
@@ -2602,6 +2605,9 @@ if ( $api eq "dex_gecko" ) {
             if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
                 $cex_bid_price_1 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_1,$coin) + 0.00010000;
                 $cex_ask_price_1 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_1,$coin) - 0.00010000;
+            } elsif (( $coin eq "BTC" ) && ( $base eq "KMD" )) {
+                $cex_bid_price_1 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_1,$coin) + 0.000000001;
+                $cex_ask_price_1 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_1,$coin) - 0.000000001;
             } else {
                 $cex_bid_price_1 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_1,$coin) + 0.00000001;
                 $cex_ask_price_1 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_1,$coin) - 0.00000001;
@@ -2614,6 +2620,9 @@ if ( $api eq "dex_gecko" ) {
             if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
                 $cex_bid_price_2 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_2,$coin) + 0.00010000;
                 $cex_ask_price_2 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_2,$coin) - 0.00010000;
+            } elsif (( $coin eq "BTC" ) && ( $base eq "KMD" )) {
+                $cex_bid_price_2 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_2,$coin) + 0.000000001;
+                $cex_ask_price_2 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_2,$coin) - 0.000000001;
             } else {
                 $cex_bid_price_2 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_2,$coin) + 0.00000001;
                 $cex_ask_price_2 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_2,$coin) - 0.00000001;
@@ -2626,6 +2635,9 @@ if ( $api eq "dex_gecko" ) {
             if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
                 $cex_bid_price_3 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_3,$coin) + 0.00010000;
                 $cex_ask_price_3 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_3,$coin) - 0.00010000;
+            } elsif (( $coin eq "BTC" ) && ( $base eq "KMD" )) {
+                $cex_bid_price_3 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_3,$coin) + 0.000000001;
+                $cex_ask_price_3 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_3,$coin) - 0.000000001;
             } else {
                 $cex_bid_price_3 = calc_bestprice_sum($kucoin_depth->{'bids'},$maxsum_3,$coin) + 0.00000001;
                 $cex_ask_price_3 = calc_bestprice_sum($kucoin_depth->{'asks'},$maxsum_3,$coin) - 0.00000001;
