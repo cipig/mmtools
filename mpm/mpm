@@ -2318,8 +2318,8 @@ if ( $api eq "dex_gecko" ) {
                     if ( ($erc20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $erc20fee * 15 / $coinusdprice;
-                        $minbidvolume = $erc20fee * 15 / $base_usd_price;
+                        $minaskvolume = $erc20fee * 30 / $coinusdprice;
+                        $minbidvolume = $erc20fee * 30 / $base_usd_price;
                     }
                 } elsif ($type eq "qrc20") {
                     if ( ($qrc20fee eq "1") || ($coinusdprice eq "0") ) {
