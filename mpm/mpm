@@ -2566,7 +2566,7 @@ if ( $api eq "dex_gecko" ) {
 
 
 } elsif ( $api eq "kucoin" ) {
-    my $json = read_file("$cwd/mpm.conf.kucoin");
+    my $json = read_file("$cwd/mpm.conf.kucoin.$base");
     my $marginsconf = decode_json($json);
     #my $marginadd = binance_volat();
     my $marginadd = 0;
