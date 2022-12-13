@@ -1130,7 +1130,7 @@ sub mandala_setprice {
     } elsif (($coin eq "BTC") && ($base eq "LTC")) {
         $bid = sprintf("%.6f",$_[2]);
         $ask = sprintf("%.6f",$_[3]);
-    } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+    } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" ) || ( $coin eq "BNB" )) {
         $bid = sprintf("%.4f",$_[2]);
         $ask = sprintf("%.4f",$_[3]);
     } elsif ( $coin eq "ETH" ) {
@@ -2687,7 +2687,7 @@ if ( $api eq "dex_gecko" ) {
             } elsif (($coin eq "BTC") && ($base eq "LTC")) {
                 $cex_bid_price_1 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_1,$coin) + 0.000001;
                 $cex_ask_price_1 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_1,$coin) - 0.000001;
-            } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+            } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" ) || ( $coin eq "BNB" )) {
                 $cex_bid_price_1 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_1,$coin) + 0.00010000;
                 $cex_ask_price_1 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_1,$coin) - 0.00010000;
             } elsif ( $coin eq "ETH" ) {
@@ -2711,7 +2711,7 @@ if ( $api eq "dex_gecko" ) {
             } elsif (($coin eq "BTC") && ($base eq "LTC")) {
                 $cex_bid_price_2 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_2,$coin) + 0.000001;
                 $cex_ask_price_2 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_2,$coin) - 0.000001;
-            } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+            } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" ) || ( $coin eq "BNB" )) {
                 $cex_bid_price_2 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_2,$coin) + 0.00010000;
                 $cex_ask_price_2 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_2,$coin) - 0.00010000;
             } elsif ( $coin eq "ETH" ) {
@@ -2735,7 +2735,7 @@ if ( $api eq "dex_gecko" ) {
             } elsif (($coin eq "BTC") && ($base eq "LTC")) {
                 $cex_bid_price_3 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_3,$coin) + 0.000001;
                 $cex_ask_price_3 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_3,$coin) - 0.000001;
-            } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+            } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" ) || ( $coin eq "BNB" )) {
                 $cex_bid_price_3 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_3,$coin) + 0.00010000;
                 $cex_ask_price_3 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_3,$coin) - 0.00010000;
             } elsif ( $coin eq "ETH" ) {
