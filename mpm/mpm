@@ -997,7 +997,7 @@ sub binance_setprice {
     my $req = HTTP::Request->new(POST => 'https://api.binance.com/api/v3/order');
     $req->header('X-MBX-APIKEY' => $binance_apikey);
 
-    print "$base/$coin size ".sprintf("%04d",$quantity);
+    print "$base/$coin ".sprintf("%04d",$quantity);
 
     if ( defined $bid ) {
         my $command = "symbol=".$base.$coin."&side=BUY&type=LIMIT_MAKER&newOrderRespType=RESULT&quantity=".$quantity."&price=".$bid."&newClientOrderId=buy".$coin.$base.$quantity."&recvWindow=15000&timestamp=".time()*1000;
@@ -1052,7 +1052,7 @@ sub kucoin_setprice {
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => 'https://api.kucoin.com/api/v1/orders');
 
-    print "$base/$coin size ".sprintf("%04d",$quantity);
+    print "$base/$coin ".sprintf("%04d",$quantity);
 
     if ( defined $bid ) {
         my $tonce = time()*1000;
@@ -1140,7 +1140,7 @@ sub mandala_setprice {
         $bid = sprintf("%.8f",$_[2]);
         $ask = sprintf("%.8f",$_[3]);
     }
-    my $quantity = sprintf("%u",$_[4]);
+    my $quantity = sprintf("%.2f",$_[4]);
 
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
@@ -1149,10 +1149,14 @@ sub mandala_setprice {
     $req->header('X-MBX-APIKEY' => $mandala_apikey);
     $req->header('content-type' => 'application/x-www-form-urlencoded');
 
-    print "$base/$coin size ".sprintf("%04d",$quantity);
+    if ( $base eq "LTC" ) {
+        print "$base/$coin ".sprintf("%.1f",$quantity);
+    } else {
+        print "$base/$coin ".sprintf("%04d",$quantity);
+    }
 
     if ( defined $bid ) {
-        my $command = "symbol=".$base."_".$coin."&side=0&type=1&quantity=".$quantity."&price=".$bid."&clientId=buy".$coin.$base.$quantity."&recvWindow=15000&timestamp=".time()*1000;
+        my $command = "symbol=".$base."_".$coin."&side=0&type=1&quantity=".$quantity."&price=".$bid."&clientId=buy".$coin.$base.sprintf("%u",$quantity)."&recvWindow=15000&timestamp=".time()*1000;
         my $signature = hmac_sha256_hex($command, $mandala_seckey);
         my $body = $command."&signature=".$signature;
         $req->content($body);
@@ -1166,7 +1170,7 @@ sub mandala_setprice {
     }
 
     if ( defined $ask ) {
-        my $command = "symbol=".$base."_".$coin."&side=1&type=1&quantity=".$quantity."&price=".$ask."&clientId=sell".$coin.$base.$quantity."&recvWindow=15000&timestamp=".time()*1000;
+        my $command = "symbol=".$base."_".$coin."&side=1&type=1&quantity=".$quantity."&price=".$ask."&clientId=sell".$coin.$base.sprintf("%u",$quantity)."&recvWindow=15000&timestamp=".time()*1000;
         my $signature = hmac_sha256_hex($command, $mandala_seckey);
         my $body = $command."&signature=".$signature;
         $req->content($body);
@@ -1202,7 +1206,7 @@ sub bitvavo_setprice {
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
 
-    print "$base/$coin size ".sprintf("%04d",$quantity);
+    print "$base/$coin ".sprintf("%04d",$quantity);
 
     if ( defined $bid ) {
         my $body = '{"market":"'.$base.'-'.$coin.'","side":"buy","price":"'.$bid.'","amount":"'.$quantity.'","orderType":"limit","postOnly":true,"responseRequired":false}';
@@ -1251,7 +1255,7 @@ sub crex24_setprice {
     my $nonce = $_[5];
     my $urlpath = "/v2/trading/placeOrder";
 
-    print "$base/$coin size ".sprintf("%03d",$quantity);
+    print "$base/$coin ".sprintf("%03d",$quantity);
 
     if ( defined $bid ) {
         my $body = '{"instrument":"'.$base.'-'.$coin.'","side":"buy","volume":'.$quantity.',"price":'.$bid.'}';
@@ -1312,7 +1316,7 @@ sub vcc_setprice {
     my $quantity = sprintf("%u",$_[4]);
     my $url = "https://vcc.exchange/api/v2/orders";
 
-    print "$_[0]/$_[1] size ".sprintf("%03d",$quantity);
+    print "$_[0]/$_[1] ".sprintf("%03d",$quantity);
 
     if ( defined $bid ) {
         my $tonce = time()*1000;
@@ -1380,7 +1384,7 @@ sub coinex_setprice {
     my $quantity = sprintf("%u",$_[4]);
     my $url = "https://api.coinex.com/v1/order/limit";
 
-    print "$base/$coin size ".sprintf("%03d",$quantity);
+    print "$base/$coin ".sprintf("%03d",$quantity);
 
     if ( defined $bid ) {
         my $tonce = time()*1000;
