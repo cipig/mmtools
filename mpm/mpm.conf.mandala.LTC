@@ -1,0 +1,44 @@
+{
+    "BTC": {
+        "bidmargin_1": 0.0007,
+        "askmargin_1": 0.0007,
+        "quantity_1": 0.3,
+        "maxsum_1": 50,
+        "bidmargin_2": 0.0017,
+        "askmargin_2": 0.0017,
+        "quantity_2": 0.6,
+        "maxsum_2": 350,
+        "bidmargin_3": 0.0027,
+        "askmargin_3": 0.0027,
+        "quantity_3": 1.2,
+        "maxsum_3": 700
+    },
+    "BUSD": {
+        "bidmargin_1": 0.0007,
+        "askmargin_1": 0.0007,
+        "quantity_1": 0.3,
+        "maxsum_1": 50,
+        "bidmargin_2": 0.0017,
+        "askmargin_2": 0.0017,
+        "quantity_2": 0.6,
+        "maxsum_2": 350,
+        "bidmargin_3": 0.0027,
+        "askmargin_3": 0.0027,
+        "quantity_3": 1.2,
+        "maxsum_3": 700
+    },
+    "BNB": {
+        "bidmargin_1": 0.0007,
+        "askmargin_1": 0.0007,
+        "quantity_1": 0.3,
+        "maxsum_1": 10,
+        "bidmargin_2": 0.0017,
+        "askmargin_2": 0.0017,
+        "quantity_2": 0.6,
+        "maxsum_2": 100,
+        "bidmargin_3": 0.0027,
+        "askmargin_3": 0.0027,
+        "quantity_3": 1.2,
+        "maxsum_3": 200
+    }
+}

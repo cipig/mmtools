@@ -1,11 +1,11 @@
 {
     "BTC": {
-        "bidmargin_1": 0.0048,
-        "askmargin_1": 0.0048,
-        "quantity_1": 80,
-        "maxsum_1": 90,
-        "bidmargin_2": 0.0028,
-        "askmargin_2": 0.0028,
+        "bidmargin_1": 0.0064,
+        "askmargin_1": 0.0064,
+        "quantity_1": 30,
+        "maxsum_1": 40,
+        "bidmargin_2": 0.0044,
+        "askmargin_2": 0.0044,
         "quantity_2": 4,
         "maxsum_2": 5
     }

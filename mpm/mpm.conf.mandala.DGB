@@ -1,0 +1,30 @@
+{
+    "BUSD": {
+        "bidmargin_1": 0.0014,
+        "askmargin_1": 0.0014,
+        "quantity_1": 2000,
+        "maxsum_1": 50000,
+        "bidmargin_2": 0.0026,
+        "askmargin_2": 0.0026,
+        "quantity_2": 4000,
+        "maxsum_2": 500000,
+        "bidmargin_3": 0.0046,
+        "askmargin_3": 0.0046,
+        "quantity_3": 8000,
+        "maxsum_3": 900000
+    },
+    "USDT": {
+        "bidmargin_1": 0.0014,
+        "askmargin_1": 0.0014,
+        "quantity_1": 2000,
+        "maxsum_1": 60000,
+        "bidmargin_2": 0.0026,
+        "askmargin_2": 0.0026,
+        "quantity_2": 4000,
+        "maxsum_2": 700000,
+        "bidmargin_3": 0.0046,
+        "askmargin_3": 0.0046,
+        "quantity_3": 8000,
+        "maxsum_3": 2000000
+    }
+}
