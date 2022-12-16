@@ -2,5 +2,5 @@
 while true; do
   date
   ~/mmtools/mpm/mpm binance $1
-  sleep 40
+  sleep 30
 done
