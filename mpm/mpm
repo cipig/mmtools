@@ -979,7 +979,13 @@ sub binance_setprice {
     if ((($coin eq "BUSD") || ($coin eq "USDT")) && ($base eq "DGB")) {
         $bid = sprintf("%.5f",$_[2]);
         $ask = sprintf("%.5f",$_[3]);
-    } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+    } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "USDC")) && ($base eq "LTC")) {
+        $bid = sprintf("%.2f",$_[2]);
+        $ask = sprintf("%.2f",$_[3]);
+    } elsif (($coin eq "BTC") && ($base eq "LTC")) {
+        $bid = sprintf("%.6f",$_[2]);
+        $ask = sprintf("%.6f",$_[3]);
+    } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" ) || ( $coin eq "BNB" )) {
         $bid = sprintf("%.4f",$_[2]);
         $ask = sprintf("%.4f",$_[3]);
     } elsif ( $coin eq "ETH" ) {
@@ -989,7 +995,7 @@ sub binance_setprice {
         $bid = sprintf("%.8f",$_[2]);
         $ask = sprintf("%.8f",$_[3]);
     }
-    my $quantity = sprintf("%u",$_[4]);
+    my $quantity = sprintf("%.2f",$_[4]);
 
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
@@ -997,10 +1003,14 @@ sub binance_setprice {
     my $req = HTTP::Request->new(POST => 'https://api.binance.com/api/v3/order');
     $req->header('X-MBX-APIKEY' => $binance_apikey);
 
-    print "$base/$coin ".sprintf("%04d",$quantity);
+    if ( $base eq "LTC" ) {
+        print "$base/$coin ".sprintf("%.1f",$quantity);
+    } else {
+        print "$base/$coin ".sprintf("%04d",$quantity);
+    }
 
     if ( defined $bid ) {
-        my $command = "symbol=".$base.$coin."&side=BUY&type=LIMIT_MAKER&newOrderRespType=RESULT&quantity=".$quantity."&price=".$bid."&newClientOrderId=buy".$coin.$base.$quantity."&recvWindow=15000&timestamp=".time()*1000;
+        my $command = "symbol=".$base.$coin."&side=BUY&type=LIMIT_MAKER&newOrderRespType=RESULT&quantity=".$quantity."&price=".$bid."&newClientOrderId=buy".$coin.$base.sprintf("%u",$quantity)."&recvWindow=15000&timestamp=".time()*1000;
         my $signature = hmac_sha256_hex($command, $binance_seckey);
         my $body = $command."&signature=".$signature;
         $req->content($body);
@@ -1013,7 +1023,7 @@ sub binance_setprice {
     }
 
     if ( defined $ask ) {
-	my $command = "symbol=".$base.$coin."&side=SELL&type=LIMIT_MAKER&newOrderRespType=RESULT&quantity=".$quantity."&price=".$ask."&newClientOrderId=sell".$coin.$base.$quantity."&recvWindow=15000&timestamp=".time()*1000;
+	my $command = "symbol=".$base.$coin."&side=SELL&type=LIMIT_MAKER&newOrderRespType=RESULT&quantity=".$quantity."&price=".$ask."&newClientOrderId=sell".$coin.$base.sprintf("%u",$quantity)."&recvWindow=15000&timestamp=".time()*1000;
 	my $signature = hmac_sha256_hex($command, $binance_seckey);
         my $body = $command."&signature=".$signature;
         $req->content($body);
@@ -2496,7 +2506,7 @@ if ( $api eq "dex_gecko" ) {
     }
 
 } elsif ( $api eq "binance" ) {
-    my $json = read_file("$cwd/mpm.conf.binance");
+    my $json = read_file("$cwd/mpm.conf.binance.$base");
     my $marginsconf = decode_json($json);
     #my $marginadd = binance_volat();
     my $marginadd = 0;
@@ -2524,7 +2534,17 @@ if ( $api eq "dex_gecko" ) {
         if ( ($binance_depth ne "1") && ($binance_book_price ne "1") ) {
             my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_1));
             my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_1));
-            if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+
+            if ((($coin eq "BUSD") || ($coin eq "USDT")) && ($base eq "DGB")) {
+                $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_1,$coin) + 0.00001000;
+                $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_1,$coin) - 0.00001000;
+            } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "USDC")) && ($base eq "LTC")) {
+                $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_1,$coin) + 0.01000;
+                $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_1,$coin) - 0.01000;
+            } elsif (($coin eq "BTC") && ($base eq "LTC")) {
+                $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_1,$coin) + 0.000001;
+                $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_1,$coin) - 0.000001;
+            } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" ) || ( $coin eq "BNB" )) {
                 $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_1,$coin) + 0.00010000;
                 $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_1,$coin) - 0.00010000;
             } elsif ( $coin eq "ETH" ) {
@@ -2539,7 +2559,16 @@ if ( $api eq "dex_gecko" ) {
 
             $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_2));
             $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_2));
-            if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+            if ((($coin eq "BUSD") || ($coin eq "USDT")) && ($base eq "DGB")) {
+                $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_2,$coin) + 0.00001000;
+                $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_2,$coin) - 0.00001000;
+            } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "USDC")) && ($base eq "LTC")) {
+                $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_2,$coin) + 0.01000;
+                $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_2,$coin) - 0.01000;
+            } elsif (($coin eq "BTC") && ($base eq "LTC")) {
+                $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_2,$coin) + 0.000001;
+                $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_2,$coin) - 0.000001;
+            } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" ) || ( $coin eq "BNB" )) {
                 $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_2,$coin) + 0.00010000;
                 $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_2,$coin) - 0.00010000;
             } elsif ( $coin eq "ETH" ) {
@@ -2554,7 +2583,16 @@ if ( $api eq "dex_gecko" ) {
 
             $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_3));
             $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_3));
-            if (( $coin eq "BUSD" ) || ( $coin eq "USDT" )) {
+            if ((($coin eq "BUSD") || ($coin eq "USDT")) && ($base eq "DGB")) {
+                $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_3,$coin) + 0.00001000;
+                $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_3,$coin) - 0.00001000;
+            } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "USDC")) && ($base eq "LTC")) {
+                $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_3,$coin) + 0.01000;
+                $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_3,$coin) - 0.01000;
+            } elsif (($coin eq "BTC") && ($base eq "LTC")) {
+                $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_3,$coin) + 0.000001;
+                $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_3,$coin) - 0.000001;
+            } elsif (( $coin eq "BUSD" ) || ( $coin eq "USDT" ) || ( $coin eq "BNB" )) {
                 $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_3,$coin) + 0.00010000;
                 $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_3,$coin) - 0.00010000;
             } elsif ( $coin eq "ETH" ) {
@@ -2567,7 +2605,6 @@ if ( $api eq "dex_gecko" ) {
             if ( ( $cex_bid_price_3 eq "0.00000001" ) || ( $cex_bid_price_3 > $maxbidprice ) ) { $cex_bid_price_3 = $maxbidprice; }
             if ( ( $cex_ask_price_3 eq "0.00000001" ) || ( $cex_ask_price_3 < $minaskprice ) ) { $cex_ask_price_3 = $minaskprice; }
 
-            #print "$cex_ask_price_1 $cex_ask_price_2 $cex_ask_price_3\n";
             binance_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
             binance_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
             binance_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity_3);
@@ -2755,7 +2792,6 @@ if ( $api eq "dex_gecko" ) {
             if ( ( $cex_bid_price_3 eq "0.00000001" ) || ( $cex_bid_price_3 > $maxbidprice ) ) { $cex_bid_price_3 = $maxbidprice; }
             if ( ( $cex_ask_price_3 eq "0.00000001" ) || ( $cex_ask_price_3 < $minaskprice ) ) { $cex_ask_price_3 = $minaskprice; }
 
-            #print "$cex_ask_price_1 $cex_ask_price_2 $cex_ask_price_3\n";
             mandala_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
             mandala_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
             mandala_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity_3);
