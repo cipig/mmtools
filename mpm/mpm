@@ -2272,7 +2272,6 @@ if ( $api eq "dex_gecko" ) {
                         $coinusdprice = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 * $ltcusdprice;
                         $change = (1 - from_json($ogre_price)->{"low"} / from_json($ogre_price)->{"high"}) * 100;
                     }
-                    print "================================= price: $price ==== coinusdprice: $coinusdprice ==== change: $change\n";
                 } elsif ( defined $bithumb_usd_symbol ) {
                     my $bithumb_price = bithumb_latest_price($bithumb_usd_symbol);
                     if ( $bithumb_price ne "1" ) {
