@@ -189,7 +189,7 @@ sub exbitron_latest_price {
 
 
 sub ogre_latest_price {
-    my $url = "https://tradeogre.com/api/v1//ticker/".$_[0];
+    my $url = "https://tradeogre.com/api/v1/ticker/".$_[0];
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
