@@ -2102,13 +2102,17 @@ if ( $api eq "dex_gecko" ) {
                 my $change = 0;
                 my $coinusdprice = 0;
                 my $btcusdprice = 0;
+                my $ltcusdprice = 0;
                 my $ethusdprice = 0;
                 if ( $gecko_price ne "1" ) {
                     $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
+                    $ltcusdprice = from_json($gecko_price)->{"litecoin"}{"usd"};
                     $ethusdprice = from_json($gecko_price)->{"ethereum"}{"usd"};
                 } else {
                     my $binance_btcusdprice = binance_latest_price("BTCUSDT");
                     if ( $binance_btcusdprice ne "1" ) { $btcusdprice = from_json($binance_btcusdprice)->{"price"}; }
+                    my $binance_ltcusdprice = binance_latest_price("LTCUSDT");
+                    if ( $binance_ltcusdprice ne "1" ) { $ltcusdprice = from_json($binance_ltcusdprice)->{"price"}; }
                     my $binance_ethusdprice = binance_latest_price("ETHUSDT");
                     if ( $binance_ethusdprice ne "1" ) { $ethusdprice = from_json($binance_ethusdprice)->{"price"}; }
                 }
@@ -2264,8 +2268,8 @@ if ( $api eq "dex_gecko" ) {
                 } elsif ( defined $ogre_ltc_symbol ) {
                     my $ogre_price = ogre_latest_price($ogre_ltc_symbol);
                     if ( $ogre_price ne "1" ) {
-                        $price = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 * $ltc_usd_price / $base_usd_price;
-                        $coinusdprice = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 * $ltc_usd_price;
+                        $price = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 * $ltcusdprice / $base_usd_price;
+                        $coinusdprice = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 * $ltcusdprice;
                         $change = (1 - from_json($ogre_price)->{"low"} / from_json($ogre_price)->{"high"}) * 100;
                     }
                     print "================================= price: $price ==== coinusdprice: $coinusdprice ==== change: $change\n";
