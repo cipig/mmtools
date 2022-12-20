@@ -188,6 +188,26 @@ sub exbitron_latest_price {
 }
 
 
+sub ogre_latest_price {
+    my $url = "https://tradeogre.com/api/v1//ticker/".$_[0];
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub dextrade_latest_price {
     my $url = "https://api.dex-trade.com/v1/public/ticker?pair=".$_[0];
     my $ua = LWP::UserAgent->new;
@@ -2066,6 +2086,7 @@ if ( $api eq "dex_gecko" ) {
                 my $bittrex_usd_symbol = $marginsconf->{$coin}{'bittrex_usd_symbol'};
                 my $coinex_usd_symbol = $marginsconf->{$coin}{'coinex_usd_symbol'};
                 my $kucoin_usd_symbol = $marginsconf->{$coin}{'kucoin_usd_symbol'};
+                my $ogre_ltc_symbol = $marginsconf->{$coin}{'ogre_ltc_symbol'};
                 my $hitbtc_btc_symbol = $marginsconf->{$coin}{'hitbtc_btc_symbol'};
                 my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
                 my $exbitron_usd_symbol = $marginsconf->{$coin}{'exbitron_usd_symbol'};
@@ -2240,6 +2261,14 @@ if ( $api eq "dex_gecko" ) {
                         $coinusdprice = ( from_json($hitbtc_price)->{"ask"} + from_json($hitbtc_price)->{"bid"} + from_json($hitbtc_price)->{"last"} ) / 3 * $btcusdprice;
                         $change = (1 - from_json($hitbtc_price)->{"low"} / from_json($hitbtc_price)->{"high"}) * 100;
                     }
+                } elsif ( defined $ogre_ltc_symbol ) {
+                    my $ogre_price = ogre_latest_price($ogre_ltc_symbol);
+                    if ( $ogre_price ne "1" ) {
+                        $price = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 * $ltc_usd_price / $base_usd_price;
+                        $coinusdprice = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 * $ltc_usd_price;
+                        $change = (1 - from_json($ogre_price)->{"low"} / from_json($ogre_price)->{"high"}) * 100;
+                    }
+                    print "================================= price: $price ==== coinusdprice: $coinusdprice ==== change: $change\n";
                 } elsif ( defined $bithumb_usd_symbol ) {
                     my $bithumb_price = bithumb_latest_price($bithumb_usd_symbol);
                     if ( $bithumb_price ne "1" ) {
