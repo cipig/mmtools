@@ -1002,6 +1002,9 @@ sub binance_setprice {
     } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "USDC")) && ($base eq "LTC")) {
         $bid = sprintf("%.2f",$_[2]);
         $ask = sprintf("%.2f",$_[3]);
+    } elsif ( $base eq "BTC" ) {
+        $bid = sprintf("%.2f",$_[2]);
+        $ask = sprintf("%.2f",$_[3]);
     } elsif (($coin eq "BTC") && ($base eq "LTC")) {
         $bid = sprintf("%.6f",$_[2]);
         $ask = sprintf("%.6f",$_[3]);
@@ -1015,7 +1018,7 @@ sub binance_setprice {
         $bid = sprintf("%.8f",$_[2]);
         $ask = sprintf("%.8f",$_[3]);
     }
-    my $quantity = sprintf("%.2f",$_[4]);
+    my $quantity = sprintf("%.3f",$_[4]);
 
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
@@ -1025,12 +1028,14 @@ sub binance_setprice {
 
     if ( $base eq "LTC" ) {
         print "$base/$coin ".sprintf("%.1f",$quantity);
+    } elsif ( $base eq "BTC" ) {
+        print "$base/$coin ".sprintf("%.3f",$quantity);
     } else {
         print "$base/$coin ".sprintf("%04d",$quantity);
     }
 
     if ( defined $bid ) {
-        my $command = "symbol=".$base.$coin."&side=BUY&type=LIMIT_MAKER&newOrderRespType=RESULT&quantity=".$quantity."&price=".$bid."&newClientOrderId=buy".$coin.$base.sprintf("%u",$quantity)."&recvWindow=15000&timestamp=".time()*1000;
+        my $command = "symbol=".$base.$coin."&side=BUY&type=LIMIT_MAKER&newOrderRespType=RESULT&quantity=".$quantity."&price=".$bid."&newClientOrderId=buy".$coin.$base.sprintf("%u",$quantity*1000)."&recvWindow=15000&timestamp=".time()*1000;
         my $signature = hmac_sha256_hex($command, $binance_seckey);
         my $body = $command."&signature=".$signature;
         $req->content($body);
@@ -1043,7 +1048,7 @@ sub binance_setprice {
     }
 
     if ( defined $ask ) {
-	my $command = "symbol=".$base.$coin."&side=SELL&type=LIMIT_MAKER&newOrderRespType=RESULT&quantity=".$quantity."&price=".$ask."&newClientOrderId=sell".$coin.$base.sprintf("%u",$quantity)."&recvWindow=15000&timestamp=".time()*1000;
+	my $command = "symbol=".$base.$coin."&side=SELL&type=LIMIT_MAKER&newOrderRespType=RESULT&quantity=".$quantity."&price=".$ask."&newClientOrderId=sell".$coin.$base.sprintf("%u",$quantity*1000)."&recvWindow=15000&timestamp=".time()*1000;
 	my $signature = hmac_sha256_hex($command, $binance_seckey);
         my $body = $command."&signature=".$signature;
         $req->content($body);
@@ -1084,36 +1089,6 @@ sub kucoin_setprice {
 
     print "$base/$coin ".sprintf("%04d",$quantity);
 
-    if ( defined $bid ) {
-        my $tonce = time()*1000;
-        my $body = '{"clientOid":"buy'.$base.$coin.$quantity.'","side":"buy","symbol":"'.$base.'-'.$coin.'","type":"limit","price":'.$bid.',"size":'.$quantity.'}';
-        my $prehash = $tonce."POST".$endpoint.$body; # {timestamp+method+endpoint+body}
-        my $apisign = hmac_sha256_base64($prehash, $kucoin_seckey);
-        while (length($apisign) % 4) {
-            $apisign .= '=';
-        }
-        my $passphrase = hmac_sha256_base64($kucoin_passphrase, $kucoin_seckey); #  Encrypt passphrase with HMAC-sha256 via API-Secret --> Encode contents by base64 before you pass the request
-        while (length($passphrase) % 4) {
-            $passphrase .= '=';
-        }
-        $req->header('KC-API-KEY-VERSION' => '2');
-        $req->header('KC-API-KEY' => $kucoin_apikey);
-        $req->header('KC-API-SIGN' => $apisign);
-        $req->header('KC-API-TIMESTAMP' => $tonce);
-        $req->header('KC-API-PASSPHRASE' => $passphrase);
-        $req->header('content-type' => 'application/json');
-
-        $req->content($body);
-        my $resp = $ua->request($req);
-        my $resp_code = decode_json($resp->content)->{'code'};
-        if ($resp_code eq "200000") {
-            print " bid ".$bid;
-        } else {
-            print " bid ".decode_json($resp->content)->{'msg'};
-        }
-
-    }
-
     if ( defined $ask ) {
         my $tonce = time()*1000;
         my $body = '{"clientOid":"sell'.$base.$coin.$quantity.'","side":"sell","symbol":"'.$base.'-'.$coin.'","type":"limit","price":'.$ask.',"size":'.$quantity.'}';
@@ -1137,9 +1112,39 @@ sub kucoin_setprice {
         my $resp = $ua->request($req);
         my $resp_code = decode_json($resp->content)->{'code'};
         if ($resp_code eq "200000") {
-            print " ask ".$ask."\n";
+            print " ask ".$ask;
         } else {
             print " ask ".decode_json($resp->content)->{'msg'}."\n";
+        }
+
+    }
+
+    if ( defined $bid ) {
+        my $tonce = time()*1000;
+        my $body = '{"clientOid":"buy'.$base.$coin.$quantity.'","side":"buy","symbol":"'.$base.'-'.$coin.'","type":"limit","price":'.$bid.',"size":'.$quantity.'}';
+        my $prehash = $tonce."POST".$endpoint.$body; # {timestamp+method+endpoint+body}
+        my $apisign = hmac_sha256_base64($prehash, $kucoin_seckey);
+        while (length($apisign) % 4) {
+            $apisign .= '=';
+        }
+        my $passphrase = hmac_sha256_base64($kucoin_passphrase, $kucoin_seckey); #  Encrypt passphrase with HMAC-sha256 via API-Secret --> Encode contents by base64 before you pass the request
+        while (length($passphrase) % 4) {
+            $passphrase .= '=';
+        }
+        $req->header('KC-API-KEY-VERSION' => '2');
+        $req->header('KC-API-KEY' => $kucoin_apikey);
+        $req->header('KC-API-SIGN' => $apisign);
+        $req->header('KC-API-TIMESTAMP' => $tonce);
+        $req->header('KC-API-PASSPHRASE' => $passphrase);
+        $req->header('content-type' => 'application/json');
+
+        $req->content($body);
+        my $resp = $ua->request($req);
+        my $resp_code = decode_json($resp->content)->{'code'};
+        if ($resp_code eq "200000") {
+            print " bid ".$bid."\n";
+        } else {
+            print " bid ".decode_json($resp->content)->{'msg'};
         }
 
     }
@@ -1186,7 +1191,7 @@ sub mandala_setprice {
     }
 
     if ( defined $bid ) {
-        my $command = "symbol=".$base."_".$coin."&side=0&type=1&quantity=".$quantity."&price=".$bid."&clientId=buy".$coin.$base.sprintf("%u",$quantity)."&recvWindow=15000&timestamp=".time()*1000;
+        my $command = "symbol=".$base."_".$coin."&side=0&type=1&quantity=".$quantity."&price=".$bid."&clientId=buy".$coin.$base.sprintf("%u",$quantity*1000)."&recvWindow=15000&timestamp=".time()*1000;
         my $signature = hmac_sha256_hex($command, $mandala_seckey);
         my $body = $command."&signature=".$signature;
         $req->content($body);
@@ -1200,7 +1205,7 @@ sub mandala_setprice {
     }
 
     if ( defined $ask ) {
-        my $command = "symbol=".$base."_".$coin."&side=1&type=1&quantity=".$quantity."&price=".$ask."&clientId=sell".$coin.$base.sprintf("%u",$quantity)."&recvWindow=15000&timestamp=".time()*1000;
+        my $command = "symbol=".$base."_".$coin."&side=1&type=1&quantity=".$quantity."&price=".$ask."&clientId=sell".$coin.$base.sprintf("%u",$quantity*1000)."&recvWindow=15000&timestamp=".time()*1000;
         my $signature = hmac_sha256_hex($command, $mandala_seckey);
         my $body = $command."&signature=".$signature;
         $req->content($body);
@@ -2569,7 +2574,7 @@ if ( $api eq "dex_gecko" ) {
             if ((($coin eq "BUSD") || ($coin eq "USDT")) && ($base eq "DGB")) {
                 $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_1,$coin) + 0.00001000;
                 $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_1,$coin) - 0.00001000;
-            } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "USDC")) && ($base eq "LTC")) {
+            } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "USDC")) && ($base eq "LTC") || ($base eq "BTC")) {
                 $cex_bid_price_1 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_1,$coin) + 0.01000;
                 $cex_ask_price_1 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_1,$coin) - 0.01000;
             } elsif (($coin eq "BTC") && ($base eq "LTC")) {
@@ -2593,7 +2598,7 @@ if ( $api eq "dex_gecko" ) {
             if ((($coin eq "BUSD") || ($coin eq "USDT")) && ($base eq "DGB")) {
                 $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_2,$coin) + 0.00001000;
                 $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_2,$coin) - 0.00001000;
-            } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "USDC")) && ($base eq "LTC")) {
+            } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "USDC")) && ($base eq "LTC") || ($base eq "BTC")) {
                 $cex_bid_price_2 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_2,$coin) + 0.01000;
                 $cex_ask_price_2 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_2,$coin) - 0.01000;
             } elsif (($coin eq "BTC") && ($base eq "LTC")) {
@@ -2617,7 +2622,7 @@ if ( $api eq "dex_gecko" ) {
             if ((($coin eq "BUSD") || ($coin eq "USDT")) && ($base eq "DGB")) {
                 $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_3,$coin) + 0.00001000;
                 $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_3,$coin) - 0.00001000;
-            } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "USDC")) && ($base eq "LTC")) {
+            } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "USDC")) && ($base eq "LTC") || ($base eq "BTC")) {
                 $cex_bid_price_3 = calc_bestprice_sum($binance_depth->{'bids'},$maxsum_3,$coin) + 0.01000;
                 $cex_ask_price_3 = calc_bestprice_sum($binance_depth->{'asks'},$maxsum_3,$coin) - 0.01000;
             } elsif (($coin eq "BTC") && ($base eq "LTC")) {
@@ -2649,20 +2654,15 @@ if ( $api eq "dex_gecko" ) {
 
     foreach my $coin ( keys %{$marginsconf} ) {
         my $quantity = $marginsconf->{$coin}{'quantity'};
-        my $bid = undef;
-        my $ask = undef;
 
-        kucoin_cancelorders($base,$coin);
-        Time::HiRes::sleep(1);
+        #kucoin_cancelorders($base,$coin);
+        #Time::HiRes::sleep(1);
 
         my $kucoin_book_price = kucoin_book_price($base,$coin);
         my $book_price = sprintf("%.9f", ($kucoin_book_price->{'bestBid'} + $kucoin_book_price->{'bestAsk'})/2);
 
         if ( $kucoin_book_price ne "1" ) {
-            kucoin_setprice($base,$coin,$bid,$book_price,$quantity);
-            Time::HiRes::sleep(1);
-            $bid = $book_price * 1.0005;
-            kucoin_setprice($base,$coin,$bid,$ask,$quantity);
+            kucoin_setprice($base,$coin,$book_price,$book_price,$quantity);
         }
     }
 
