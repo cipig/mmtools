@@ -2223,7 +2223,6 @@ if ( $api eq "dex_gecko" ) {
                         $price = from_json($paprika_price)->{"quotes"}{"USD"}{"price"} / $base_usd_price;
                         $coinusdprice = from_json($paprika_price)->{"quotes"}{"USD"}{"price"};
                         $change = abs(from_json($paprika_price)->{"quotes"}{"USD"}{"percent_change_24h"});
-                        print "###### price $price, coinusdprice $coinusdprice, change $change\n";
                     }
                 } elsif ( defined $bittrex_btc_symbol ) {
                     my $bittrex_price = bittrex_latest_price($bittrex_btc_symbol);
