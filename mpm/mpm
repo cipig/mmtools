@@ -2643,6 +2643,30 @@ if ( $api eq "dex_gecko" ) {
     }
 
 
+} elsif ( $api eq "kucoin_wt" ) {
+    my $json = read_file("$cwd/mpm.conf.kucoin_wt.$base");
+    my $marginsconf = decode_json($json);
+
+    foreach my $coin ( keys %{$marginsconf} ) {
+        my $quantity = $marginsconf->{$coin}{'quantity'};
+        my $bid = undef;
+        my $ask = undef;
+
+        kucoin_cancelorders($base,$coin);
+        Time::HiRes::sleep(1);
+
+        my $kucoin_book_price = kucoin_book_price($base,$coin);
+        my $book_price = sprintf("%.9f", ($kucoin_book_price->{'bestBid'} + $kucoin_book_price->{'bestAsk'})/2);
+
+        if ( $kucoin_book_price ne "1" ) {
+            kucoin_setprice($base,$coin,$bid,$book_price,$quantity);
+            Time::HiRes::sleep(1);
+            $bid = $book_price * 1.0005;
+            kucoin_setprice($base,$coin,$bid,$ask,$quantity);
+        }
+    }
+
+
 } elsif ( $api eq "kucoin" ) {
     my $json = read_file("$cwd/mpm.conf.kucoin.$base");
     my $marginsconf = decode_json($json);
