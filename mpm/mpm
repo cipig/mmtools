@@ -1114,7 +1114,7 @@ sub kucoin_setprice {
         if ($resp_code eq "200000") {
             print " ask ".$ask;
         } else {
-            print " ask ".decode_json($resp->content)->{'msg'}."\n";
+            print " ask ".decode_json($resp->content)->{'msg'};
         }
 
     }
@@ -1144,7 +1144,7 @@ sub kucoin_setprice {
         if ($resp_code eq "200000") {
             print " bid ".$bid."\n";
         } else {
-            print " bid ".decode_json($resp->content)->{'msg'};
+            print " bid ".decode_json($resp->content)->{'msg'}."\n";
         }
 
     }
