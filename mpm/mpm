@@ -2098,6 +2098,7 @@ if ( $api eq "dex_gecko" ) {
                 my $paprika_id = $marginsconf->{$coin}{'paprika_id'};
                 my $sane_price = $marginsconf->{$coin}{'sane_price'};
                 my $southxchange_btc_symbol = $marginsconf->{$coin}{'southxchange_btc_symbol'};
+                my $southxchange_doge_symbol = $marginsconf->{$coin}{'southxchange_doge_symbol'};
                 my $graviex_btc_symbol = $marginsconf->{$coin}{'graviex_btc_symbol'};
                 my $komodolive_usd_symbol = $marginsconf->{$coin}{'komodolive_usd_symbol'};
                 my $dextrade_usd_symbol = $marginsconf->{$coin}{'dextrade_usd_symbol'};
@@ -2108,16 +2109,20 @@ if ( $api eq "dex_gecko" ) {
                 my $coinusdprice = 0;
                 my $btcusdprice = 0;
                 my $ltcusdprice = 0;
+                my $dogeusdprice = 0;
                 my $ethusdprice = 0;
                 if ( $gecko_price ne "1" ) {
                     $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
                     $ltcusdprice = from_json($gecko_price)->{"litecoin"}{"usd"};
+                    $dogeusdprice = from_json($gecko_price)->{"dogecoin"}{"usd"};
                     $ethusdprice = from_json($gecko_price)->{"ethereum"}{"usd"};
                 } else {
                     my $binance_btcusdprice = binance_latest_price("BTCUSDT");
                     if ( $binance_btcusdprice ne "1" ) { $btcusdprice = from_json($binance_btcusdprice)->{"price"}; }
                     my $binance_ltcusdprice = binance_latest_price("LTCUSDT");
                     if ( $binance_ltcusdprice ne "1" ) { $ltcusdprice = from_json($binance_ltcusdprice)->{"price"}; }
+                    my $binance_dogeusdprice = binance_latest_price("DOGEUSDT");
+                    if ( $binance_dogeusdprice ne "1" ) { $dogeusdprice = from_json($binance_dogeusdprice)->{"price"}; }
                     my $binance_ethusdprice = binance_latest_price("ETHUSDT");
                     if ( $binance_ethusdprice ne "1" ) { $ethusdprice = from_json($binance_ethusdprice)->{"price"}; }
                 }
@@ -2177,6 +2182,13 @@ if ( $api eq "dex_gecko" ) {
                     if ( $southxchange_price ne "1" ) {
                         $price = ( from_json($southxchange_price)->{"Bid"} + from_json($southxchange_price)->{"Ask"} + from_json($southxchange_price)->{"Last"} ) / 3 / $base_btc_price;
                         $coinusdprice = ( from_json($southxchange_price)->{"Bid"} + from_json($southxchange_price)->{"Ask"} + from_json($southxchange_price)->{"Last"} ) / 3 * $btcusdprice;
+                        $change = abs(from_json($southxchange_price)->{"Variation24Hr"});
+                    }
+                } elsif ( defined $southxchange_doge_symbol ) {
+                    my $southxchange_price = southxchange_latest_price($southxchange_doge_symbol);
+                    if ( $southxchange_price ne "1" ) {
+                        $price = ( from_json($southxchange_price)->{"Bid"} + from_json($southxchange_price)->{"Ask"} + from_json($southxchange_price)->{"Last"} ) / 3 * $dogeusdprice / $base_usd_price;
+                        $coinusdprice = ( from_json($southxchange_price)->{"Bid"} + from_json($southxchange_price)->{"Ask"} + from_json($southxchange_price)->{"Last"} ) / 3 * $dogeusdprice;
                         $change = abs(from_json($southxchange_price)->{"Variation24Hr"});
                     }
                 } elsif ( defined $graviex_btc_symbol ) {
@@ -2483,7 +2495,7 @@ if ( $api eq "dex_gecko" ) {
                     dex_setprice($base,$coin,$bid,$ask,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin,$askmargin,$coinusdprice,$rel_mintradevol,$base_mintradevol,$rel_balance,$base_balance);
                 }
 
-                Time::HiRes::sleep(0.3);
+                Time::HiRes::sleep(0.1);
             }
         }
     }
