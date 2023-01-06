@@ -2196,7 +2196,8 @@ if ( $api eq "dex_gecko" ) {
                     if ( $graviex_price ne "1" ) {
                         $price = ( from_json($graviex_price)->{"buy"} + from_json($graviex_price)->{"sell"} + from_json($graviex_price)->{"last"} ) / 3 / $base_btc_price;
                         $coinusdprice = ( from_json($graviex_price)->{"buy"} + from_json($graviex_price)->{"sell"} + from_json($graviex_price)->{"last"} ) / 3 * $btcusdprice;
-                        $change = (1 - from_json($graviex_price)->{"low"} / from_json($graviex_price)->{"high"}) * 100;
+                        #$change = (1 - from_json($graviex_price)->{"low"} / from_json($graviex_price)->{"high"}) * 100;
+                        if ( from_json($graviex_price)->{"high"} ne "0.0" ) { $change = (1 - from_json($graviex_price)->{"low"} / from_json($graviex_price)->{"high"}) * 100; }
                     }
                 } elsif ( defined $komodolive_usd_symbol ) {
                     my $komodolive_price = komodolive_latest_price($komodolive_usd_symbol);
