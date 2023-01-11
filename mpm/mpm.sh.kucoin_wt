@@ -2,5 +2,5 @@
 while true; do
   date
   ~/mmtools/mpm/mpm kucoin_wt $1
-  sleep 30
+  sleep $[ ( $RANDOM % 9 )  + 25 ]s
 done

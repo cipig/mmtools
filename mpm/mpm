@@ -2667,7 +2667,7 @@ if ( $api eq "dex_gecko" ) {
     my $marginsconf = decode_json($json);
 
     foreach my $coin ( keys %{$marginsconf} ) {
-        my $quantity = $marginsconf->{$coin}{'quantity'};
+        my $quantity = int(rand(10)) + $marginsconf->{$coin}{'quantity'};
 
         #kucoin_cancelorders($base,$coin);
         #Time::HiRes::sleep(1);
