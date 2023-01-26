@@ -5,7 +5,7 @@ no warnings 'experimental::smartmatch';
 use LWP::UserAgent;
 use LWP::Protocol::socks;
 use JSON;
-use Test::JSON;
+#use Test::JSON;
 use JSON::RPC::Legacy::Client;
 use File::Slurp qw(read_file);
 use File::Basename;
@@ -138,7 +138,8 @@ sub safetrade_latest_price {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ( ($resp->is_success) && (is_valid_json $resp->content) ) {
+        #if ( ($resp->is_success) && (is_valid_json $resp->content) ) {
+        if ($resp->is_success) {
             return $resp->content;
         } else {
             print "HTTP GET url: ", $url, "\n";
