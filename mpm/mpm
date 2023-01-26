@@ -1854,8 +1854,7 @@ if ( $api eq "dex_gecko" ) {
     my $json = read_file("$cwd/mpm.conf.dex");
     $marginsconf = decode_json($json);
     my @stablecoins_usd = ("USDT-BEP20","USDT-PLG20","USDT-AVX20","USDT-KRC20","BUSD-BEP20","BUSD-AVX20","BUSD-PLG20","DAI-BEP20","DAI-AVX20","DAI-FTM20","DAI-PLG20","PAX-BEP20","PAX-KRC20","TUSD-BEP20","USDC-BEP20","USDC-FTM20","USDC-PLG20","USDC-AVX20","USDC-KRC20","SFUSD","UST-BEP20","UST-PLG20");
-    my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","BIDR-BEP20","JPYC-PLG20","JJPY-PLG20","EURS-PLG20","BRZ-BEP20","QC","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JEUR-PLG20","JGBP-PLG20","NZDS-PLG20");
-
+    my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","JTRY-PLG20","BIDR-BEP20","JPYC-PLG20","JJPY-PLG20","EURS-PLG20","BRZ-BEP20","QC-QRC20","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JEUR-PLG20","JGBP-PLG20","NZDS-PLG20","JCAD-PLG20","JSGD-PLG20","JCNY-PLG20","JAUD-PLG20","JBRL-PLG20","JBRL-BEP20","JKRW-PLG20","JMXN-PLG20","JSEK-PLG20");
     my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,matic-network,fantom,harmony,kucoin-shares,huobi-token,moonbeam,moonriver,zelcash,syscoin,pirate-chain";
     foreach my $coin ( keys %{$marginsconf} ) {
         if ( defined $marginsconf->{$coin}{'geckoid'} ) {
@@ -1889,7 +1888,7 @@ if ( $api eq "dex_gecko" ) {
         if ( $gecko_price ne "1" ) {
             $erc20fee = dex_gettradefee("ETH") * from_json($gecko_price)->{"ethereum"}{"usd"};
             $qtumfee = dex_gettradefee("QTUM") * from_json($gecko_price)->{"qtum"}{"usd"};
-            $qrc20fee = dex_gettradefee("QC") * from_json($gecko_price)->{"qtum"}{"usd"};
+            $qrc20fee = dex_gettradefee("QC-QRC20") * from_json($gecko_price)->{"qtum"}{"usd"};
             $avx20fee = dex_gettradefee("AVAX") * from_json($gecko_price)->{"avalanche-2"}{"usd"};
             $bep20fee = dex_gettradefee("BNB") * from_json($gecko_price)->{"binancecoin"}{"usd"};
             $plg20fee = dex_gettradefee("MATIC") * from_json($gecko_price)->{"matic-network"}{"usd"};
@@ -1904,7 +1903,7 @@ if ( $api eq "dex_gecko" ) {
             $erc20fee = dex_gettradefee("ETH") * from_json($eth_usd_price)->{"last_price"};
             my $qtum_usd_price = komodolive_latest_price("QTUM");
             $qtumfee = dex_gettradefee("QTUM") * from_json($qtum_usd_price)->{"last_price"};
-            $qrc20fee = dex_gettradefee("QC") * from_json($qtum_usd_price)->{"last_price"};
+            $qrc20fee = dex_gettradefee("QC-QRC20") * from_json($qtum_usd_price)->{"last_price"};
             my $avax_usd_price = komodolive_latest_price("AVAX");
             $avx20fee = dex_gettradefee("AVAX") * from_json($avax_usd_price)->{"last_price"};
             my $bnb_usd_price = komodolive_latest_price("BNB");
@@ -2039,20 +2038,20 @@ if ( $api eq "dex_gecko" ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"EUR"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("BTCEUR");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-        } elsif ( ($base eq "TRYB-BEP20") || ($base eq "TRYB-AVX20") || ($base eq "TRYB-PLG20") ) {
+        } elsif ( ($base eq "TRYB-BEP20") || ($base eq "TRYB-AVX20") || ($base eq "TRYB-PLG20") || ($base eq "JTRY-PLG20") ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"TRY"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("BTCTRY");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
-        } elsif ( $base eq "QC" ) {
+        } elsif ( ($base eq "QC-QRC20") || ($base eq "JCNY-PLG20") ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"CNY"}; } else { $base_usd_price = 0; }
             if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"cny"}; } else { $base_btc_price = 0; }
-        } elsif ( $base eq "CADC-PLG20" ) {
+        } elsif ( ($base eq "CADC-PLG20") || ($base eq "JCAD-PLG20") ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"CAD"}; } else { $base_usd_price = 0; }
             if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"cad"}; } else { $base_btc_price = 0; }
-        } elsif ( $base eq "XSGD-PLG20" ) {
+        } elsif ( ($base eq "XSGD-PLG20") || ($base eq "JSGD-PLG20") ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"SGD"}; } else { $base_usd_price = 0; }
             if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"sgd"}; } else { $base_btc_price = 0; }
-        } elsif ( $base eq "NZDS-PLG20" ) {
+        } elsif ( ($base eq "NZDS-PLG20") || ($base eq "JNZD-PLG20") ) {
             if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"NZD"}; } else { $base_usd_price = 0; }
             if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"nzd"}; } else { $base_btc_price = 0; }
         } elsif ( ($base eq "JPYC-PLG20") || ($base eq "JJPY-PLG20") ) {
