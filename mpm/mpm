@@ -2030,7 +2030,7 @@ if ( $api eq "dex_gecko" ) {
             my $binance_price_btc = binance_latest_price("ETHBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
             if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"ethereum"}{"usd_24h_change"}); } else { my $komodolive_eth_price = komodolive_latest_price("ETH"); $base_24h_change = abs(from_json($komodolive_eth_price)->{"change_24h"}); }
-        } elsif ( ($base eq "BTC") || ($base eq "BTC-BEP20") ) {
+        } elsif ( ($base eq "BTC") || ($base eq "BTC-BEP20") || ($base eq "BTC-segwit") ) {
             my $binance_price_usd = binance_latest_price("BTCUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
             $base_btc_price = 1;
@@ -2355,7 +2355,7 @@ if ( $api eq "dex_gecko" ) {
                 if ( defined $maxaskvolume_usd && $coinusdprice ne "0" ) { $maxaskvolume = $maxaskvolume_usd / $coinusdprice; }
                 my $minaskvolume_usd = $marginsconf->{$coin}{'minaskvolume'};
                 if ( defined $minaskvolume_usd && $coinusdprice ne "0" ) { $minaskvolume = $minaskvolume_usd / $coinusdprice; }
-                if ( ($base eq "BTC") && ($type eq "erc20") ) {
+                if ( (($base eq "BTC") || ($base eq "BTC-segwit")) && ($type eq "erc20") ) {
                     if ( ($erc20fee eq "1") || ($btcfee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
@@ -2366,7 +2366,7 @@ if ( $api eq "dex_gecko" ) {
                         $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
                         $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
                     }
-                } elsif ($base eq "BTC") {
+                } elsif (($base eq "BTC" || ($base eq "BTC-segwit")) {
                     if ( ($btcfee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
@@ -2375,7 +2375,7 @@ if ( $api eq "dex_gecko" ) {
                         $minbidvolume = $btcfee * 15;
                         if ($minbidvolume < 0.00777) { $minbidvolume = 0.00777; }
                     }
-                } elsif ($coin eq "BTC") {
+                } elsif (($coin eq "BTC") || ($coin eq "BTC-segwit")) {
                     if ( ($btcfee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
