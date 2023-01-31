@@ -1873,7 +1873,7 @@ if ( $api eq "dex_gecko" ) {
         my $usdrate_price = komodolive_usdrates();
         #print Dumper($smartfi_price);
 
-        my $btcfee = dex_gettradefee("BTC");
+        my $btcfee = dex_gettradefee("BTC-segwit");
         my $erc20fee = 1;
         my $qtumfee = 1;
         my $qrc20fee = 1;
