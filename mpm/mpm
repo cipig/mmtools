@@ -202,6 +202,26 @@ sub ogre_latest_price {
 }
 
 
+sub xeggex_latest_price {
+    my $url = "https://xeggex.com/api/v2/ticker/".$_[0];
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub dextrade_latest_price {
     my $url = "https://api.dex-trade.com/v1/public/ticker?pair=".$_[0];
     my $ua = LWP::UserAgent->new;
@@ -1684,6 +1704,7 @@ if ( $api eq "dex_gecko" ) {
                 my $hitbtc_btc_symbol = $marginsconf->{$coin}{'hitbtc_btc_symbol'};
                 my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
                 my $exbitron_usd_symbol = $marginsconf->{$coin}{'exbitron_usd_symbol'};
+                my $xeggex_btc_symbol = $marginsconf->{$coin}{'xeggex_btc_symbol'};
                 my $paprika_id = $marginsconf->{$coin}{'paprika_id'};
                 my $sane_price = $marginsconf->{$coin}{'sane_price'};
                 my $southxchange_btc_symbol = $marginsconf->{$coin}{'southxchange_btc_symbol'};
@@ -1785,8 +1806,14 @@ if ( $api eq "dex_gecko" ) {
                     if ( $graviex_price ne "1" ) {
                         $price = ( from_json($graviex_price)->{"buy"} + from_json($graviex_price)->{"sell"} + from_json($graviex_price)->{"last"} ) / 3 / $base_btc_price;
                         $coinusdprice = ( from_json($graviex_price)->{"buy"} + from_json($graviex_price)->{"sell"} + from_json($graviex_price)->{"last"} ) / 3 * $btcusdprice;
-                        #$change = (1 - from_json($graviex_price)->{"low"} / from_json($graviex_price)->{"high"}) * 100;
                         if ( from_json($graviex_price)->{"high"} ne "0.0" ) { $change = (1 - from_json($graviex_price)->{"low"} / from_json($graviex_price)->{"high"}) * 100; }
+                    }
+                } elsif ( defined $xeggex_btc_symbol ) {
+                    my $xeggex_price = xeggex_latest_price($xeggex_btc_symbol);
+                    if ( $xeggex_price ne "1" ) {
+                        $price = ( from_json($xeggex_price)->{"bid"} + from_json($xeggex_price)->{"ask"} + from_json($xeggex_price)->{"last_price"} ) / 3 / $base_btc_price;
+                        $coinusdprice = ( from_json($xeggex_price)->{"bid"} + from_json($xeggex_price)->{"ask"} + from_json($xeggex_price)->{"last_price"} ) / 3 * $btcusdprice;
+                        if ( from_json($xeggex_price)->{"high"} ne "0.0" ) { $change = (1 - from_json($xeggex_price)->{"low"} / from_json($xeggex_price)->{"high"}) * 100; }
                     }
                 } elsif ( defined $komodolive_usd_symbol ) {
                     my $komodolive_price = komodolive_latest_price($komodolive_usd_symbol);
