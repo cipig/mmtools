@@ -2015,71 +2015,71 @@ if ( $api eq "dex_gecko" ) {
                     if ( ($avx20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $avx20fee * 15 / $coinusdprice;
-                        $minbidvolume = $avx20fee * 15 / $base_usd_price;
+                        $minaskvolume = $avx20fee * 30 / $coinusdprice;
+                        $minbidvolume = $avx20fee * 30 / $base_usd_price;
                     }
                 } elsif ( ($type eq "bep20") || (index($base, "BEP20") != -1) || ($base eq "BNB") ) {
                     if ( ($bep20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $bep20fee * 15 / $coinusdprice;
-                        $minbidvolume = $bep20fee * 15 / $base_usd_price;
+                        $minaskvolume = $bep20fee * 30 / $coinusdprice;
+                        $minbidvolume = $bep20fee * 30 / $base_usd_price;
                     }
                 } elsif ( ($type eq "ftm20") || (index($base, "FTM20") != -1) || ($base eq "FTM") ) {
                     if ( ($ftm20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $ftm20fee * 15 / $coinusdprice;
-                        $minbidvolume = $ftm20fee * 15 / $base_usd_price;
+                        $minaskvolume = $ftm20fee * 30 / $coinusdprice;
+                        $minbidvolume = $ftm20fee * 30 / $base_usd_price;
                     }
                 } elsif ( ($type eq "plg20") || (index($base, "PLG20") != -1) || ($base eq "MATIC") ) {
                     if ( ($plg20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $plg20fee * 15 / $coinusdprice;
-                        $minbidvolume = $plg20fee * 15 / $base_usd_price;
+                        $minaskvolume = $plg20fee * 30 / $coinusdprice;
+                        $minbidvolume = $plg20fee * 30 / $base_usd_price;
                     }
                 } elsif ( ($type eq "hrc20") || (index($base, "HRC20") != -1) || ($base eq "ONE") ) {
                     if ( ($hrc20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $hrc20fee * 15 / $coinusdprice;
-                        $minbidvolume = $hrc20fee * 15 / $base_usd_price;
+                        $minaskvolume = $hrc20fee * 30 / $coinusdprice;
+                        $minbidvolume = $hrc20fee * 30 / $base_usd_price;
                     }
                 } elsif ( ($type eq "krc20") || (index($base, "KRC20") != -1) || ($base eq "KCS") ) {
                     if ( ($krc20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $krc20fee * 15 / $coinusdprice;
-                        $minbidvolume = $krc20fee * 15 / $base_usd_price;
+                        $minaskvolume = $krc20fee * 30 / $coinusdprice;
+                        $minbidvolume = $krc20fee * 30 / $base_usd_price;
                     }
                 } elsif ( ($type eq "glm20") || (index($base, "GLM20") != -1) || ($base eq "GLMR") ) {
                     if ( ($glm20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $glm20fee * 15 / $coinusdprice;
-                        $minbidvolume = $glm20fee * 15 / $base_usd_price;
+                        $minaskvolume = $glm20fee * 30 / $coinusdprice;
+                        $minbidvolume = $glm20fee * 30 / $base_usd_price;
                     }
                 } elsif ( ($type eq "mvr20") || (index($base, "MVR20") != -1) || ($base eq "MOVR") ) {
                     if ( ($mvr20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $mvr20fee * 15 / $coinusdprice;
-                        $minbidvolume = $mvr20fee * 15 / $base_usd_price;
+                        $minaskvolume = $mvr20fee * 30 / $coinusdprice;
+                        $minbidvolume = $mvr20fee * 30 / $base_usd_price;
                     }
                 } elsif ( ($type eq "hco20") || (index($base, "HCO20") != -1) || ($base eq "HT") ) {
                     if ( ($hco20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $hco20fee * 15 / $coinusdprice;
-                        $minbidvolume = $hco20fee * 15 / $base_usd_price;
+                        $minaskvolume = $hco20fee * 30 / $coinusdprice;
+                        $minbidvolume = $hco20fee * 30 / $base_usd_price;
                     }
                 } elsif ( ($coin eq "QTUM") || ($base eq "QTUM") ) {
                     if ( ($qtumfee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $qtumfee * 15 / $coinusdprice;
-                        $minbidvolume = $qtumfee * 15 / $base_usd_price;
+                        $minaskvolume = $qtumfee * 30 / $coinusdprice;
+                        $minbidvolume = $qtumfee * 30 / $base_usd_price;
                     }
                 }
 
@@ -2088,7 +2088,7 @@ if ( $api eq "dex_gecko" ) {
                     my $sanebidmargin = 0;
                     if ( defined $marginsconf->{$coin}{'askmargin'} ) { $saneaskmargin = $marginsconf->{$coin}{'askmargin'}; }
                     if ( defined $marginsconf->{$coin}{'bidmargin'} ) { $sanebidmargin = $marginsconf->{$coin}{'bidmargin'}; }
-                    my $sanemargin = ($saneaskmargin + $sanebidmargin) / 2 + 0.1;
+                    my $sanemargin = ($saneaskmargin + $sanebidmargin) / 2 + 0.07;
                     if (($coinusdprice < $sane_price - $sane_price * $sanemargin) || ($coinusdprice > $sane_price + $sane_price * $sanemargin)) {
                         print "================= bullshit_price $coinusdprice for $coin, sane_price $sane_price\n";
                         $price = 0;
