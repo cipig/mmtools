@@ -1906,7 +1906,7 @@ if ( $api eq "dex_gecko" ) {
                 }
 
                 my $marginadd = 0;
-                if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "FIRO") && ($coin eq "FIRO-BEP20")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($base eq "FLUX") && ($coin eq "FLUX-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
+                if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "FIRO") && ($coin eq "FIRO-BEP20")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($base eq "FLUX") && ($coin eq "FLUX-BEP20")) ) {
                     $price = 1;
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usdrate_symbol) || (defined $kucoin_usd_symbol) ) {
                     $marginadd = max($change,$base_24h_change)/100/4;
