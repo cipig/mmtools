@@ -1990,7 +1990,7 @@ if ( $api eq "dex_gecko" ) {
                         $minbidvolume = $btcfee * $btcusdprice / $base_usd_price * 15;
                         if ($minbidvolume < 0.00777 * $btcusdprice / $base_usd_price) { $minbidvolume = 0.00777 * $btcusdprice / $base_usd_price * 1.1; }
                     }
-                } elsif ($type eq "erc20") {
+                } elsif ( ($type eq "erc20") || (index($base, "ERC20") != -1) || ($base eq "ETH") ) {
                     if ( ($erc20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
