@@ -2004,13 +2004,6 @@ if ( $api eq "dex_gecko" ) {
                         $minaskvolume = $qrc20fee * 5 / $coinusdprice;
                         $minbidvolume = $qrc20fee * 5 / $base_usd_price;
                     }
-                } elsif ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($coin ~~ @stablecoins_usd) && ($base ~~ @stablecoins_usd)) ) {
-                    if ($coinusdprice eq "0") {
-                        $price = 0;
-                    } else {
-                        $minaskvolume = 10 / $coinusdprice;
-                        $minbidvolume = 10 / $base_usd_price;
-                    }
                 } elsif ( ($type eq "avx20") || (index($base, "AVX20") != -1) || ($base eq "AVAX") ) {
                     if ( ($avx20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
