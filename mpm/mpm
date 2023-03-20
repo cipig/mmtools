@@ -2009,8 +2009,8 @@ if ( $api eq "dex_gecko" ) {
                     if ( ($qrc20fee eq "1") || ($coinusdprice eq "0") ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $qrc20fee * 20 / $coinusdprice;
-                        $minbidvolume = $qrc20fee * 20 / $base_usd_price;
+                        $minaskvolume = $qrc20fee * 10 / $coinusdprice;
+                        $minbidvolume = $qrc20fee * 10 / $base_usd_price;
                     }
                 } elsif ( ($type eq "avx20") || (index($base, "AVX20") != -1) || ($base eq "AVAX") ) {
                     if ( ($avx20fee eq "1") || ($coinusdprice eq "0") ) {
