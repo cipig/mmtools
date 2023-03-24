@@ -1312,7 +1312,7 @@ sub dex_setprice {
 }
 
 
-sub dex_deleteprice {
+sub dex_deleteprice_pair {
     my $ua = LWP::UserAgent->new;
     #$ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
@@ -1336,6 +1336,24 @@ sub dex_deleteprice {
     } else {
         my $askerror = eval {from_json($resp->content)->{'error'}};
         if ($@) { print "unknown error $@"; } else { print $askerror; }
+    }
+}
+
+
+sub dex_deleteprice_ticker {
+    my $ua = LWP::UserAgent->new;
+    #$ua->timeout($timeout);
+    my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
+    $req->content_type('application/x-www-form-urlencoded');
+
+    $command = '{\"userpass\":\"$userpass\",\"method\":\"cancel_all_orders\",\"cancel_by\":{\"type\":\"Coin\",\"data\":{\"ticker\":\"'.$_[0].'\"}}}';
+    $req->content($command);
+    $resp = $ua->request($req);
+    if ($resp->is_success) {
+        print " ".$resp->content."\n";
+    } else {
+        my $error = eval {from_json($resp->content)->{'error'}};
+        if ($@) { print "unknown error $@"; } else { print $error; }
     }
 }
 
@@ -2097,7 +2115,7 @@ if ( $api eq "dex_gecko" ) {
                 }
 
                 if ($price eq "0") {
-                    dex_deleteprice($base,$coin);
+                    dex_deleteprice_pair($base,$coin);
                 } else {
                     my $rel_mintradevol = dex_getmintradevol($coin);
                     my $rel_balance = dex_getbalance($coin);
@@ -2106,6 +2124,8 @@ if ( $api eq "dex_gecko" ) {
 
                 Time::HiRes::sleep(0.1);
             }
+        } else {
+            dex_deleteprice_ticker($base);
         }
     }
 
