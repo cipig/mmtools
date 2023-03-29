@@ -10,7 +10,7 @@ use List::Util qw[min max];
 use Digest::SHA qw(hmac_sha256_hex hmac_sha256_base64);
 use Digest::MD5 qw(md5_hex);
 use Time::HiRes;
-#use LWP::Protocol::socks;
+use LWP::Protocol::socks;
 #use Data::Dumper;
 #use Test::JSON;
 
@@ -22,7 +22,8 @@ my $pubkey = $ARGV[3];
 my $recvaddr = $ARGV[4];
 my $recvZaddr = $ARGV[5];
 my $cwd = dirname($0);
-my $useragent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
+#my $useragent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
+my $useragent = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0";
 my $timeout = 20;
 
 my $binance_apikey = "";
@@ -83,8 +84,9 @@ sub paprika_ticker {
     my $paprika_id = $_[0];
     my $url = "https://api.coinpaprika.com/v1/tickers/".$paprika_id;
     my $ua = LWP::UserAgent->new;
-    #$ua->agent($useragent);
+    $ua->agent($useragent);
     $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -1717,6 +1719,7 @@ if ( $api eq "dex_gecko" ) {
                 my $bittrex_btc_symbol = $marginsconf->{$coin}{'bittrex_btc_symbol'};
                 my $bittrex_usd_symbol = $marginsconf->{$coin}{'bittrex_usd_symbol'};
                 my $coinex_usd_symbol = $marginsconf->{$coin}{'coinex_usd_symbol'};
+                my $coinex_btc_symbol = $marginsconf->{$coin}{'coinex_btc_symbol'};
                 my $kucoin_usd_symbol = $marginsconf->{$coin}{'kucoin_usd_symbol'};
                 my $ogre_ltc_symbol = $marginsconf->{$coin}{'ogre_ltc_symbol'};
                 my $hitbtc_btc_symbol = $marginsconf->{$coin}{'hitbtc_btc_symbol'};
@@ -1900,6 +1903,13 @@ if ( $api eq "dex_gecko" ) {
                     if ( $coinex_price ne "1" ) {
                         $price = ( from_json($coinex_price)->{"data"}{"ticker"}{"sell"} + from_json($coinex_price)->{"data"}{"ticker"}{"buy"} + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3 / $base_usd_price;
                         $coinusdprice = ( from_json($coinex_price)->{"data"}{"ticker"}{"sell"} + from_json($coinex_price)->{"data"}{"ticker"}{"buy"} + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3;
+                        $change = (1 - from_json($coinex_price)->{"data"}{"ticker"}{"low"} / from_json($coinex_price)->{"data"}{"ticker"}{"high"}) * 100;
+                    }
+                } elsif ( defined $coinex_btc_symbol ) {
+                    my $coinex_price = coinex_latest_price($coinex_btc_symbol);
+                    if ( $coinex_price ne "1" ) {
+                        $price = ( from_json($coinex_price)->{"data"}{"ticker"}{"sell"} + from_json($coinex_price)->{"data"}{"ticker"}{"buy"} + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3 / $base_btc_price;
+                        $coinusdprice = ( from_json($coinex_price)->{"data"}{"ticker"}{"sell"} + from_json($coinex_price)->{"data"}{"ticker"}{"buy"} + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3 * $btcusdprice;
                         $change = (1 - from_json($coinex_price)->{"data"}{"ticker"}{"low"} / from_json($coinex_price)->{"data"}{"ticker"}{"high"}) * 100;
                     }
                 } elsif ( defined $kucoin_usd_symbol ) {
