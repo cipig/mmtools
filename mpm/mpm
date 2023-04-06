@@ -1721,6 +1721,7 @@ if ( $api eq "dex_gecko" ) {
                 my $coinex_usd_symbol = $marginsconf->{$coin}{'coinex_usd_symbol'};
                 my $coinex_btc_symbol = $marginsconf->{$coin}{'coinex_btc_symbol'};
                 my $kucoin_usd_symbol = $marginsconf->{$coin}{'kucoin_usd_symbol'};
+                my $ogre_btc_symbol = $marginsconf->{$coin}{'ogre_btc_symbol'};
                 my $ogre_ltc_symbol = $marginsconf->{$coin}{'ogre_ltc_symbol'};
                 my $hitbtc_btc_symbol = $marginsconf->{$coin}{'hitbtc_btc_symbol'};
                 my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
@@ -1932,6 +1933,13 @@ if ( $api eq "dex_gecko" ) {
                         $coinusdprice = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 * $ltcusdprice;
                         $change = (1 - from_json($ogre_price)->{"low"} / from_json($ogre_price)->{"high"}) * 100;
                     }
+                } elsif ( defined $ogre_btc_symbol ) {
+                    my $ogre_price = ogre_latest_price($ogre_btc_symbol);
+                    if ( $ogre_price ne "1" ) {
+                        $price = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 / $base_btc_price;
+                        $coinusdprice = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 * $btcusdprice;
+                        $change = (1 - from_json($ogre_price)->{"low"} / from_json($ogre_price)->{"high"}) * 100;
+                    }
                 } elsif ( defined $bithumb_usd_symbol ) {
                     my $bithumb_price = bithumb_latest_price($bithumb_usd_symbol);
                     if ( $bithumb_price ne "1" ) {
@@ -1959,7 +1967,7 @@ if ( $api eq "dex_gecko" ) {
                     $askmargin = $marginsconf->{$coin}{'askmargin'} + $marginadd;
                     if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $askmargin = $askmargin * 0.85; }
                     my $high = $price + $price * $askmargin;
-                    if ( $high < 0.000000012 ) {
+                    if ( $high < 0.00000008 ) {
                         $price = 0;
                         print "================= kaputtask: $coin, price: $high\n";
                     }
@@ -1972,7 +1980,7 @@ if ( $api eq "dex_gecko" ) {
                     if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $bidmargin = $bidmargin * 0.85; }
                     if ( $bidmargin > 0.99 ) { $bidmargin = 0.99; }
                     my $low = $price - $price * $bidmargin;
-                    if ( $low < 0.000000011 ) {
+                    if ( $low < 0.00000006 ) {
                         $price = 0;
                         print "================= kaputtbid: $coin, price: $low\n";
                     }
@@ -2117,7 +2125,7 @@ if ( $api eq "dex_gecko" ) {
                     my $sanebidmargin = 0;
                     if ( defined $marginsconf->{$coin}{'askmargin'} ) { $saneaskmargin = $marginsconf->{$coin}{'askmargin'}; }
                     if ( defined $marginsconf->{$coin}{'bidmargin'} ) { $sanebidmargin = $marginsconf->{$coin}{'bidmargin'}; }
-                    my $sanemargin = ($saneaskmargin + $sanebidmargin) / 2 + 0.07;
+                    my $sanemargin = ($saneaskmargin + $sanebidmargin) / 2 + 0.05;
                     if (($coinusdprice < $sane_price - $sane_price * $sanemargin) || ($coinusdprice > $sane_price + $sane_price * $sanemargin)) {
                         print "================= bullshit_price $coinusdprice for $coin, sane_price $sane_price\n";
                         $price = 0;
