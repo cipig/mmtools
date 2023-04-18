@@ -1722,6 +1722,7 @@ if ( $api eq "dex_gecko" ) {
                 my $coinex_btc_symbol = $marginsconf->{$coin}{'coinex_btc_symbol'};
                 my $kucoin_usd_symbol = $marginsconf->{$coin}{'kucoin_usd_symbol'};
                 my $ogre_btc_symbol = $marginsconf->{$coin}{'ogre_btc_symbol'};
+                my $ogre_usd_symbol = $marginsconf->{$coin}{'ogre_usd_symbol'};
                 my $ogre_ltc_symbol = $marginsconf->{$coin}{'ogre_ltc_symbol'};
                 my $hitbtc_btc_symbol = $marginsconf->{$coin}{'hitbtc_btc_symbol'};
                 my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
@@ -1938,6 +1939,13 @@ if ( $api eq "dex_gecko" ) {
                     if ( $ogre_price ne "1" ) {
                         $price = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 / $base_btc_price;
                         $coinusdprice = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 * $btcusdprice;
+                        $change = (1 - from_json($ogre_price)->{"low"} / from_json($ogre_price)->{"high"}) * 100;
+                    }
+                } elsif ( defined $ogre_usd_symbol ) {
+                    my $ogre_price = ogre_latest_price($ogre_usd_symbol);
+                    if ( $ogre_price ne "1" ) {
+                        $price = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 / $base_usd_price;
+                        $coinusdprice = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3;
                         $change = (1 - from_json($ogre_price)->{"low"} / from_json($ogre_price)->{"high"}) * 100;
                     }
                 } elsif ( defined $bithumb_usd_symbol ) {
