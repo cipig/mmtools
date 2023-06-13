@@ -1748,6 +1748,7 @@ if ( $api eq "dex_gecko" ) {
                 my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
                 my $exbitron_usd_symbol = $marginsconf->{$coin}{'exbitron_usd_symbol'};
                 my $xeggex_btc_symbol = $marginsconf->{$coin}{'xeggex_btc_symbol'};
+                my $xeggex_doge_symbol = $marginsconf->{$coin}{'xeggex_doge_symbol'};
                 my $xeggex_usd_symbol = $marginsconf->{$coin}{'xeggex_usd_symbol'};
                 my $mexc_usd_symbol = $marginsconf->{$coin}{'mexc_usd_symbol'};
                 my $paprika_id = $marginsconf->{$coin}{'paprika_id'};
@@ -1865,6 +1866,13 @@ if ( $api eq "dex_gecko" ) {
                     if ( $xeggex_price ne "1" ) {
                         $price = ( from_json($xeggex_price)->{"bid"} + from_json($xeggex_price)->{"ask"} + from_json($xeggex_price)->{"last_price"} ) / 3 / $base_usd_price;
                         $coinusdprice = ( from_json($xeggex_price)->{"bid"} + from_json($xeggex_price)->{"ask"} + from_json($xeggex_price)->{"last_price"} ) / 3;
+                        if ( from_json($xeggex_price)->{"high"} ne "0.0" ) { $change = (1 - from_json($xeggex_price)->{"low"} / from_json($xeggex_price)->{"high"}) * 100; }
+                    }
+                } elsif ( defined $xeggex_doge_symbol ) {
+                    my $xeggex_price = xeggex_latest_price($xeggex_doge_symbol);
+                    if ( $xeggex_price ne "1" ) {
+                        $price = ( from_json($xeggex_price)->{"bid"} + from_json($xeggex_price)->{"ask"} + from_json($xeggex_price)->{"last_price"} ) / 3 * $dogeusdprice / $base_usd_price;
+                        $coinusdprice = ( from_json($xeggex_price)->{"bid"} + from_json($xeggex_price)->{"ask"} + from_json($xeggex_price)->{"last_price"} ) / 3 * $dogeusdprice;
                         if ( from_json($xeggex_price)->{"high"} ne "0.0" ) { $change = (1 - from_json($xeggex_price)->{"low"} / from_json($xeggex_price)->{"high"}) * 100; }
                     }
                 } elsif ( defined $mexc_usd_symbol ) {
