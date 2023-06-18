@@ -289,7 +289,7 @@ sub komodolive_latest_price {
 
 
 sub komodolive_usdrates {
-    my $url = "https://rates.komodo.live/api/v1/usd_rates";
+    my $url = "http://prices.cipig.net:3337/api/v1/usd_rates";
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -1685,11 +1685,11 @@ if ( $api eq "dex_gecko" ) {
             $base_btc_price = 1;
             if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"bitcoin"}{"usd_24h_change"}); } else { my $komodolive_btc_price = komodolive_latest_price("BTC"); $base_24h_change = abs(from_json($komodolive_btc_price)->{"change_24h"}); }
         } elsif ( ($base eq "EURS-PLG20") || ($base eq "JEUR-PLG20") ) {
-            if ( $usdrate_price != 1 ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"EUR"}; } else { $base_usd_price = 0; }
+            if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"EUR"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("BTCEUR");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         } elsif ( ($base eq "TRYB-BEP20") || ($base eq "TRYB-AVX20") || ($base eq "TRYB-PLG20") || ($base eq "JTRY-PLG20") ) {
-            if ( $usdrate_price != 1 ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"TRY"}; } else { $base_usd_price = 0; }
+            if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"TRY"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_latest_price("BTCTRY");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         } elsif ( ($base eq "QC-QRC20") || ($base eq "JCNY-PLG20") ) {
@@ -1720,7 +1720,7 @@ if ( $api eq "dex_gecko" ) {
             if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
         }
 
-        if ( ($base_usd_price != 0) && ($base_btc_price != 0) ) {
+        if ( ($base_usd_price ne "0") && ($base_btc_price ne "0") ) {
 
              my $base_mintradevol = dex_getmintradevol($base);
              my $base_balance = dex_getbalance($base);
