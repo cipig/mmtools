@@ -1038,7 +1038,7 @@ sub mandala_setprice {
     if ((($coin eq "BUSD") || ($coin eq "USDT")) && ($base eq "DGB")) {
         $bid = sprintf("%.5f",$_[2]);
         $ask = sprintf("%.5f",$_[3]);
-    } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "USDC")) && ($base eq "LTC")) {
+    } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "TUSD")) && ($base eq "LTC")) {
         $bid = sprintf("%.2f",$_[2]);
         $ask = sprintf("%.2f",$_[3]);
     } elsif (($coin eq "BTC") && ($base eq "LTC")) {
@@ -1997,9 +1997,9 @@ if ( $api eq "dex_gecko" ) {
                 if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "FIRO") && ($coin eq "FIRO-BEP20")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($base eq "FLUX") && ($coin eq "FLUX-BEP20")) ) {
                     $price = 1;
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usdrate_symbol) || (defined $kucoin_usd_symbol) ) {
-                    $marginadd = max($change,$base_24h_change)/100/4;
+                    $marginadd = max($change,$base_24h_change)/100/3.5;
                 } else {
-                    $marginadd = max($change,$base_24h_change)/100/3;
+                    $marginadd = max($change,$base_24h_change)/100/2.5;
                 }
                 #print "change: $change, base_24h_change: $base_24h_change, marginadd: $marginadd\n";
 
@@ -2184,7 +2184,7 @@ if ( $api eq "dex_gecko" ) {
                     dex_setprice($base,$coin,$bid,$ask,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin,$askmargin,$coinusdprice,$rel_mintradevol,$base_mintradevol,$rel_balance,$base_balance);
                 }
 
-                Time::HiRes::sleep(0.1);
+                #Time::HiRes::sleep(0.1);
             }
         } else {
             dex_deleteprice_ticker($base);
@@ -2431,7 +2431,7 @@ if ( $api eq "dex_gecko" ) {
             if ((($coin eq "BUSD") || ($coin eq "USDT")) && ($base eq "DGB")) {
                 $cex_bid_price_1 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_1,$coin) + 0.00001000;
                 $cex_ask_price_1 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_1,$coin) - 0.00001000;
-            } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "USDC")) && ($base eq "LTC")) {
+            } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "TUSD")) && ($base eq "LTC")) {
                 $cex_bid_price_1 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_1,$coin) + 0.01000;
                 $cex_ask_price_1 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_1,$coin) - 0.01000;
             } elsif (($coin eq "BTC") && ($base eq "LTC")) {
@@ -2455,7 +2455,7 @@ if ( $api eq "dex_gecko" ) {
             if ((($coin eq "BUSD") || ($coin eq "USDT")) && ($base eq "DGB")) {
                 $cex_bid_price_2 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_2,$coin) + 0.00001000;
                 $cex_ask_price_2 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_2,$coin) - 0.00001000;
-            } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "USDC")) && ($base eq "LTC")) {
+            } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "TUSD")) && ($base eq "LTC")) {
                 $cex_bid_price_2 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_2,$coin) + 0.01000;
                 $cex_ask_price_2 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_2,$coin) - 0.01000;
             } elsif (($coin eq "BTC") && ($base eq "LTC")) {
@@ -2479,7 +2479,7 @@ if ( $api eq "dex_gecko" ) {
             if ((($coin eq "BUSD") || ($coin eq "USDT")) && ($base eq "DGB")) {
                 $cex_bid_price_3 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_3,$coin) + 0.00001000;
                 $cex_ask_price_3 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_3,$coin) - 0.00001000;
-            } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "USDC")) && ($base eq "LTC")) {
+            } elsif ((($coin eq "BUSD") || ($coin eq "USDT") || ($coin eq "TUSD")) && ($base eq "LTC")) {
                 $cex_bid_price_3 = calc_bestprice_sum($mandala_depth->{'bids'},$maxsum_3,$coin) + 0.01000;
                 $cex_ask_price_3 = calc_bestprice_sum($mandala_depth->{'asks'},$maxsum_3,$coin) - 0.01000;
             } elsif (($coin eq "BTC") && ($base eq "LTC")) {
