@@ -1888,7 +1888,7 @@ if ( $api eq "dex_gecko" ) {
                         my $now = time();
                         my $last_updated = from_json($komodolive_price)->{"last_updated_timestamp"};
                         my $timediff = $now - $last_updated;
-                        if ( $timediff < 3600 ) {
+                        if ( $timediff < 259200 ) {
                             $coinusdprice = from_json($komodolive_price)->{"last_price"};
                             $price = $coinusdprice / $base_usd_price;
                             $change = abs(from_json($komodolive_price)->{"change_24h"});
