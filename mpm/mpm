@@ -2022,7 +2022,7 @@ if ( $api eq "dex_gecko" ) {
                     if ( $bidmargin > 0.99 ) { $bidmargin = 0.99; }
                     $low = $price - $price * $bidmargin;
                     $low = sprintf("%.10f", $low);
-                    $bid = sprintf("%.10f", 1 / ($price - $price * $bidmargin));
+                    if ($price ne "0") {$bid = sprintf("%.10f", 1 / ($price - $price * $bidmargin));}
                 }
                 if ((defined $marginsconf->{$coin}{'askmargin'}) && (defined $marginsconf->{$coin}{'bidmargin'}) && (($high - $low < 0.0000000003) || ($low < 0.0000000100))) {
                     print "======== kaputtpair $coin/$base  bid $low  ask $high\n";
