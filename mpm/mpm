@@ -349,26 +349,6 @@ sub freiexchange_latest_price {
 }
 
 
-sub smartfi_latest_price {
-    my $url = "https://node1.smartfi.com/market/get-market-summary";
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
-    my $req = HTTP::Request->new(GET => $url);
-    $req->header('content-type' => 'application/json');
-    my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
-}
-
-
 sub dex_ticker_24h {
     my $url = "https://dexapi.cipig.net/public/ticker_24h.php?market=".$_[0]."-".$_[1];
     my $ua = LWP::UserAgent->new;
@@ -1517,10 +1497,7 @@ if ( $api eq "dex_gecko" ) {
 
         my $gecko_price = gecko_latest_price($ids);
         my $freiexchange_price = freiexchange_latest_price();
-        #my $smartfi_price = smartfi_latest_price();
-        my $smartfi_price = 1;
         my $usdrate_price = komodolive_usdrates();
-        #print Dumper($smartfi_price);
 
         my $btcfee = dex_gettradefee("BTC-segwit");
         my $erc20fee = 1;
@@ -1589,18 +1566,17 @@ if ( $api eq "dex_gecko" ) {
             my $binance_price_btc = binance_latest_price("BNBBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"price"}; } else { $base_btc_price = 0; }
             if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"binancecoin"}{"usd_24h_change"}); } else { my $komodolive_bnb_price = komodolive_latest_price("BNB"); $base_24h_change = abs(from_json($komodolive_bnb_price)->{"change_24h"}); }
-        } elsif ( $base eq "KCS" ) {
-            my $kucoin_price_usd = kucoin_latest_price("KCS-USDT");
-            if ( $kucoin_price_usd ne "1" ) { $base_usd_price = ( $kucoin_price_usd->{"bestBid"} + $kucoin_price_usd->{"bestAsk"} + $kucoin_price_usd->{"price"} ) / 3; } else { $base_usd_price = 0; }
-            my $kucoin_price_btc = kucoin_latest_price("KCS-BTC");
-            if ( $kucoin_price_btc ne "1" ) { $base_btc_price = ( $kucoin_price_btc->{"bestBid"} + $kucoin_price_btc->{"bestAsk"} + $kucoin_price_btc->{"price"} ) / 3; } else { $base_btc_price = 0; }
-            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"kucoin-shares"}{"usd_24h_change"}); } else { my $komodolive_kcs_price = komodolive_latest_price("KCS"); $base_24h_change = abs(from_json($komodolive_kcs_price)->{"change_24h"}); }
         } elsif ( $base eq "ARRR" ) {
-            my $kucoin_price_usd = kucoin_latest_price("ARRR-USDT");
-            if ( $kucoin_price_usd ne "1" ) { $base_usd_price = ( $kucoin_price_usd->{"bestBid"} + $kucoin_price_usd->{"bestAsk"} + $kucoin_price_usd->{"price"} ) / 3; } else { $base_usd_price = 0; }
-            my $kucoin_price_btc = kucoin_latest_price("ARRR-BTC");
-            if ( $kucoin_price_btc ne "1" ) { $base_btc_price = ( $kucoin_price_btc->{"bestBid"} + $kucoin_price_btc->{"bestAsk"} + $kucoin_price_btc->{"price"} ) / 3; } else { $base_btc_price = 0; }
-            if ( $gecko_price ne "1" ) { $base_24h_change = abs(from_json($gecko_price)->{"pirate-chain"}{"usd_24h_change"}); } else { my $komodolive_arrr_price = komodolive_latest_price("ARRR"); $base_24h_change = abs(from_json($komodolive_arrr_price)->{"change_24h"}); }
+            if ( $gecko_price ne "1" ) {
+                $base_usd_price = from_json($gecko_price)->{"pirate-chain"}{"usd"};
+                $base_btc_price = from_json($gecko_price)->{"pirate-chain"}{"btc"};
+                $base_24h_change = abs(from_json($gecko_price)->{"pirate-chain"}{"usd_24h_change"});
+            } else {
+                $base_usd_price = 0;
+                $base_btc_price = 0;
+                my $komodolive_arrr_price = komodolive_latest_price("ARRR");
+                $base_24h_change = abs(from_json($komodolive_arrr_price)->{"change_24h"});
+            }
         } elsif ( $base eq "SYS" ) {
             my $binance_price_usd = binance_latest_price("SYSUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"price"}; } else { $base_usd_price = 0; }
@@ -1758,7 +1734,6 @@ if ( $api eq "dex_gecko" ) {
                 my $graviex_btc_symbol = $marginsconf->{$coin}{'graviex_btc_symbol'};
                 my $komodolive_usd_symbol = $marginsconf->{$coin}{'komodolive_usd_symbol'};
                 my $dextrade_usd_symbol = $marginsconf->{$coin}{'dextrade_usd_symbol'};
-                my $smartfi_usd_symbol = $marginsconf->{$coin}{'smartfi_usd_symbol'};
                 my $usdrate_symbol = $marginsconf->{$coin}{'usdrate_symbol'};
                 my $price = 0;
                 my $change = 0;
@@ -1900,12 +1875,6 @@ if ( $api eq "dex_gecko" ) {
                     $price = ( from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"last"} ) / 3 / $base_btc_price;
                     $coinusdprice = ( from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"last"} ) / 3 * $btcusdprice;
                     $change = abs(from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"percent_change_24h"});
-                } elsif ( (defined $smartfi_usd_symbol) && ($smartfi_price ne "1") ) {
-                    #$price = ( from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"HeighestBid"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"LowestAsk"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"Last"} ) / 3 / $base_usd_price;
-                    $price = from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"Last"} / $base_usd_price;
-                    #$coinusdprice = ( from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"HeighestBid"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"LowestAsk"} + from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"Last"} ) / 3;
-                    $coinusdprice = from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"Last"};
-                    $change = abs(from_json($smartfi_price)->{"data"}{$smartfi_usd_symbol}{"PercentChange"});
                 } elsif ( (defined $usdrate_symbol) && ($usdrate_price ne "1") ) {
                     $coinusdprice = 1 / from_json($usdrate_price)->{"rates"}{"$usdrate_symbol"};
                     $price = $coinusdprice / $base_usd_price;
@@ -1919,8 +1888,14 @@ if ( $api eq "dex_gecko" ) {
                 } elsif ( defined $bittrex_btc_symbol ) {
                     my $bittrex_price = bittrex_latest_price($bittrex_btc_symbol);
                     if ( $bittrex_price ne "1" ) {
-                        $price = ( from_json($bittrex_price)->{"askRate"} + from_json($bittrex_price)->{"bidRate"} + from_json($bittrex_price)->{"lastTradeRate"} ) / 3 / $base_btc_price;
-                        $coinusdprice = ( from_json($bittrex_price)->{"askRate"} + from_json($bittrex_price)->{"bidRate"} + from_json($bittrex_price)->{"lastTradeRate"} ) / 3 * $btcusdprice;
+                        my $askrate = from_json($bittrex_price)->{"askRate"};
+                        my $bidRate = from_json($bittrex_price)->{"bidRate"};
+                        if (($askrate > 0) && ($bidRate > 0)) {
+                            $price = ( $askrate + $bidRate + from_json($bittrex_price)->{"lastTradeRate"} ) / 3 / $base_btc_price;
+                            $coinusdprice = ( $askrate + $bidRate + from_json($bittrex_price)->{"lastTradeRate"} ) / 3 * $btcusdprice;
+                        } else {
+                            print "========= wrong price for $coin  bid $bidRate  ask $askrate\n";
+                        }
                     }
                     my $bittrex_sum = bittrex_summary($bittrex_btc_symbol);
                     if ( $bittrex_sum ne "1" ) {
@@ -1929,8 +1904,14 @@ if ( $api eq "dex_gecko" ) {
                 } elsif ( defined $bittrex_usd_symbol ) {
                     my $bittrex_price = bittrex_latest_price($bittrex_usd_symbol);
                     if ( $bittrex_price ne "1" ) {
-                        $price = ( from_json($bittrex_price)->{"askRate"} + from_json($bittrex_price)->{"bidRate"} + from_json($bittrex_price)->{"lastTradeRate"} ) / 3 / $base_usd_price;
-                        $coinusdprice = ( from_json($bittrex_price)->{"askRate"} + from_json($bittrex_price)->{"bidRate"} + from_json($bittrex_price)->{"lastTradeRate"} ) / 3;
+                        my $askrate = from_json($bittrex_price)->{"askRate"};
+                        my $bidRate = from_json($bittrex_price)->{"bidRate"};
+                        if (($askrate > 0) && ($bidRate > 0)) {
+                            $price = ( $askrate + $bidRate + from_json($bittrex_price)->{"lastTradeRate"} ) / 3 / $base_usd_price;
+                            $coinusdprice = ( $askrate + $bidRate + from_json($bittrex_price)->{"lastTradeRate"} ) / 3;
+                        } else {
+                            print "========= wrong price for $coin  bid $bidRate  ask $askrate\n";
+                        }
                     }
                     my $bittrex_sum = bittrex_summary($bittrex_usd_symbol);
                     if ( $bittrex_sum ne "1" ) {
@@ -1939,22 +1920,40 @@ if ( $api eq "dex_gecko" ) {
                 } elsif ( defined $coinex_usd_symbol ) {
                     my $coinex_price = coinex_latest_price($coinex_usd_symbol);
                     if ( $coinex_price ne "1" ) {
-                        $price = ( from_json($coinex_price)->{"data"}{"ticker"}{"sell"} + from_json($coinex_price)->{"data"}{"ticker"}{"buy"} + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3 / $base_usd_price;
-                        $coinusdprice = ( from_json($coinex_price)->{"data"}{"ticker"}{"sell"} + from_json($coinex_price)->{"data"}{"ticker"}{"buy"} + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3;
-                        $change = (1 - from_json($coinex_price)->{"data"}{"ticker"}{"low"} / from_json($coinex_price)->{"data"}{"ticker"}{"high"}) * 100;
+                        my $sell = from_json($coinex_price)->{"data"}{"ticker"}{"sell"};
+                        my $buy = from_json($coinex_price)->{"data"}{"ticker"}{"buy"};
+                        if (($sell > 0) && ($buy > 0)) {
+                            $price = ( $sell + $buy + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3 / $base_usd_price;
+                            $coinusdprice = ( $sell + $buy + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3;
+                            $change = (1 - from_json($coinex_price)->{"data"}{"ticker"}{"low"} / from_json($coinex_price)->{"data"}{"ticker"}{"high"}) * 100;
+                        } else {
+                            print "========= wrong price for $coin  bid $buy  ask $sell\n";
+                        }
                     }
                 } elsif ( defined $coinex_btc_symbol ) {
                     my $coinex_price = coinex_latest_price($coinex_btc_symbol);
                     if ( $coinex_price ne "1" ) {
-                        $price = ( from_json($coinex_price)->{"data"}{"ticker"}{"sell"} + from_json($coinex_price)->{"data"}{"ticker"}{"buy"} + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3 / $base_btc_price;
-                        $coinusdprice = ( from_json($coinex_price)->{"data"}{"ticker"}{"sell"} + from_json($coinex_price)->{"data"}{"ticker"}{"buy"} + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3 * $btcusdprice;
-                        $change = (1 - from_json($coinex_price)->{"data"}{"ticker"}{"low"} / from_json($coinex_price)->{"data"}{"ticker"}{"high"}) * 100;
+                        my $sell = from_json($coinex_price)->{"data"}{"ticker"}{"sell"};
+                        my $buy = from_json($coinex_price)->{"data"}{"ticker"}{"buy"};
+                        if (($sell > 0) && ($buy > 0)) {
+                            $price = ( $sell + $buy + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3 / $base_btc_price;
+                            $coinusdprice = ( $sell + $buy + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3 * $btcusdprice;
+                            $change = (1 - from_json($coinex_price)->{"data"}{"ticker"}{"low"} / from_json($coinex_price)->{"data"}{"ticker"}{"high"}) * 100;
+                        } else {
+                            print "========= wrong price for $coin  bid $buy  ask $sell\n";
+                        }
                     }
                 } elsif ( defined $kucoin_usd_symbol ) {
                     my $kucoin_price = kucoin_latest_price($kucoin_usd_symbol);
                     if ( $kucoin_price ne "1" ) {
-                        $price = ( $kucoin_price->{"bestBid"} + $kucoin_price->{"bestAsk"} + $kucoin_price->{"price"} ) / 3 / $base_usd_price;
-                        $coinusdprice = ( $kucoin_price->{"bestBid"} + $kucoin_price->{"bestAsk"} + $kucoin_price->{"price"} ) / 3;
+                        my $bestbid = $kucoin_price->{"bestBid"};
+                        my $bestask = $kucoin_price->{"bestAsk"};
+                        if (($bestbid > 0) && ($bestask > 0)) {
+                            $price = ( $bestbid + $bestask + $kucoin_price->{"price"} ) / 3 / $base_usd_price;
+                            $coinusdprice = ( $bestbid + $bestask + $kucoin_price->{"price"} ) / 3;
+                        } else {
+                            print "========= wrong price for $coin  bid $bestbid  ask $bestask\n";
+                        }
                     }
                 } elsif ( defined $hitbtc_btc_symbol ) {
                     my $hitbtc_price = hitbtc_latest_price($hitbtc_btc_symbol);
@@ -1966,23 +1965,41 @@ if ( $api eq "dex_gecko" ) {
                 } elsif ( defined $ogre_ltc_symbol ) {
                     my $ogre_price = ogre_latest_price($ogre_ltc_symbol);
                     if ( $ogre_price ne "1" ) {
-                        $price = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 * $ltcusdprice / $base_usd_price;
-                        $coinusdprice = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 * $ltcusdprice;
-                        $change = (1 - from_json($ogre_price)->{"low"} / from_json($ogre_price)->{"high"}) * 100;
+                        my $bestask = from_json($ogre_price)->{"ask"};
+                        my $bestbid = from_json($ogre_price)->{"bid"};
+                        if (($bestbid > 0) && ($bestask > 0)) {
+                            $price = ( $bestbid + $bestask + from_json($ogre_price)->{"price"} ) / 3 * $ltcusdprice / $base_usd_price;
+                            $coinusdprice = ( $bestbid + $bestask + from_json($ogre_price)->{"price"} ) / 3 * $ltcusdprice;
+                            $change = (1 - from_json($ogre_price)->{"low"} / from_json($ogre_price)->{"high"}) * 100;
+                        } else {
+                            print "========= wrong price for $coin  bid $bestbid  ask $bestask\n";
+                        }
                     }
                 } elsif ( defined $ogre_btc_symbol ) {
                     my $ogre_price = ogre_latest_price($ogre_btc_symbol);
                     if ( $ogre_price ne "1" ) {
-                        $price = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 / $base_btc_price;
-                        $coinusdprice = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 * $btcusdprice;
-                        $change = (1 - from_json($ogre_price)->{"low"} / from_json($ogre_price)->{"high"}) * 100;
+                        my $bestask = from_json($ogre_price)->{"ask"};
+                        my $bestbid = from_json($ogre_price)->{"bid"};
+                        if (($bestbid > 0) && ($bestask > 0)) {
+                            $price = ( $bestbid + $bestask + from_json($ogre_price)->{"price"} ) / 3 / $base_btc_price;
+                            $coinusdprice = ( $bestbid + $bestask + from_json($ogre_price)->{"price"} ) / 3 * $btcusdprice;
+                            $change = (1 - from_json($ogre_price)->{"low"} / from_json($ogre_price)->{"high"}) * 100;
+                        } else {
+                            print "========= wrong price for $coin  bid $bestbid  ask $bestask\n";
+                        }
                     }
                 } elsif ( defined $ogre_usd_symbol ) {
                     my $ogre_price = ogre_latest_price($ogre_usd_symbol);
                     if ( $ogre_price ne "1" ) {
-                        $price = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3 / $base_usd_price;
-                        $coinusdprice = ( from_json($ogre_price)->{"ask"} + from_json($ogre_price)->{"bid"} + from_json($ogre_price)->{"price"} ) / 3;
-                        $change = (1 - from_json($ogre_price)->{"low"} / from_json($ogre_price)->{"high"}) * 100;
+                        my $bestask = from_json($ogre_price)->{"ask"};
+                        my $bestbid = from_json($ogre_price)->{"bid"};
+                        if (($bestbid > 0) && ($bestask > 0)) {
+                            $price = ( $bestbid + $bestask + from_json($ogre_price)->{"price"} ) / 3 / $base_usd_price;
+                            $coinusdprice = ( $bestbid + $bestask + from_json($ogre_price)->{"price"} ) / 3;
+                            $change = (1 - from_json($ogre_price)->{"low"} / from_json($ogre_price)->{"high"}) * 100;
+                        } else {
+                            print "========= wrong price for $coin  bid $bestbid  ask $bestask\n";
+                        }
                     }
                 } elsif ( defined $bithumb_usd_symbol ) {
                     my $bithumb_price = bithumb_latest_price($bithumb_usd_symbol);
