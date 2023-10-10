@@ -224,6 +224,24 @@ sub xeggex_latest_price {
         }
 }
 
+sub xeggex_info {
+    my $url = "https://api.xeggex.com/api/v2/asset/getbyticker/".$_[0];
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
 
 sub mexc_latest_price {
     my $url = "https://api.mexc.com/api/v3/ticker/24hr?symbol=".$_[0];
@@ -387,6 +405,24 @@ sub binance_latest_price {
         }
 }
 
+sub binance_info {
+    my $symbol = $_[0];
+    my $url = "https://api.binance.com/api/v3/exchangeInfo?symbol=".$symbol;
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
 
 sub binance_book_price {
     my $base = $_[0];
@@ -495,6 +531,24 @@ sub binance_kline {
 
 sub coinex_latest_price {
     my $url = "https://api.coinex.com/v1/market/ticker?market=".$_[0];
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+sub coinex_info {
+    my $url = "https://api.coinex.com/v1/common/asset/config?coin_type=".$_[0];
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -634,6 +688,25 @@ sub bittrex_latest_price {
 
 sub bittrex_summary {
     my $url = "https://api.bittrex.com/v3/markets/".$_[0]."/summary";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
+sub bittrex_info {
+    my $url = "https://api.bittrex.com/v3/currencies/".$_[0];
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -1274,6 +1347,8 @@ sub dex_setprice {
         }
     }
 
+    Time::HiRes::sleep(0.2);
+
     if ( defined $ask ) {
         my $command = undef;
         my $askvolume1 = 0;
@@ -1710,12 +1785,14 @@ if ( $api eq "dex_gecko" ) {
 
                 my $binance_usd_symbol = $marginsconf->{$coin}{'binance_usd_symbol'};
                 my $binance_btc_symbol = $marginsconf->{$coin}{'binance_btc_symbol'};
+                my $binance_info_symbol = $marginsconf->{$coin}{'binance_info_symbol'};
                 my $safetrade_btc_symbol = $marginsconf->{$coin}{'safetrade_btc_symbol'};
                 my $freiexchange_btc_symbol = $marginsconf->{$coin}{'freiexchange_btc_symbol'};
                 my $bittrex_btc_symbol = $marginsconf->{$coin}{'bittrex_btc_symbol'};
                 my $bittrex_usd_symbol = $marginsconf->{$coin}{'bittrex_usd_symbol'};
                 my $coinex_usd_symbol = $marginsconf->{$coin}{'coinex_usd_symbol'};
                 my $coinex_btc_symbol = $marginsconf->{$coin}{'coinex_btc_symbol'};
+                my $coinex_info_symbol = $marginsconf->{$coin}{'coinex_info_symbol'};
                 my $kucoin_usd_symbol = $marginsconf->{$coin}{'kucoin_usd_symbol'};
                 my $ogre_btc_symbol = $marginsconf->{$coin}{'ogre_btc_symbol'};
                 my $ogre_usd_symbol = $marginsconf->{$coin}{'ogre_usd_symbol'};
@@ -1726,6 +1803,8 @@ if ( $api eq "dex_gecko" ) {
                 my $xeggex_btc_symbol = $marginsconf->{$coin}{'xeggex_btc_symbol'};
                 my $xeggex_doge_symbol = $marginsconf->{$coin}{'xeggex_doge_symbol'};
                 my $xeggex_usd_symbol = $marginsconf->{$coin}{'xeggex_usd_symbol'};
+                my $xeggex_info_symbol = $marginsconf->{$coin}{'xeggex_info_symbol'};
+                my $bittrex_info_symbol = $marginsconf->{$coin}{'bittrex_info_symbol'};
                 my $mexc_usd_symbol = $marginsconf->{$coin}{'mexc_usd_symbol'};
                 my $paprika_id = $marginsconf->{$coin}{'paprika_id'};
                 my $sane_price = $marginsconf->{$coin}{'sane_price'};
@@ -2236,6 +2315,72 @@ if ( $api eq "dex_gecko" ) {
                     }
                 }
 
+                # https://api.xeggex.com/api/v2/asset/getbyticker/SPACECOIN
+                if (defined $xeggex_info_symbol) {
+                    my $xeggex_info = xeggex_info($xeggex_info_symbol);
+                    if ( $xeggex_info ne "1" ) {
+                        my $deposit_active = from_json($xeggex_info)->{"depositActive"};
+                        my $withdraw_active = from_json($xeggex_info)->{"withdrawalActive"};
+                        my $delist_check = from_json($xeggex_info)->{"isDelistCheck"};
+                        my $delesting = from_json($xeggex_info)->{"isDelisting"};
+                        if (!$deposit_active) {
+                            $bid = undef;
+                            print "========= deposits for $coin on xeggex disabled\n";
+                        }
+                        if (!$withdraw_active) {
+                            $ask = undef;
+                            print "========= withdraws for $coin on xeggex disabled\n";
+                        }
+                        if (($delist_check) || ($delesting)) {
+                            print "========= $coin may be delisted from xeggex\n";
+                        }
+                    }
+                }
+
+                # https://api.bittrex.com/v3/currencies/XMY
+                if (defined $bittrex_info_symbol) {
+                    my $bittrex_info = bittrex_info($bittrex_info_symbol);
+                    if ( $bittrex_info ne "1" ) {
+                        my $online = from_json($bittrex_info)->{"status"};
+                        if ($online eq "OFFLINE") {
+                            $bid = undef;
+                            $ask = undef;
+                            my $reason = from_json($bittrex_info)->{"notice"};
+                            print "========= $coin is offline on bittrex, reason: $reason\n";
+                        }
+                    }
+                }
+
+                # https://api.binance.com/api/v3/exchangeInfo?symbol=NAVBTC
+                if (defined $binance_info_symbol) {
+                    my $binance_info = binance_info($binance_info_symbol);
+                    if ( $binance_info ne "1" ) {
+                        my $status = from_json($binance_info)->{"symbols"}[0]{"status"};
+                        if ($status ne "TRADING") {
+                            $bid = undef;
+                            $ask = undef;
+                            print "========= $coin is not trading on binance, reason: $status\n";
+                        }
+                    }
+                }
+
+                # https://api.coinex.com/v1/common/asset/config?coin_type=KMD
+                if (defined $coinex_info_symbol) {
+                    my $coinex_info = coinex_info($coinex_info_symbol);
+                    if ( $coinex_info ne "1" ) {
+                        my $deposit_active = from_json($coinex_info)->{"data"}{"$coinex_info_symbol"}{"can_deposit"};
+                        my $withdraw_active = from_json($coinex_info)->{"data"}{"$coinex_info_symbol"}{"can_withdraw"};
+                        if (!$deposit_active) {
+                            $bid = undef;
+                            print "========= deposits for $coin on coinex disabled\n";
+                        }
+                        if (!$withdraw_active) {
+                            $ask = undef;
+                            print "========= withdraws for $coin on coinex disabled\n";
+                        }
+                    }
+                }
+
                 if ($price eq "0") {
                     dex_deleteprice_pair($base,$coin);
                 } else {
@@ -2244,7 +2389,6 @@ if ( $api eq "dex_gecko" ) {
                     dex_setprice($base,$coin,$bid,$ask,$maxbidvolume,$minbidvolume,$maxaskvolume,$minaskvolume,$bidmargin,$askmargin,$coinusdprice,$rel_mintradevol,$base_mintradevol,$rel_balance,$base_balance);
                 }
 
-                #Time::HiRes::sleep(0.1);
             }
         } else {
             dex_deleteprice_ticker($base);
