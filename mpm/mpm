@@ -286,7 +286,7 @@ sub dextrade_latest_price {
 
 
 sub chainlink_latest_price_eth {
-    my $url = "http://eth3.cipig.net:8555";
+    my $url = "http://eth2.cipig.net:8555";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -307,7 +307,7 @@ sub chainlink_latest_price_eth {
 
 
 sub chainlink_latest_price_bep {
-    my $url = "http://bsc2.cipig.net:8655";
+    my $url = "http://bsc3.cipig.net:8655";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -2448,9 +2448,9 @@ if ( $api eq "dex_gecko" ) {
                 my $marginadd = 0;
                 if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "FIRO") && ($coin eq "FIRO-BEP20")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($base eq "FLUX") && ($coin eq "FLUX-BEP20")) ) {
                     $price = 1;
-                } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) ) {
-                    $marginadd = max($change,$base_24h_change)/100/3;
-                } elsif ( (defined $usdrate_symbol) || (defined $kucoin_usd_symbol) ) {
+                } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usdrate_symbol) ) {
+                    $marginadd = max($change,$base_24h_change)/100/4;
+                } elsif ( (defined $kucoin_usd_symbol) ) {
                     $marginadd = max($change,$base_24h_change)/100/3.5;
                 } else {
                     $marginadd = max($change,$base_24h_change)/100/2.5;
@@ -2478,7 +2478,7 @@ if ( $api eq "dex_gecko" ) {
                     $low = sprintf("%.10f", $low);
                     if ($price ne "0") {$bid = sprintf("%.10f", 1 / ($price - $price * $bidmargin));}
                 }
-                if ((defined $marginsconf->{$coin}{'askmargin'}) && (defined $marginsconf->{$coin}{'bidmargin'}) && (($high - $low < 0.0000000003) || ($low < 0.0000000100))) {
+                if ((defined $marginsconf->{$coin}{'askmargin'}) && (defined $marginsconf->{$coin}{'bidmargin'}) && (($high - $low < 0.0000000005) || ($low < 0.0000000110))) {
                     print "======== kaputtpair $coin/$base  bid $low  ask $high\n";
                     $price = 0;
                 }
