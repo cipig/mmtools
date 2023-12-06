@@ -1,30 +1,30 @@
 {
     "BTC": {
-        "bidmargin_1": 0.0014,
-        "askmargin_1": 0.0014,
+        "bidmargin_1": 0.0012,
+        "askmargin_1": 0.0012,
         "quantity_1": 30,
         "maxsum_1": 40,
-        "bidmargin_2": 0.0026,
-        "askmargin_2": 0.0026,
+        "bidmargin_2": 0.0024,
+        "askmargin_2": 0.0024,
         "quantity_2": 100,
-        "maxsum_2":  400,
-        "bidmargin_3": 0.0046,
-        "askmargin_3": 0.0046,
-        "quantity_3": 200,
-        "maxsum_3": 1200
+        "maxsum_2":  500,
+        "bidmargin_3": 0.0044,
+        "askmargin_3": 0.0044,
+        "quantity_3": 300,
+        "maxsum_3": 1400
     },
     "USDT": {
-        "bidmargin_1": 0.0014,
-        "askmargin_1": 0.0014,
+        "bidmargin_1": 0.0012,
+        "askmargin_1": 0.0012,
         "quantity_1": 30,
         "maxsum_1": 40,
-        "bidmargin_2": 0.0026,
-        "askmargin_2": 0.0026,
+        "bidmargin_2": 0.0024,
+        "askmargin_2": 0.0024,
         "quantity_2": 100,
-        "maxsum_2": 600,
-        "bidmargin_3": 0.0046,
-        "askmargin_3": 0.0046,
-        "quantity_3": 200,
-        "maxsum_3": 1800
+        "maxsum_2": 500,
+        "bidmargin_3": 0.0044,
+        "askmargin_3": 0.0044,
+        "quantity_3": 300,
+        "maxsum_3": 1400
     }
 }

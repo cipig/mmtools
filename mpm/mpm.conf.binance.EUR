@@ -1,0 +1,16 @@
+{
+    "USDT": {
+        "bidmargin_1": 0.0001,
+        "askmargin_1": 0.0001,
+        "quantity_1": 100,
+        "maxsum_1": 50000,
+        "bidmargin_2": 0.0004,
+        "askmargin_2": 0.0004,
+        "quantity_2": 200,
+        "maxsum_2": 150000,
+        "bidmargin_3": 0.0008,
+        "askmargin_3": 0.0008,
+        "quantity_3": 300,
+        "maxsum_3": 300000
+    }
+}
