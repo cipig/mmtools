@@ -1193,9 +1193,6 @@ sub binance_setprice {
         print "$base/$coin ".sprintf("%04d",$quantity);
     }
 
-    if (($coin eq "USDT") && ($base eq "EUR")) { $bid = undef; }
-    if (($coin eq "EUR") && ($base eq "BTC")) { $ask = undef; }
-
     if ( defined $bid ) {
         my $command = "symbol=".$base.$coin."&side=BUY&type=LIMIT_MAKER&newOrderRespType=RESULT&quantity=".$quantity."&price=".$bid."&newClientOrderId=buy".$coin.$base.sprintf("%u",$quantity*1000)."&recvWindow=15000&timestamp=".time()*1000;
         my $signature = hmac_sha256_hex($command, $binance_seckey);
