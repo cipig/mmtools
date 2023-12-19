@@ -208,7 +208,7 @@ sub ogre_latest_price {
 
 
 sub xeggex_latest_price {
-    my $url = "https://xeggex.com/api/v2/ticker/".$_[0];
+    my $url = "https://api.xeggex.com/api/v2/ticker/".$_[0];
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -1920,7 +1920,7 @@ if ( $api eq "dex_gecko" ) {
                 my $komodolive_arrr_price = komodolive_latest_price("ARRR");
                 $base_24h_change = abs(from_json($komodolive_arrr_price)->{"change_24h"});
             }
-        } elsif ( $base eq "SYS" ) {
+        } elsif ( $base eq "SYS-segwit" ) {
             my $binance_price_usd = binance_xxhr_price("SYSUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"lastPrice"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_xxhr_price("SYSBTC");
@@ -1932,7 +1932,7 @@ if ( $api eq "dex_gecko" ) {
             my $binance_price_btc = binance_xxhr_price("FLUXBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"lastPrice"}; } else { $base_btc_price = 0; }
             if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_24h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
-        } elsif ( $base eq "LTC" ) {
+        } elsif ( $base eq "LTC-segwit" ) {
             my $binance_price_usd = binance_xxhr_price("LTCUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"lastPrice"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_xxhr_price("LTCBTC");
@@ -1950,7 +1950,7 @@ if ( $api eq "dex_gecko" ) {
             my $binance_price_btc = binance_xxhr_price("DASHBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"lastPrice"}; } else { $base_btc_price = 0; }
             if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_24h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
-        } elsif ( $base eq "DGB" ) {
+        } elsif ( $base eq "DGB-segwit" ) {
             my $binance_price_usd = binance_xxhr_price("DGBUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"lastPrice"}; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_xxhr_price("DGBBTC");
