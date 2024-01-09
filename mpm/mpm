@@ -1278,6 +1278,8 @@ sub kucoin_setprice {
 
     }
 
+    Time::HiRes::sleep(1);
+
     if ( defined $bid ) {
         my $tonce = time()*1000;
         my $body = '{"clientOid":"buy'.$base.$coin.$quantity.'","side":"buy","symbol":"'.$base.'-'.$coin.'","type":"limit","price":'.$bid.',"size":'.$quantity.'}';
