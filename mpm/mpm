@@ -226,6 +226,27 @@ sub xeggex_latest_price {
         }
 }
 
+
+sub nonkyc_latest_price {
+    my $url = "https://api.nonkyc.io/api/v2/ticker/".$_[0];
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
+
 sub xeggex_info {
     my $url = "https://api.xeggex.com/api/v2/asset/getbyticker/".$_[0];
     my $ua = LWP::UserAgent->new;
@@ -244,6 +265,27 @@ sub xeggex_info {
             return 1;
         }
 }
+
+
+sub nonkyc_info {
+    my $url = "https://api.nonkyc.io/api/v2/asset/getbyticker/".$_[0];
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+        if ($resp->is_success) {
+            return $resp->content;
+        } else {
+            print "HTTP GET url: ", $url, "\n";
+            print "HTTP GET error code: ", $resp->code, "\n";
+            print "HTTP GET error message: ", $resp->message, "\n";
+            return 1;
+        }
+}
+
 
 sub mexc_latest_price {
     my $url = "https://api.mexc.com/api/v3/ticker/24hr?symbol=".$_[0];
@@ -286,7 +328,7 @@ sub dextrade_latest_price {
 
 
 sub chainlink_latest_price_eth {
-    my $url = "http://eth2.cipig.net:8555";
+    my $url = "http://eth3.cipig.net:8555";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -328,7 +370,7 @@ sub chainlink_latest_price_bep {
 
 
 sub chainlink_latest_price_arb {
-    my $url = "https://arbitrum.llamarpc.com";
+    my $url = "https://arbitrum.drpc.org";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -1278,8 +1320,6 @@ sub kucoin_setprice {
 
     }
 
-    Time::HiRes::sleep(1);
-
     if ( defined $bid ) {
         my $tonce = time()*1000;
         my $body = '{"clientOid":"buy'.$base.$coin.$quantity.'","side":"buy","symbol":"'.$base.'-'.$coin.'","type":"limit","price":'.$bid.',"size":'.$quantity.'}';
@@ -2076,6 +2116,8 @@ if ( $api eq "dex_gecko" ) {
                 my $xeggex_doge_symbol = $marginsconf->{$coin}{'xeggex_doge_symbol'};
                 my $xeggex_usd_symbol = $marginsconf->{$coin}{'xeggex_usd_symbol'};
                 my $xeggex_info_symbol = $marginsconf->{$coin}{'xeggex_info_symbol'};
+                my $nonkyc_usd_symbol = $marginsconf->{$coin}{'nonkyc_usd_symbol'};
+                my $nonkyc_info_symbol = $marginsconf->{$coin}{'nonkyc_info_symbol'};
                 my $bittrex_info_symbol = $marginsconf->{$coin}{'bittrex_info_symbol'};
                 my $mexc_usd_symbol = $marginsconf->{$coin}{'mexc_usd_symbol'};
                 my $vrscbridge_usd_symbol = $marginsconf->{$coin}{'vrscbridge_usd_symbol'};
@@ -2233,6 +2275,19 @@ if ( $api eq "dex_gecko" ) {
                             print "========= wrong price for $coin  bid $bidrate  ask $askrate\n";
                         }
                         if ( from_json($xeggex_price)->{"high"} > 0 ) { $change = (1 - from_json($xeggex_price)->{"low"} / from_json($xeggex_price)->{"high"}) * 100; }
+                    }
+                } elsif ( defined $nonkyc_usd_symbol ) {
+                    my $nonkyc_price = nonkyc_latest_price($nonkyc_usd_symbol);
+                    if ( $nonkyc_price ne "1" ) {
+                        my $bidrate = from_json($nonkyc_price)->{"bid"};
+                        my $askrate = from_json($nonkyc_price)->{"ask"};
+                        if (($askrate > 0) && ($bidrate > 0)) {
+                            $price = ( $askrate + $bidrate + from_json($nonkyc_price)->{"last_price"} ) / 3 / $base_usd_price;
+                            $coinusdprice = ( $askrate + $bidrate + from_json($nonkyc_price)->{"last_price"} ) / 3;
+                        } else {
+                            print "========= wrong price for $coin  bid $bidrate  ask $askrate\n";
+                        }
+                        if ( from_json($nonkyc_price)->{"high"} > 0 ) { $change = (1 - from_json($nonkyc_price)->{"low"} / from_json($nonkyc_price)->{"high"}) * 100; }
                     }
                 } elsif ( defined $xeggex_doge_symbol ) {
                     my $xeggex_price = xeggex_latest_price($xeggex_doge_symbol);
@@ -2652,6 +2707,28 @@ if ( $api eq "dex_gecko" ) {
                         }
                         if (($delist_check) || ($delesting)) {
                             print "========= $coin may be delisted from xeggex\n";
+                        }
+                    }
+                }
+
+                # https://api.nonkyc.io/api/v2/asset/getbyticker/NAV
+                if (defined $nonkyc_info_symbol) {
+                    my $nonkyc_info = nonkyc_info($nonkyc_info_symbol);
+                    if ( $nonkyc_info ne "1" ) {
+                        my $deposit_active = from_json($nonkyc_info)->{"depositActive"};
+                        my $withdraw_active = from_json($nonkyc_info)->{"withdrawalActive"};
+                        my $delist_check = from_json($nonkyc_info)->{"isDelistCheck"};
+                        my $delesting = from_json($nonkyc_info)->{"isDelisting"};
+                        if (!$deposit_active) {
+                            $bid = undef;
+                            print "========= deposits for $coin on nonkyc disabled\n";
+                        }
+                        if (!$withdraw_active) {
+                            $ask = undef;
+                            print "========= withdraws for $coin on nonkyc disabled\n";
+                        }
+                        if (($delist_check) || ($delesting)) {
+                            print "========= $coin may be delisted from nonkyc\n";
                         }
                     }
                 }
