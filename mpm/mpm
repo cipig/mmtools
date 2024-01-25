@@ -370,7 +370,7 @@ sub chainlink_latest_price_bep {
 
 
 sub chainlink_latest_price_arb {
-    my $url = "https://arbitrum.drpc.org";
+    my $url = "https://arbitrum.llamarpc.com";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
