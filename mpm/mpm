@@ -1952,16 +1952,27 @@ if ( $api eq "dex_gecko" ) {
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"lastPrice"}; } else { $base_btc_price = 0; }
             if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_24h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
         } elsif ( $base eq "ARRR" ) {
-            if ( $gecko_price ne "1" ) {
-                $base_usd_price = from_json($gecko_price)->{"pirate-chain"}{"usd"};
-                $base_btc_price = from_json($gecko_price)->{"pirate-chain"}{"btc"};
-                $base_24h_change = abs(from_json($gecko_price)->{"pirate-chain"}{"usd_24h_change"});
-            } else {
-                $base_usd_price = 0;
-                $base_btc_price = 0;
-                my $komodolive_arrr_price = komodolive_latest_price("ARRR");
-                $base_24h_change = abs(from_json($komodolive_arrr_price)->{"change_24h"});
+            my $nonkyc_price_usd = nonkyc_latest_price("ARRR_USDT");
+            if ( $nonkyc_price_usd ne "1" ) {
+                my $bidrate_usd = from_json($nonkyc_price_usd)->{"bid"};
+                my $askrate_usd = from_json($nonkyc_price_usd)->{"ask"};
+                if (($askrate_usd > 0) && ($bidrate_usd > 0)) {
+                    $base_usd_price = ( $askrate_usd + $bidrate_usd + from_json($nonkyc_price_usd)->{"last_price"} ) / 3;
+                } else {
+                    $base_usd_price = 0;
+                }
             }
+            my $nonkyc_price_btc = nonkyc_latest_price("ARRR_BTC");
+            if ( $nonkyc_price_btc ne "1" ) {
+                my $bidrate_btc = from_json($nonkyc_price_btc)->{"bid"};
+                my $askrate_btc = from_json($nonkyc_price_btc)->{"ask"};
+                if (($askrate_btc > 0) && ($bidrate_btc > 0)) {
+                    $base_btc_price = ( $askrate_btc + $bidrate_btc + from_json($nonkyc_price_btc)->{"last_price"} ) / 3;
+                } else {
+                    $base_btc_price = 0;
+                }
+            }
+            if ( from_json($nonkyc_price_usd)->{"high"} > 0 ) { $base_24h_change = (1 - from_json($nonkyc_price_usd)->{"low"} / from_json($nonkyc_price_usd)->{"high"}) * 100; }
         } elsif ( $base eq "SYS-segwit" ) {
             my $binance_price_usd = binance_xxhr_price("SYSUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"lastPrice"}; } else { $base_usd_price = 0; }
