@@ -1,0 +1,8 @@
+#!/bin/bash
+source ~/atomicDEX-API/etomic_build/client/userpass
+while true; do
+  echo -n "================================================================================================== "
+  date
+  ~/mmtools/mpm/mpm dex_gecko $@
+  sleep $[ ( $RANDOM % 20 ) + 200 ]s
+done
