@@ -328,7 +328,7 @@ sub dextrade_latest_price {
 
 
 sub chainlink_latest_price_eth {
-    my $url = "http://eth3.cipig.net:8555";
+    my $url = "http://eth1.cipig.net:8555";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -1893,7 +1893,7 @@ if ( $api eq "dex_gecko" ) {
         my $krc20fee = 1;
         my $glm20fee = 1;
         my $mvr20fee = 1;
-        my $hco20fee = 1;
+        #my $hco20fee = 1;
         if ( $gecko_price ne "1" ) {
             $erc20fee = dex_gettradefee("ETH") * from_json($gecko_price)->{"ethereum"}{"usd"};
             $ewtfee = dex_gettradefee("EWT") * from_json($gecko_price)->{"energy-web-token"}{"usd"};
@@ -1907,7 +1907,7 @@ if ( $api eq "dex_gecko" ) {
             $krc20fee = dex_gettradefee("KCS") * from_json($gecko_price)->{"kucoin-shares"}{"usd"};
             $glm20fee = dex_gettradefee("GLMR") * from_json($gecko_price)->{"moonbeam"}{"usd"};
             $mvr20fee = dex_gettradefee("MOVR") * from_json($gecko_price)->{"moonriver"}{"usd"};
-            $hco20fee = dex_gettradefee("HT") * from_json($gecko_price)->{"huobi-token"}{"usd"};
+            #$hco20fee = dex_gettradefee("HT") * from_json($gecko_price)->{"huobi-token"}{"usd"};
         } else {
             my $eth_usd_price = komodolive_latest_price("ETH");
             $erc20fee = dex_gettradefee("ETH") * from_json($eth_usd_price)->{"last_price"};
@@ -1932,8 +1932,8 @@ if ( $api eq "dex_gecko" ) {
             $glm20fee = dex_gettradefee("GLMR") * from_json($glmr_usd_price)->{"last_price"};
             my $movr_usd_price = komodolive_latest_price("MOVR");
             $mvr20fee = dex_gettradefee("MOVR") * from_json($movr_usd_price)->{"last_price"};
-            my $ht_usd_price = komodolive_latest_price("HT");
-            $hco20fee = dex_gettradefee("HT") * from_json($ht_usd_price)->{"last_price"};
+            #my $ht_usd_price = komodolive_latest_price("HT");
+            #$hco20fee = dex_gettradefee("HT") * from_json($ht_usd_price)->{"last_price"};
        }
 
         my $base_usd_price = 0;
@@ -2114,6 +2114,7 @@ if ( $api eq "dex_gecko" ) {
                 if ( !defined $type ) { $type = "utxo"; }
 
                 my $binance_usd_symbol = $marginsconf->{$coin}{'binance_usd_symbol'};
+                my $binance_usdinv_symbol = $marginsconf->{$coin}{'binance_usdinv_symbol'};
                 my $binance_btc_symbol = $marginsconf->{$coin}{'binance_btc_symbol'};
                 my $binance_info_symbol = $marginsconf->{$coin}{'binance_info_symbol'};
                 my $safetrade_btc_symbol = $marginsconf->{$coin}{'safetrade_btc_symbol'};
@@ -2192,6 +2193,13 @@ if ( $api eq "dex_gecko" ) {
                     if ( $binance_price ne "1" ) {
                         $price = from_json($binance_price)->{"lastPrice"} / $base_usd_price;
                         $coinusdprice = from_json($binance_price)->{"lastPrice"};
+                        if ( from_json($binance_price)->{"highPrice"} > 0 ) { $change = (1 - from_json($binance_price)->{"lowPrice"} / from_json($binance_price)->{"highPrice"}) * 100; }
+                    }
+                } elsif ( defined $binance_usdinv_symbol ) {
+                    my $binance_price = binance_xxhr_price($binance_usdinv_symbol);
+                    if ( $binance_price ne "1" ) {
+                        $coinusdprice = 1 / from_json($binance_price)->{"lastPrice"};
+                        $price = $coinusdprice / $base_usd_price;
                         if ( from_json($binance_price)->{"highPrice"} > 0 ) { $change = (1 - from_json($binance_price)->{"lowPrice"} / from_json($binance_price)->{"highPrice"}) * 100; }
                     }
                 } elsif ( defined $binance_btc_symbol ) {
@@ -2522,11 +2530,11 @@ if ( $api eq "dex_gecko" ) {
                 if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "FIRO") && ($coin eq "FIRO-BEP20")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($base eq "FLUX") && ($coin eq "FLUX-BEP20")) ) {
                     $price = 1;
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) ) {
-                    $marginadd = max($change,$base_4h_change)/100/4;
-                    #$marginadd = ($change + $base_4h_change)/2/100/4;
+                    $marginadd = max($change,$base_4h_change)/100/4.5;
+                    #$marginadd = ($change + $base_4h_change)/2/100/4.5;
                 } else {
-                    $marginadd = max($change,$base_4h_change)/100/3;
-                    #$marginadd = ($change + $base_4h_change)/2/100/3;
+                    $marginadd = max($change,$base_4h_change)/100/3.5;
+                    #$marginadd = ($change + $base_4h_change)/2/100/3.5;
                 }
                 #print "======== $coin change: $change, $base base_4h_change: $base_4h_change, marginadd: $marginadd\n";
 
@@ -2664,13 +2672,13 @@ if ( $api eq "dex_gecko" ) {
                         $minaskvolume = $mvr20fee * 40 / $coinusdprice;
                         $minbidvolume = $mvr20fee * 40 / $base_usd_price;
                     }
-                } elsif ( ($type eq "hco20") || (index($base, "HCO20") != -1) || ($base eq "HT") ) {
-                    if ( ($hco20fee eq "1") || ($coinusdprice == 0) ) {
-                        $price = 0;
-                    } else {
-                        $minaskvolume = $hco20fee * 40 / $coinusdprice;
-                        $minbidvolume = $hco20fee * 40 / $base_usd_price;
-                    }
+                #} elsif ( ($type eq "hco20") || (index($base, "HCO20") != -1) || ($base eq "HT") ) {
+                #    if ( ($hco20fee eq "1") || ($coinusdprice == 0) ) {
+                #        $price = 0;
+                #    } else {
+                #        $minaskvolume = $hco20fee * 40 / $coinusdprice;
+                #        $minbidvolume = $hco20fee * 40 / $base_usd_price;
+                #    }
                 } elsif ($type eq "ewt") {
                     if ( ($ewtfee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
