@@ -1936,6 +1936,26 @@ if ( $api eq "dex_gecko" ) {
             #$hco20fee = dex_gettradefee("HT") * from_json($ht_usd_price)->{"last_price"};
        }
 
+        my $btcusdprice = 0;
+        my $ltcusdprice = 0;
+        my $dogeusdprice = 0;
+        my $ethusdprice = 0;
+        if ( $gecko_price ne "1" ) {
+            $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
+            $ltcusdprice = from_json($gecko_price)->{"litecoin"}{"usd"};
+            $dogeusdprice = from_json($gecko_price)->{"dogecoin"}{"usd"};
+            $ethusdprice = from_json($gecko_price)->{"ethereum"}{"usd"};
+        } else {
+            my $binance_btcusdprice = binance_latest_price("BTCUSDT");
+            if ( $binance_btcusdprice ne "1" ) { $btcusdprice = from_json($binance_btcusdprice)->{"price"}; }
+            my $binance_ltcusdprice = binance_latest_price("LTCUSDT");
+            if ( $binance_ltcusdprice ne "1" ) { $ltcusdprice = from_json($binance_ltcusdprice)->{"price"}; }
+            my $binance_dogeusdprice = binance_latest_price("DOGEUSDT");
+            if ( $binance_dogeusdprice ne "1" ) { $dogeusdprice = from_json($binance_dogeusdprice)->{"price"}; }
+            my $binance_ethusdprice = binance_latest_price("ETHUSDT");
+            if ( $binance_ethusdprice ne "1" ) { $ethusdprice = from_json($binance_ethusdprice)->{"price"}; }
+        }
+
         my $base_usd_price = 0;
         my $base_btc_price = 0;
         my $base_4h_change = 0;
@@ -2013,9 +2033,13 @@ if ( $api eq "dex_gecko" ) {
             if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_4h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
         } elsif ( $base eq "DGB-segwit" ) {
             my $binance_price_usd = binance_xxhr_price("DGBUSDT");
-            if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"lastPrice"}; } else { $base_usd_price = 0; }
-            my $binance_price_btc = binance_xxhr_price("DGBBTC");
-            if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"lastPrice"}; } else { $base_btc_price = 0; }
+            if ( $binance_price_usd ne "1" ) {
+                $base_usd_price = from_json($binance_price_usd)->{"lastPrice"};
+                $base_btc_price = from_json($binance_price_usd)->{"lastPrice"} / $btcusdprice;
+            } else {
+                $base_usd_price = 0;
+                $base_btc_price = 0;
+            }
             if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_4h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
         } elsif ( $base eq "MATIC" ) {
             my $binance_price_usd = binance_xxhr_price("MATICUSDT");
@@ -2031,9 +2055,13 @@ if ( $api eq "dex_gecko" ) {
             if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_4h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
         } elsif ( $base eq "RVN" ) {
             my $binance_price_usd = binance_xxhr_price("RVNUSDT");
-            if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"lastPrice"}; } else { $base_usd_price = 0; }
-            my $binance_price_btc = binance_xxhr_price("RVNBTC");
-            if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"lastPrice"}; } else { $base_btc_price = 0; }
+            if ( $binance_price_usd ne "1" ) {
+                $base_usd_price = from_json($binance_price_usd)->{"lastPrice"};
+                $base_btc_price = from_json($binance_price_usd)->{"lastPrice"} / $btcusdprice;
+            } else {
+                $base_usd_price = 0;
+                $base_btc_price = 0;
+            }
             if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_4h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
         } elsif ( $base eq "QTUM" ) {
             my $binance_price_usd = binance_xxhr_price("QTUMUSDT");
@@ -2102,7 +2130,7 @@ if ( $api eq "dex_gecko" ) {
             if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"lastPrice"}; } else { $base_btc_price = 0; }
         }
 
-        if ( ($base_usd_price ne "0") && ($base_btc_price ne "0") ) {
+        if ( ($base_usd_price > 0) && ($base_btc_price > 0) ) {
 
              my $base_mintradevol = dex_getmintradevol($base);
              my $base_balance = dex_getbalance($base);
@@ -2156,25 +2184,6 @@ if ( $api eq "dex_gecko" ) {
                 my $price = 0;
                 my $change = 0;
                 my $coinusdprice = 0;
-                my $btcusdprice = 0;
-                my $ltcusdprice = 0;
-                my $dogeusdprice = 0;
-                my $ethusdprice = 0;
-                if ( $gecko_price ne "1" ) {
-                    $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
-                    $ltcusdprice = from_json($gecko_price)->{"litecoin"}{"usd"};
-                    $dogeusdprice = from_json($gecko_price)->{"dogecoin"}{"usd"};
-                    $ethusdprice = from_json($gecko_price)->{"ethereum"}{"usd"};
-                } else {
-                    my $binance_btcusdprice = binance_latest_price("BTCUSDT");
-                    if ( $binance_btcusdprice ne "1" ) { $btcusdprice = from_json($binance_btcusdprice)->{"price"}; }
-                    my $binance_ltcusdprice = binance_latest_price("LTCUSDT");
-                    if ( $binance_ltcusdprice ne "1" ) { $ltcusdprice = from_json($binance_ltcusdprice)->{"price"}; }
-                    my $binance_dogeusdprice = binance_latest_price("DOGEUSDT");
-                    if ( $binance_dogeusdprice ne "1" ) { $dogeusdprice = from_json($binance_dogeusdprice)->{"price"}; }
-                    my $binance_ethusdprice = binance_latest_price("ETHUSDT");
-                    if ( $binance_ethusdprice ne "1" ) { $ethusdprice = from_json($binance_ethusdprice)->{"price"}; }
-                }
 
                 if ( (defined $geckoid) && ($gecko_price ne "1") ) {
                     my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
@@ -2820,7 +2829,9 @@ if ( $api eq "dex_gecko" ) {
 
             }
         } else {
+            print "========= base price 0, cancelling orders, base_usd_price $base_usd_price, base_btc_price $base_btc_price\n";
             dex_deleteprice_ticker($base);
+            Time::HiRes::sleep(180);
         }
     }
 
