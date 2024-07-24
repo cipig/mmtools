@@ -2543,7 +2543,7 @@ if ( $api eq "dex_gecko" ) {
                 } else {
                     $marginadd = max($change,$base_4h_change)/100/3;
                 }
-                #print "======== $coin change: $change, $base base_4h_change: $base_4h_change, marginadd: $marginadd\n";
+                #print "====== $coin change: $change, $base base_4h_change: $base_4h_change, marginadd: $marginadd\n";
 
                 my $bid = undef;
                 my $ask = undef;
@@ -2593,6 +2593,8 @@ if ( $api eq "dex_gecko" ) {
                     } else {
                         $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 30;
                         $minbidvolume_btc = $btcfee * 30;
+                        if ($minaskvolume_btc < 0.00777 * $btcusdprice / $coinusdprice) { $minaskvolume_btc = 0.00777 * $btcusdprice / $coinusdprice * 1.05; }
+                        if ($minbidvolume_btc < 0.00777) { $minbidvolume_btc = 0.00777 * 1.05; }
                         $minaskvolume_eth = $erc20fee * 70 / $coinusdprice;
                         $minbidvolume_eth = $erc20fee * 70 / $base_usd_price;
                         $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
