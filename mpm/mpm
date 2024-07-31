@@ -1866,7 +1866,7 @@ if ( $api eq "dex_gecko" ) {
     my @stablecoins_eur = ("EURS-PLG20","AGEUR-PLG20","JEUR-PLG20","EURE-PLG20","EUROE-PLG20");
     my @stablecoins_try = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","JTRY-PLG20");
     #my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","JTRY-PLG20","BIDR-BEP20","JPYC-PLG20","JJPY-PLG20","BRZ-BEP20","QC-QRC20","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JGBP-PLG20","NZDS-PLG20","JCAD-PLG20","JSGD-PLG20","JCNY-PLG20","JAUD-PLG20","JBRL-PLG20","JBRL-BEP20","JKRW-PLG20","JMXN-PLG20","JSEK-PLG20");
-    my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,matic-network,fantom,harmony,kucoin-shares,huobi-token,moonbeam,moonriver,zelcash,syscoin,pirate-chain,energy-web-token";
+    my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,matic-network,fantom,harmony,kucoin-shares,huobi-token,moonbeam,moonriver,zelcash,syscoin,pirate-chain,energy-web-token,digibyte";
     foreach my $coin ( keys %{$marginsconf} ) {
         if ( defined $marginsconf->{$coin}{'geckoid'} ) {
             $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
@@ -1939,11 +1939,13 @@ if ( $api eq "dex_gecko" ) {
         my $btcusdprice = 0;
         my $ltcusdprice = 0;
         my $dogeusdprice = 0;
+        my $dgbusdprice = 0;
         my $ethusdprice = 0;
         if ( $gecko_price ne "1" ) {
             $btcusdprice = from_json($gecko_price)->{"bitcoin"}{"usd"};
             $ltcusdprice = from_json($gecko_price)->{"litecoin"}{"usd"};
             $dogeusdprice = from_json($gecko_price)->{"dogecoin"}{"usd"};
+            $dgbusdprice = from_json($gecko_price)->{"digibyte"}{"usd"};
             $ethusdprice = from_json($gecko_price)->{"ethereum"}{"usd"};
         } else {
             my $binance_btcusdprice = binance_latest_price("BTCUSDT");
@@ -1952,6 +1954,8 @@ if ( $api eq "dex_gecko" ) {
             if ( $binance_ltcusdprice ne "1" ) { $ltcusdprice = from_json($binance_ltcusdprice)->{"price"}; }
             my $binance_dogeusdprice = binance_latest_price("DOGEUSDT");
             if ( $binance_dogeusdprice ne "1" ) { $dogeusdprice = from_json($binance_dogeusdprice)->{"price"}; }
+            my $binance_dgbusdprice = binance_latest_price("DGBUSDT");
+            if ( $binance_dgbusdprice ne "1" ) { $dgbusdprice = from_json($binance_dgbusdprice)->{"price"}; }
             my $binance_ethusdprice = binance_latest_price("ETHUSDT");
             if ( $binance_ethusdprice ne "1" ) { $ethusdprice = from_json($binance_ethusdprice)->{"price"}; }
         }
@@ -2715,6 +2719,12 @@ if ( $api eq "dex_gecko" ) {
                 } elsif ($base eq "DOGE") {
                     $minaskvolume = $dogeusdprice / $coinusdprice * 3;
                     $minbidvolume = 3;
+                } elsif ($coin eq "DGB-segwit") {
+                    $minaskvolume = 20;
+                    $minbidvolume = $dgbusdprice / $base_usd_price * 20;
+                } elsif ($base eq "DGB-segwit") {
+                    $minaskvolume = $dgbusdprice / $coinusdprice * 20;
+                    $minbidvolume = 20;
                 }
 
                 if (defined $sane_price) {
