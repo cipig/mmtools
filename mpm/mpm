@@ -2091,7 +2091,7 @@ if ( $api eq "dex_gecko" ) {
             my $binance_price_btc = binance_xxhr_price("ETHBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"lastPrice"}; } else { $base_btc_price = 0; }
             if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_4h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
-        } elsif ( ($base eq "BTC") || ($base eq "BTC-BEP20") || ($base eq "BTC-segwit") || ($base eq "WBTC-PLG20") ) {
+        } elsif ( ($base eq "BTC") || ($base eq "BTC-BEP20") || ($base eq "BTC-segwit") || ($base eq "WBTC-PLG20") || ($base eq "TBTC-PLG20") ) {
             my $binance_price_usd = binance_xxhr_price("BTCUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"lastPrice"}; } else { $base_usd_price = 0; }
             $base_btc_price = 1;
