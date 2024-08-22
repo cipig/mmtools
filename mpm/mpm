@@ -1862,7 +1862,7 @@ if ( $api eq "dex_gecko" ) {
     $userpass =  $ENV{'userpass'};
     my $json = read_file("$cwd/mpm.conf.dex");
     $marginsconf = decode_json($json);
-    my @stablecoins_usd = ("USDT-BEP20","USDT-PLG20","USDT-AVX20","USDT-KRC20","BUSD-BEP20","DAI-BEP20","DAI-AVX20","DAI-ERC20","DAI-PLG20","TUSD-BEP20","TUSD-PLG20","USDC-BEP20","USDC-PLG20","USDC-AVX20","USDC-KRC20");
+    my @stablecoins_usd = ("USDT-BEP20","USDT-PLG20","USDT-AVX20","USDT-KRC20","FDUSD-BEP20","DAI-BEP20","DAI-AVX20","DAI-ERC20","DAI-PLG20","TUSD-BEP20","TUSD-PLG20","USDC-BEP20","USDC-PLG20","USDC-AVX20","USDC-KRC20");
     my @stablecoins_eur = ("EURS-PLG20","AGEUR-PLG20","JEUR-PLG20","EURE-PLG20","EUROE-PLG20");
     my @stablecoins_try = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","JTRY-PLG20");
     #my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","JTRY-PLG20","BIDR-BEP20","JPYC-PLG20","JJPY-PLG20","BRZ-BEP20","QC-QRC20","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JGBP-PLG20","NZDS-PLG20","JCAD-PLG20","JSGD-PLG20","JCNY-PLG20","JAUD-PLG20","JBRL-PLG20","JBRL-BEP20","JKRW-PLG20","JMXN-PLG20","JSEK-PLG20");
