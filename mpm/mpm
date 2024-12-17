@@ -11,6 +11,7 @@ use Digest::SHA qw(hmac_sha256_hex hmac_sha256_base64 sha512_hex hmac_sha512_hex
 use Digest::MD5 qw(md5_hex);
 use Time::HiRes;
 use LWP::Protocol::socks;
+use Term::ANSIColor;
 #use Data::Dumper;
 #use Test::JSON;
 
@@ -1634,9 +1635,9 @@ sub dex_setprice {
         my $bidvolume1 = 0;
         if ( defined $maxbidvolume ) {
             $bidvolume1 = $maxbidvolume;
-            if ($bidvolume1 > $base_balance*0.9) { $bidvolume1 = $base_balance*0.9; }
+            if ($bidvolume1 > $base_balance*0.95) { $bidvolume1 = $base_balance*0.95; }
         } else {
-            $bidvolume1 = $base_balance*0.9;
+            $bidvolume1 = $base_balance*0.95;
         }
         if ( $bidvolume1 > 0 ) {
             if ( defined $minbidvolume ) {
@@ -1674,9 +1675,9 @@ sub dex_setprice {
         my $askvolume1 = 0;
         if ( defined $maxaskvolume ) {
             $askvolume1 = $maxaskvolume;
-            if ($askvolume1 > $rel_balance*0.9) { $askvolume1 = $rel_balance*0.9; }
+            if ($askvolume1 > $rel_balance*0.95) { $askvolume1 = $rel_balance*0.95; }
         } else {
-            $askvolume1 = $rel_balance*0.9;
+            $askvolume1 = $rel_balance*0.95;
         }
         if ( $askvolume1 > 0 ) {
             if ( defined $minaskvolume ) {
@@ -1707,7 +1708,12 @@ sub dex_setprice {
         }
     }
 
-    print " balance_in_usd ".sprintf("%.2f",$rel_balance*$coinusdprice)."\n";
+    my $rel_balance_usd = $rel_balance * $coinusdprice;
+    if ( $rel_balance_usd > 500 ) {
+        print colored (" balance_in_usd ".sprintf("%.2f",$rel_balance_usd), 'red'),"\n";
+    } else {
+        print " balance_in_usd ".sprintf("%.2f",$rel_balance_usd)."\n";
+    }
 }
 
 
@@ -2619,7 +2625,7 @@ if ( $api eq "dex_gecko" ) {
                 my $marginadd = 0;
                 if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "FIRO") && ($coin eq "FIRO-BEP20")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($base eq "FLUX") && ($coin eq "FLUX-BEP20")) ) {
                     $price = 1;
-                } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usd_stablecoin) || (defined $chainlink_usd_bep) || (defined $chainlink_usd_eth) || (defined $usdrate_symbol) || (defined $kucoin_usd_symbol) ) {
+                } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usd_stablecoin) || (defined $chainlink_usd_bep) || (defined $chainlink_usd_eth) || (defined $usdrate_symbol) || (defined $kucoin_usd_symbol) || (defined $coinex_usd_symbol) ) {
                     $marginadd = max($change,$base_4h_change)/100/4.5;
                 } else {
                     $marginadd = max($change,$base_4h_change)/100/3.5;
@@ -2672,12 +2678,12 @@ if ( $api eq "dex_gecko" ) {
                     if ( ($erc20fee eq "1") || ($btcfee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 30;
-                        $minbidvolume_btc = $btcfee * 30;
-                        if ($minaskvolume_btc < 0.00777 * $btcusdprice / $coinusdprice) { $minaskvolume_btc = 0.00777 * $btcusdprice / $coinusdprice * 1.05; }
-                        if ($minbidvolume_btc < 0.00777) { $minbidvolume_btc = 0.00777 * 1.05; }
-                        $minaskvolume_eth = $erc20fee * 100 / $coinusdprice;
-                        $minbidvolume_eth = $erc20fee * 100 / $base_usd_price;
+                        $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 25;
+                        $minbidvolume_btc = $btcfee * 25;
+                        if ($minaskvolume_btc < 0.00777 * $btcusdprice / $coinusdprice) { $minaskvolume_btc = 0.00777 * $btcusdprice / $coinusdprice * 1.03; }
+                        if ($minbidvolume_btc < 0.00777) { $minbidvolume_btc = 0.00777 * 1.03; }
+                        $minaskvolume_eth = $erc20fee * 80 / $coinusdprice;
+                        $minbidvolume_eth = $erc20fee * 80 / $base_usd_price;
                         $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
                         $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
                     }
@@ -2685,26 +2691,26 @@ if ( $api eq "dex_gecko" ) {
                     if ( ($erc20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $erc20fee * 100 / $coinusdprice;
-                        $minbidvolume = $erc20fee * 100 / $base_usd_price;
+                        $minaskvolume = $erc20fee * 80 / $coinusdprice;
+                        $minbidvolume = $erc20fee * 80 / $base_usd_price;
                     }
                 } elsif (($base eq "BTC") || ($base eq "BTC-segwit")) {
                     if ( ($btcfee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $btcfee * $btcusdprice / $coinusdprice * 30;
-                        if ($minaskvolume < 0.00777 * $btcusdprice / $coinusdprice) { $minaskvolume = 0.00777 * $btcusdprice / $coinusdprice * 1.05; }
-                        $minbidvolume = $btcfee * 30;
-                        if ($minbidvolume < 0.00777) { $minbidvolume = 0.00777 * 1.05; }
+                        $minaskvolume = $btcfee * $btcusdprice / $coinusdprice * 25;
+                        if ($minaskvolume < 0.00777 * $btcusdprice / $coinusdprice) { $minaskvolume = 0.00777 * $btcusdprice / $coinusdprice * 1.03; }
+                        $minbidvolume = $btcfee * 25;
+                        if ($minbidvolume < 0.00777) { $minbidvolume = 0.00777 * 1.03; }
                     }
                 } elsif (($coin eq "BTC") || ($coin eq "BTC-segwit")) {
                     if ( ($btcfee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $btcfee * 30;
-                        if ($minaskvolume < 0.00777) { $minaskvolume = 0.00777 * 1.05; }
-                        $minbidvolume = $btcfee * $btcusdprice / $base_usd_price * 30;
-                        if ($minbidvolume < 0.00777 * $btcusdprice / $base_usd_price) { $minbidvolume = 0.00777 * $btcusdprice / $base_usd_price * 1.05; }
+                        $minaskvolume = $btcfee * 25;
+                        if ($minaskvolume < 0.00777) { $minaskvolume = 0.00777 * 1.03; }
+                        $minbidvolume = $btcfee * $btcusdprice / $base_usd_price * 25;
+                        if ($minbidvolume < 0.00777 * $btcusdprice / $base_usd_price) { $minbidvolume = 0.00777 * $btcusdprice / $base_usd_price * 1.03; }
                     }
                 } elsif ( ($type eq "bep20") || (index($base, "BEP20") != -1) || ($base eq "BNB") ) {
                     if ( ($bep20fee eq "1") || ($coinusdprice == 0) ) {
