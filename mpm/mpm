@@ -427,17 +427,23 @@ sub vrscbridge_latest_price {
     $command = '{"jsonrpc":"1.0","id":"curltest","method":"getcurrencystate","params":["Bridge.vETH"]}';
     $req->content($command);
     my $resp = $ua->request($req);
-        if (length from_json($resp->content)->{"error"}{"code"}) {
-            print "ERROR: ", from_json($resp->content)->{"error"}{"message"}, "\n";
-            return 1;
-        } elsif ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif (length from_json($resp->content)->{"error"}{"code"}) {
+        print "ERROR: ", from_json($resp->content)->{"error"}{"message"}, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -452,17 +458,23 @@ sub varrrbridge_latest_price {
     $command = '{"jsonrpc":"1.0","id":"curltest","method":"getcurrencystate","params":["Bridge.vARRR"]}';
     $req->content($command);
     my $resp = $ua->request($req);
-        if (length from_json($resp->content)->{"error"}{"code"}) {
-            print "ERROR: ", from_json($resp->content)->{"error"}{"message"}, "\n";
-            return 1;
-        } elsif ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif (length from_json($resp->content)->{"error"}{"code"}) {
+        print "ERROR: ", from_json($resp->content)->{"error"}{"message"}, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -477,17 +489,23 @@ sub vdexbridge_latest_price {
     $command = '{"jsonrpc":"1.0","id":"curltest","method":"getcurrencystate","params":["Bridge.vDEX"]}';
     $req->content($command);
     my $resp = $ua->request($req);
-        if (length from_json($resp->content)->{"error"}{"code"}) {
-            print "ERROR: ", from_json($resp->content)->{"error"}{"message"}, "\n";
-            return 1;
-        } elsif ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif (length from_json($resp->content)->{"error"}{"code"}) {
+        print "ERROR: ", from_json($resp->content)->{"error"}{"message"}, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
