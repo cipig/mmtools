@@ -1957,7 +1957,8 @@ if ( $api eq "dex_gecko" ) {
 
         my $gecko_price = gecko_latest_price($ids);
         my $freiexchange_price = freiexchange_latest_price();
-        my $usdrate_price = komodolive_usdrates();
+        #my $usdrate_price = komodolive_usdrates();
+        my $usdrate_price = 1;
 
         my $btcfee = dex_gettradefee("BTC-segwit");
         my $erc20fee = 1;
@@ -2058,6 +2059,16 @@ if ( $api eq "dex_gecko" ) {
             my $binance_price_btc = binance_xxhr_price("BNBBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"lastPrice"}; } else { $base_btc_price = 0; }
             if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_4h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
+        } elsif ( $base eq "VRSC" ) {
+            my $vrscbridge_price_usd = vrscbridge_latest_price();
+            if ( $vrscbridge_price_usd ne "1" ) {
+                $base_btc_price = from_json($vrscbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} / from_json($vrscbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[0]{"reserves"} / $btcusdprice;
+                $base_usd_price = from_json($vrscbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} / from_json($vrscbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[0]{"reserves"};
+                print "base_btc_price = $base_btc_price ============== base_usd_price = $base_usd_price\n";
+            } else {
+                $base_usd_price = 0;
+                $base_btc_price = 0;
+            }
         } elsif ( ($base eq "ARRR") || ($base eq "vARRR") ) {
             if ( $gecko_price ne "1" ) {
                 $base_btc_price = from_json($gecko_price)->{"pirate-chain"}{"btc"};
