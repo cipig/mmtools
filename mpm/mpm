@@ -2062,8 +2062,8 @@ if ( $api eq "dex_gecko" ) {
         } elsif ( $base eq "VRSC" ) {
             my $vrscbridge_price_usd = vrscbridge_latest_price();
             if ( $vrscbridge_price_usd ne "1" ) {
-                $base_btc_price = from_json($vrscbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} / from_json($vrscbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[0]{"reserves"} / $btcusdprice;
-                $base_usd_price = from_json($vrscbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} / from_json($vrscbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[0]{"reserves"};
+                $base_btc_price = from_json($vrscbridge_price_usd)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} / from_json($vrscbridge_price_usd)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[0]{"reserves"} / $btcusdprice;
+                $base_usd_price = from_json($vrscbridge_price_usd)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} / from_json($vrscbridge_price_usd)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[0]{"reserves"};
                 print "base_btc_price = $base_btc_price ============== base_usd_price = $base_usd_price\n";
             } else {
                 $base_usd_price = 0;
