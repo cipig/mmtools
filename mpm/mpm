@@ -1968,12 +1968,10 @@ if ( $api eq "dex_gecko" ) {
         my $avx20fee = 1;
         my $bep20fee = 1;
         my $plg20fee = 1;
-        my $ftm20fee = 1;
         my $hrc20fee = 1;
         my $krc20fee = 1;
         my $glm20fee = 1;
         my $mvr20fee = 1;
-        #my $hco20fee = 1;
         if ( $gecko_price ne "1" ) {
             $erc20fee = dex_gettradefee("ETH") * from_json($gecko_price)->{"ethereum"}{"usd"};
             $ewtfee = dex_gettradefee("EWT") * from_json($gecko_price)->{"energy-web-token"}{"usd"};
@@ -1982,12 +1980,10 @@ if ( $api eq "dex_gecko" ) {
             $avx20fee = dex_gettradefee("AVAX") * from_json($gecko_price)->{"avalanche-2"}{"usd"};
             $bep20fee = dex_gettradefee("BNB") * from_json($gecko_price)->{"binancecoin"}{"usd"};
             $plg20fee = dex_gettradefee("MATIC") * from_json($gecko_price)->{"matic-network"}{"usd"};
-            $ftm20fee = dex_gettradefee("FTM") * from_json($gecko_price)->{"fantom"}{"usd"};
             $hrc20fee = dex_gettradefee("ONE") * from_json($gecko_price)->{"harmony"}{"usd"};
             $krc20fee = dex_gettradefee("KCS") * from_json($gecko_price)->{"kucoin-shares"}{"usd"};
             $glm20fee = dex_gettradefee("GLMR") * from_json($gecko_price)->{"moonbeam"}{"usd"};
             $mvr20fee = dex_gettradefee("MOVR") * from_json($gecko_price)->{"moonriver"}{"usd"};
-            #$hco20fee = dex_gettradefee("HT") * from_json($gecko_price)->{"huobi-token"}{"usd"};
         } else {
             my $eth_usd_price = komodolive_latest_price("ETH");
             $erc20fee = dex_gettradefee("ETH") * from_json($eth_usd_price)->{"last_price"};
@@ -2002,8 +1998,6 @@ if ( $api eq "dex_gecko" ) {
             $bep20fee = dex_gettradefee("BNB") * from_json($bnb_usd_price)->{"last_price"};
             my $matic_usd_price = komodolive_latest_price("MATIC");
             $plg20fee = dex_gettradefee("MATIC") * from_json($matic_usd_price)->{"last_price"};
-            my $ftm_usd_price = komodolive_latest_price("FTM");
-            $ftm20fee = dex_gettradefee("FTM") * from_json($ftm_usd_price)->{"last_price"};
             my $one_usd_price = komodolive_latest_price("ONE");
             $hrc20fee = dex_gettradefee("ONE") * from_json($one_usd_price)->{"last_price"};
             my $kcs_usd_price = komodolive_latest_price("KCS");
@@ -2012,8 +2006,6 @@ if ( $api eq "dex_gecko" ) {
             $glm20fee = dex_gettradefee("GLMR") * from_json($glmr_usd_price)->{"last_price"};
             my $movr_usd_price = komodolive_latest_price("MOVR");
             $mvr20fee = dex_gettradefee("MOVR") * from_json($movr_usd_price)->{"last_price"};
-            #my $ht_usd_price = komodolive_latest_price("HT");
-            #$hco20fee = dex_gettradefee("HT") * from_json($ht_usd_price)->{"last_price"};
        }
 
         my $btcusdprice = 0;
@@ -2761,13 +2753,6 @@ if ( $api eq "dex_gecko" ) {
                         $minaskvolume = $plg20fee * 40 / $coinusdprice;
                         $minbidvolume = $plg20fee * 40 / $base_usd_price;
                     }
-                } elsif ( ($type eq "ftm20") || (index($base, "FTM20") != -1) || ($base eq "FTM") ) {
-                    if ( ($ftm20fee eq "1") || ($coinusdprice == 0) ) {
-                        $price = 0;
-                    } else {
-                        $minaskvolume = $ftm20fee * 40 / $coinusdprice;
-                        $minbidvolume = $ftm20fee * 40 / $base_usd_price;
-                    }
                 } elsif ( ($type eq "hrc20") || (index($base, "HRC20") != -1) || ($base eq "ONE") ) {
                     if ( ($hrc20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
@@ -2796,13 +2781,6 @@ if ( $api eq "dex_gecko" ) {
                         $minaskvolume = $mvr20fee * 40 / $coinusdprice;
                         $minbidvolume = $mvr20fee * 40 / $base_usd_price;
                     }
-                #} elsif ( ($type eq "hco20") || (index($base, "HCO20") != -1) || ($base eq "HT") ) {
-                #    if ( ($hco20fee eq "1") || ($coinusdprice == 0) ) {
-                #        $price = 0;
-                #    } else {
-                #        $minaskvolume = $hco20fee * 40 / $coinusdprice;
-                #        $minbidvolume = $hco20fee * 40 / $base_usd_price;
-                #    }
                 } elsif ($type eq "ewt") {
                     if ( ($ewtfee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
