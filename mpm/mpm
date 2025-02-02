@@ -447,6 +447,37 @@ sub vrscbridge_latest_price {
 }
 
 
+sub chipsbridge_latest_price {
+    my $url = "https://rpc.vrsc.komodefi.com";
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout($timeout);
+    my $req = HTTP::Request->new(POST => $url);
+    #$req->content_type('application/x-www-form-urlencoded');
+    $req->content_type('application/json');
+
+    $command = '{"jsonrpc":"1.0","id":"curltest","method":"getcurrencystate","params":["Bridge.CHIPS"]}';
+    $req->content($command);
+    my $resp = $ua->request($req);
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif (length from_json($resp->content)->{"error"}{"code"}) {
+        print "ERROR: ", from_json($resp->content)->{"error"}{"message"}, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
+}
+
+
 sub varrrbridge_latest_price {
     my $url = "https://rpc.varrr.komodefi.com";
     my $ua = LWP::UserAgent->new;
@@ -2031,6 +2062,11 @@ if ( $api eq "dex_gecko" ) {
             my $binance_ethusdprice = binance_latest_price("ETHUSDT");
             if ( $binance_ethusdprice ne "1" ) { $ethusdprice = from_json($binance_ethusdprice)->{"price"}; }
         }
+        my $vrscusdprice = 0;
+        my $vrsc_price = vrscbridge_latest_price();
+        if ( $vrsc_price ne "1" ) {
+            $vrscusdprice = from_json($vrsc_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} / from_json($vrsc_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[0]{"reserves"};
+        }
 
         my $base_usd_price = 0;
         my $base_btc_price = 0;
@@ -2261,6 +2297,7 @@ if ( $api eq "dex_gecko" ) {
                 my $nonkyc_info_symbol = $marginsconf->{$coin}{'nonkyc_info_symbol'};
                 my $bittrex_info_symbol = $marginsconf->{$coin}{'bittrex_info_symbol'};
                 my $mexc_usd_symbol = $marginsconf->{$coin}{'mexc_usd_symbol'};
+                my $chipsbridge_vrsc_symbol = $marginsconf->{$coin}{'chipsbridge_vrsc_symbol'};
                 my $vrscbridge_usd_symbol = $marginsconf->{$coin}{'vrscbridge_usd_symbol'};
                 my $vdexbridge_usd_symbol = $marginsconf->{$coin}{'vdexbridge_usd_symbol'};
                 my $varrrbridge_btc_symbol = $marginsconf->{$coin}{'varrrbridge_btc_symbol'};
@@ -2459,6 +2496,12 @@ if ( $api eq "dex_gecko" ) {
                         } else {
                             print "================ price too old ================ now: $now, last_updated: $last_updated, diff: $timediff ================\n";
                         }
+                    }
+                } elsif ( defined $chipsbridge_vrsc_symbol ) {
+                    my $chipsbridge_price = chipsbridge_latest_price();
+                    if ( $chipsbridge_price ne "1" ) {
+                        $price = from_json($chipsbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[0]{"reserves"} / from_json($chipsbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} * $vrscusdprice / $base_usd_price;
+                        $coinusdprice = from_json($chipsbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[0]{"reserves"} / from_json($chipsbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} * $vrscusdprice;
                     }
                 } elsif ( defined $vrscbridge_usd_symbol ) {
                     my $vrscbridge_price = vrscbridge_latest_price();
