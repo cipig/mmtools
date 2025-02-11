@@ -479,7 +479,8 @@ sub chipsbridge_latest_price {
 
 
 sub varrrbridge_latest_price {
-    my $url = "https://rpc.varrr.komodefi.com";
+    #my $url = "https://rpc.varrr.komodefi.com";
+    my $url = "https://rpc.vrsc.komodefi.com";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -510,7 +511,8 @@ sub varrrbridge_latest_price {
 
 
 sub vdexbridge_latest_price {
-    my $url = "https://rpc.vdex.komodefi.com";
+    #my $url = "https://rpc.vdex.komodefi.com";
+    my $url = "https://rpc.vrsc.komodefi.com";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -2729,6 +2731,7 @@ if ( $api eq "dex_gecko" ) {
                 my $minbidvolume = undef;
                 my $maxaskvolume = undef;
                 my $minaskvolume = undef;
+                if ($coinusdprice > 0) {
                 my $maxbidvolume_usd = $marginsconf->{$coin}{'maxbidvolume'};
                 if ( defined $maxbidvolume_usd ) { $maxbidvolume = $maxbidvolume_usd / $base_usd_price; }
                 my $minbidvolume_usd = $marginsconf->{$coin}{'minbidvolume'};
@@ -2857,6 +2860,7 @@ if ( $api eq "dex_gecko" ) {
                 } elsif ($base eq "DGB-segwit") {
                     $minaskvolume = $dgbusdprice / $coinusdprice * 20;
                     $minbidvolume = 20;
+                }
                 }
 
                 if (defined $sane_price) {
