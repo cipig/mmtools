@@ -169,7 +169,7 @@ sub graviex_latest_price {
 
 
 sub exbitron_latest_price {
-    my $url = "https://www.exbitron.com/api/v2/peatio/public/markets/".$_[0]."/tickers";
+    my $url = "https://api.exbitron.digital/api/v1/trading/info/".$_[0];
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -2377,9 +2377,9 @@ if ( $api eq "dex_gecko" ) {
                 } elsif ( defined $exbitron_usd_symbol ) {
                     my $exbitron_price = exbitron_latest_price($exbitron_usd_symbol);
                     if ( $exbitron_price ne "1" ) {
-                        $price = from_json($exbitron_price)->{"ticker"}{"last"} / $base_usd_price;
-                        $coinusdprice = from_json($exbitron_price)->{"ticker"}{"last"};
-                        if ( from_json($exbitron_price)->{"ticker"}{"high"} > 0 ) { $change = (1 - from_json($exbitron_price)->{"ticker"}{"low"} / from_json($exbitron_price)->{"ticker"}{"high"}) * 100; }
+                        $price = ( from_json($exbitron_price)->{"data"}{"market"}{"marketDynamics"}{"lastPrice"} + from_json($exbitron_price)->{"data"}{"market"}{"highestBid"} + from_json($exbitron_price)->{"data"}{"market"}{"lowestAsk"} ) / 3 / $base_usd_price;
+                        $coinusdprice = ( from_json($exbitron_price)->{"data"}{"market"}{"marketDynamics"}{"lastPrice"} + from_json($exbitron_price)->{"data"}{"market"}{"highestBid"} + from_json($exbitron_price)->{"data"}{"market"}{"lowestAsk"} ) / 3;
+                        if ( from_json($exbitron_price)->{"data"}{"market"}{"marketDynamics"}{"highPrice"} > 0 ) { $change = (1 - from_json($exbitron_price)->{"data"}{"market"}{"marketDynamics"}{"lowPrice"} / from_json($exbitron_price)->{"data"}{"market"}{"marketDynamics"}{"highPrice"}) * 100; }
                     }
                 } elsif ( defined $southxchange_btc_symbol ) {
                     my $southxchange_price = southxchange_latest_price($southxchange_btc_symbol);
