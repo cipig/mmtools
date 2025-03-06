@@ -329,8 +329,8 @@ sub dextrade_latest_price {
 
 
 sub chainlink_latest_price_eth {
-    my $url = "http://eth3.cipig.net:8555";
-    #my $url = "https://rpc.payload.de";
+    #my $url = "http://eth3.cipig.net:8555";
+    my $url = "https://mainnet.gateway.tenderly.co";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -417,7 +417,8 @@ sub komodolive_latest_price {
 
 
 sub vrscbridge_latest_price {
-    my $url = "https://rpc.vrsc.komodefi.com";
+    #my $url = "https://rpc.vrsc.komodefi.com";
+    my $url = "https://api.verus.services";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -448,7 +449,8 @@ sub vrscbridge_latest_price {
 
 
 sub chipsbridge_latest_price {
-    my $url = "https://rpc.vrsc.komodefi.com";
+    #my $url = "https://rpc.vrsc.komodefi.com";
+    my $url = "https://api.verus.services";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -480,7 +482,8 @@ sub chipsbridge_latest_price {
 
 sub varrrbridge_latest_price {
     #my $url = "https://rpc.varrr.komodefi.com";
-    my $url = "https://rpc.vrsc.komodefi.com";
+    #my $url = "https://rpc.vrsc.komodefi.com";
+    my $url = "https://api.verus.services";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -512,7 +515,8 @@ sub varrrbridge_latest_price {
 
 sub vdexbridge_latest_price {
     #my $url = "https://rpc.vdex.komodefi.com";
-    my $url = "https://rpc.vrsc.komodefi.com";
+    #my $url = "https://rpc.vrsc.komodefi.com";
+    my $url = "https://api.verus.services";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -2748,8 +2752,8 @@ if ( $api eq "dex_gecko" ) {
                         $minbidvolume_btc = $btcfee * 25;
                         if ($minaskvolume_btc < 0.00777 * $btcusdprice / $coinusdprice) { $minaskvolume_btc = 0.00777 * $btcusdprice / $coinusdprice * 1.03; }
                         if ($minbidvolume_btc < 0.00777) { $minbidvolume_btc = 0.00777 * 1.03; }
-                        $minaskvolume_eth = $erc20fee * 80 / $coinusdprice;
-                        $minbidvolume_eth = $erc20fee * 80 / $base_usd_price;
+                        $minaskvolume_eth = $erc20fee * 100 / $coinusdprice;
+                        $minbidvolume_eth = $erc20fee * 100 / $base_usd_price;
                         $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
                         $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
                     }
@@ -2757,8 +2761,8 @@ if ( $api eq "dex_gecko" ) {
                     if ( ($erc20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $erc20fee * 80 / $coinusdprice;
-                        $minbidvolume = $erc20fee * 80 / $base_usd_price;
+                        $minaskvolume = $erc20fee * 100 / $coinusdprice;
+                        $minbidvolume = $erc20fee * 100 / $base_usd_price;
                     }
                 } elsif (($base eq "BTC") || ($base eq "BTC-segwit")) {
                     if ( ($btcfee eq "1") || ($coinusdprice == 0) ) {
