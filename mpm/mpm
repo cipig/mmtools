@@ -93,19 +93,25 @@ sub paprika_ticker {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
 sub gecko_latest_price {
-    my $url = "https://api.coingecko.com/api/v3/simple/price?ids=".$_[0]."&vs_currencies=btc,usd,cad,sgd,chf,cny,nzd,jpy&include_24hr_change=true";
+    my $url = "https://api.coingecko.com/api/v3/simple/price?ids=".$_[0]."&vs_currencies=btc,usd&include_24hr_change=true";
     #print "URL: $url\n";
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
@@ -114,16 +120,20 @@ sub gecko_latest_price {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            #print Dumper($resp->content);
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            #print Dumper($resp->content);
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -137,26 +147,6 @@ sub safetrade_latest_price {
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
         #if ( ($resp->is_success) && (is_valid_json $resp->content) ) {
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
-}
-
-
-sub graviex_latest_price {
-    my $url = "https://graviex.net//webapi/v3/tickers/".$_[0].".json";
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
-    my $req = HTTP::Request->new(GET => $url);
-    $req->header('content-type' => 'application/json');
-    my $resp = $ua->request($req);
         if ($resp->is_success) {
             return $resp->content;
         } else {
@@ -297,14 +287,20 @@ sub mexc_latest_price {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -330,7 +326,8 @@ sub dextrade_latest_price {
 
 sub chainlink_latest_price_eth {
     #my $url = "http://eth3.cipig.net:8555";
-    my $url = "https://mainnet.gateway.tenderly.co";
+    #my $url = "https://mainnet.gateway.tenderly.co";
+    my $url = "https://eth.merkle.io";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -338,15 +335,31 @@ sub chainlink_latest_price_eth {
 
     $command = '{"jsonrpc":"2.0","method": "eth_call","params":[{"to":"'.$_[0].'","data":"0x50d25bcd000000000000000000000000"},"latest"],"id":777}';
     $req->content($command);
+
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
+#    my $resp = $ua->request($req);
+#        if ($resp->is_success) {
+#            return $resp->content;
+#        } else {
+#            print "HTTP GET url: ", $url, "\n";
+#            print "HTTP GET error code: ", $resp->code, "\n";
+#            print "HTTP GET error message: ", $resp->message, "\n";
+#            return 1;
+#        }
 }
 
 
@@ -360,14 +373,20 @@ sub chainlink_latest_price_bep {
     $command = '{"jsonrpc":"2.0","method": "eth_call","params":[{"to":"'.$_[0].'","data":"0x50d25bcd000000000000000000000000"},"latest"],"id":777}';
     $req->content($command);
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -381,14 +400,20 @@ sub chainlink_latest_price_arb {
     $command = '{"jsonrpc":"2.0","method": "eth_call","params":[{"to":"'.$_[0].'","data":"0x50d25bcd000000000000000000000000"},"latest"],"id":777}';
     $req->content($command);
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -424,7 +449,6 @@ sub vrscbridge_latest_price {
     my $req = HTTP::Request->new(POST => $url);
     #$req->content_type('application/x-www-form-urlencoded');
     $req->content_type('application/json');
-
     $command = '{"jsonrpc":"1.0","id":"curltest","method":"getcurrencystate","params":["Bridge.vETH"]}';
     $req->content($command);
     my $resp = $ua->request($req);
@@ -456,7 +480,6 @@ sub chipsbridge_latest_price {
     my $req = HTTP::Request->new(POST => $url);
     #$req->content_type('application/x-www-form-urlencoded');
     $req->content_type('application/json');
-
     $command = '{"jsonrpc":"1.0","id":"curltest","method":"getcurrencystate","params":["Bridge.CHIPS"]}';
     $req->content($command);
     my $resp = $ua->request($req);
@@ -489,7 +512,6 @@ sub varrrbridge_latest_price {
     my $req = HTTP::Request->new(POST => $url);
     #$req->content_type('application/x-www-form-urlencoded');
     $req->content_type('application/json');
-
     $command = '{"jsonrpc":"1.0","id":"curltest","method":"getcurrencystate","params":["Bridge.vARRR"]}';
     $req->content($command);
     my $resp = $ua->request($req);
@@ -522,7 +544,6 @@ sub vdexbridge_latest_price {
     my $req = HTTP::Request->new(POST => $url);
     #$req->content_type('application/x-www-form-urlencoded');
     $req->content_type('application/json');
-
     $command = '{"jsonrpc":"1.0","id":"curltest","method":"getcurrencystate","params":["Bridge.vDEX"]}';
     $req->content($command);
     my $resp = $ua->request($req);
@@ -826,7 +847,8 @@ sub coinex_latest_price {
 }
 
 sub coinex_info {
-    my $url = "https://api.coinex.com/v1/common/asset/config?coin_type=".$_[0];
+    #my $url = "https://api.coinex.com/v1/common/asset/config?coin_type=".$_[0];
+    my $url = "https://api.coinex.com/v2/assets/deposit-withdraw-config?ccy=".$_[0];
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -2193,6 +2215,21 @@ if ( $api eq "dex_gecko" ) {
             my $binance_price_btc = binance_xxhr_price("ZECBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"lastPrice"}; } else { $base_btc_price = 0; }
             if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_4h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
+#            my $kucoin_price_usd = kucoin_latest_price("ZEC-USDT");
+#            if ( $kucoin_price_usd ne "1" ) {
+#                my $bestbid = $kucoin_price_usd->{"bestBid"};
+#                my $bestask = $kucoin_price_usd->{"bestAsk"};
+#                if (($bestbid > 0) && ($bestask > 0)) {
+#                     $base_usd_price = ( $bestbid + $bestask + $kucoin_price_usd->{"price"} ) / 3;
+#                     $base_btc_price = ( $bestbid + $bestask + $kucoin_price_usd->{"price"} ) / 3 / $btcusdprice;
+#                } else {
+#                     $base_usd_price = 0;
+#                     $base_btc_price = 0;
+#                }
+#            } else {
+#                $base_usd_price = 0;
+#                $base_btc_price = 0;
+#            }
         } elsif ( $base eq "RVN" ) {
             my $binance_price_usd = binance_xxhr_price("RVNUSDT");
             if ( $binance_price_usd ne "1" ) {
@@ -2228,11 +2265,11 @@ if ( $api eq "dex_gecko" ) {
             if ( $binance_price_usd ne "1" ) {
                 $base_usd_price = from_json($binance_price_usd)->{"lastPrice"};
                 $base_btc_price = from_json($binance_price_usd)->{"lastPrice"} / $btcusdprice;
+                if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_4h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
             } else {
                 $base_usd_price = 0;
                 $base_btc_price = 0;
             }
-            if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_4h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
         } elsif ( ($base eq "ETH") || ($base eq "ETH-BEP20") || ($base eq "ETH-PLG20") ) {
             my $binance_price_usd = binance_xxhr_price("ETHUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"lastPrice"}; } else { $base_usd_price = 0; }
@@ -2328,7 +2365,6 @@ if ( $api eq "dex_gecko" ) {
                 my $sane_price = $marginsconf->{$coin}{'sane_price'};
                 my $southxchange_btc_symbol = $marginsconf->{$coin}{'southxchange_btc_symbol'};
                 my $southxchange_doge_symbol = $marginsconf->{$coin}{'southxchange_doge_symbol'};
-                my $graviex_btc_symbol = $marginsconf->{$coin}{'graviex_btc_symbol'};
                 my $komodolive_usd_symbol = $marginsconf->{$coin}{'komodolive_usd_symbol'};
                 my $dextrade_usd_symbol = $marginsconf->{$coin}{'dextrade_usd_symbol'};
                 my $usdrate_symbol = $marginsconf->{$coin}{'usdrate_symbol'};
@@ -2427,19 +2463,6 @@ if ( $api eq "dex_gecko" ) {
                             print "========= wrong price for $coin  bid $bidrate  ask $askrate\n";
                         }
                         $change = abs(from_json($southxchange_price)->{"Variation24Hr"});
-                    }
-                } elsif ( defined $graviex_btc_symbol ) {
-                    my $graviex_price = graviex_latest_price($graviex_btc_symbol);
-                    if ( $graviex_price ne "1" ) {
-                        my $buy = from_json($graviex_price)->{"buy"};
-                        my $sell = from_json($graviex_price)->{"sell"};
-                        if (($sell > 0) && ($buy > 0)) {
-                            $price = ( $buy + $sell + from_json($graviex_price)->{"last"} ) / 3 / $base_btc_price;
-                            $coinusdprice = ( $buy + $sell + from_json($graviex_price)->{"last"} ) / 3 * $btcusdprice;
-                        } else {
-                            print "========= wrong price for $coin  bid $buy  ask $sell\n";
-                        }
-                        if ( from_json($graviex_price)->{"high"} > 0 ) { $change = (1 - from_json($graviex_price)->{"low"} / from_json($graviex_price)->{"high"}) * 100; }
                     }
                 } elsif ( defined $xeggex_btc_symbol ) {
                     my $xeggex_price = xeggex_latest_price($xeggex_btc_symbol);
@@ -2969,12 +2992,12 @@ if ( $api eq "dex_gecko" ) {
                     }
                 }
 
-                # https://api.coinex.com/v1/common/asset/config?coin_type=KMD
+                # https://api.coinex.com/v2/assets/deposit-withdraw-config?ccy=FIRO
                 if (defined $coinex_info_symbol) {
                     my $coinex_info = coinex_info($coinex_info_symbol);
                     if ( $coinex_info ne "1" ) {
-                        my $deposit_active = from_json($coinex_info)->{"data"}{"$coinex_info_symbol"}{"can_deposit"};
-                        my $withdraw_active = from_json($coinex_info)->{"data"}{"$coinex_info_symbol"}{"can_withdraw"};
+                        my $deposit_active = from_json($coinex_info)->{"data"}{"chains"}[0]{"deposit_enabled"};
+                        my $withdraw_active = from_json($coinex_info)->{"data"}{"chains"}[0]{"withdraw_enabled"};
                         if (!$deposit_active) {
                             $bid = undef;
                             print "========= deposits for $coin on coinex disabled\n";
