@@ -325,9 +325,10 @@ sub dextrade_latest_price {
 
 
 sub chainlink_latest_price_eth {
-    #my $url = "http://eth3.cipig.net:8555";
+    my $url = "http://eth3.cipig.net:8555";
     #my $url = "https://mainnet.gateway.tenderly.co";
-    my $url = "https://eth.merkle.io";
+    #my $url = "https://eth.merkle.io";
+    #my $url = "https://rpc.payload.de";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -2004,7 +2005,7 @@ if ( $api eq "dex_gecko" ) {
     my @stablecoins_eur = ("EURS-PLG20","AGEUR-PLG20","JEUR-PLG20","EURE-PLG20","EUROE-PLG20");
     my @stablecoins_try = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","JTRY-PLG20");
     #my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","JTRY-PLG20","BIDR-BEP20","JPYC-PLG20","JJPY-PLG20","BRZ-BEP20","QC-QRC20","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JGBP-PLG20","NZDS-PLG20","JCAD-PLG20","JSGD-PLG20","JCNY-PLG20","JAUD-PLG20","JBRL-PLG20","JBRL-BEP20","JKRW-PLG20","JMXN-PLG20","JSEK-PLG20");
-    my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,matic-network,fantom,harmony,kucoin-shares,huobi-token,moonbeam,moonriver,zelcash,syscoin,pirate-chain,energy-web-token,digibyte";
+    my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,polygon-ecosystem-token,fantom,harmony,kucoin-shares,huobi-token,moonbeam,moonriver,zelcash,syscoin,pirate-chain,energy-web-token,digibyte";
     foreach my $coin ( keys %{$marginsconf} ) {
         if ( defined $marginsconf->{$coin}{'geckoid'} ) {
             $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
@@ -2038,7 +2039,7 @@ if ( $api eq "dex_gecko" ) {
             $qrc20fee = dex_gettradefee("QC-QRC20") * from_json($gecko_price)->{"qtum"}{"usd"};
             $avx20fee = dex_gettradefee("AVAX") * from_json($gecko_price)->{"avalanche-2"}{"usd"};
             $bep20fee = dex_gettradefee("BNB") * from_json($gecko_price)->{"binancecoin"}{"usd"};
-            $plg20fee = dex_gettradefee("MATIC") * from_json($gecko_price)->{"matic-network"}{"usd"};
+            $plg20fee = dex_gettradefee("POL") * from_json($gecko_price)->{"polygon-ecosystem-token"}{"usd"};
             $hrc20fee = dex_gettradefee("ONE") * from_json($gecko_price)->{"harmony"}{"usd"};
             $krc20fee = dex_gettradefee("KCS") * from_json($gecko_price)->{"kucoin-shares"}{"usd"};
             $glm20fee = dex_gettradefee("GLMR") * from_json($gecko_price)->{"moonbeam"}{"usd"};
@@ -2055,8 +2056,8 @@ if ( $api eq "dex_gecko" ) {
             $avx20fee = dex_gettradefee("AVAX") * from_json($avax_usd_price)->{"last_price"};
             my $bnb_usd_price = komodolive_latest_price("BNB");
             $bep20fee = dex_gettradefee("BNB") * from_json($bnb_usd_price)->{"last_price"};
-            my $matic_usd_price = komodolive_latest_price("MATIC");
-            $plg20fee = dex_gettradefee("MATIC") * from_json($matic_usd_price)->{"last_price"};
+            my $pol_usd_price = komodolive_latest_price("POL");
+            $plg20fee = dex_gettradefee("POL") * from_json($pol_usd_price)->{"last_price"};
             my $one_usd_price = komodolive_latest_price("ONE");
             $hrc20fee = dex_gettradefee("ONE") * from_json($one_usd_price)->{"last_price"};
             my $kcs_usd_price = komodolive_latest_price("KCS");
@@ -2203,10 +2204,10 @@ if ( $api eq "dex_gecko" ) {
                 $base_btc_price = 0;
             }
             if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_4h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
-        } elsif ( $base eq "MATIC" ) {
-            my $binance_price_usd = binance_xxhr_price("MATICUSDT");
+        } elsif ( $base eq "POL" ) {
+            my $binance_price_usd = binance_xxhr_price("POLUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"lastPrice"}; } else { $base_usd_price = 0; }
-            my $binance_price_btc = binance_xxhr_price("MATICBTC");
+            my $binance_price_btc = binance_xxhr_price("POLBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"lastPrice"}; } else { $base_btc_price = 0; }
             if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_4h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
         } elsif ( $base eq "ZEC" ) {
@@ -2836,7 +2837,7 @@ if ( $api eq "dex_gecko" ) {
                         $minaskvolume = $avx20fee * 40 / $coinusdprice;
                         $minbidvolume = $avx20fee * 40 / $base_usd_price;
                     }
-                } elsif ( ($type eq "plg20") || (index($base, "PLG20") != -1) || ($base eq "MATIC") ) {
+                } elsif ( ($type eq "plg20") || (index($base, "PLG20") != -1) || ($base eq "POL") ) {
                     if ( ($plg20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
