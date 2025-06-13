@@ -2789,10 +2789,8 @@ if ( $api eq "dex_gecko" ) {
                     if ( ($erc20fee eq "1") || ($btcfee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 25;
-                        $minbidvolume_btc = $btcfee * 25;
-                        #if ($minaskvolume_btc < 0.00777 * $btcusdprice / $coinusdprice) { $minaskvolume_btc = 0.00777 * $btcusdprice / $coinusdprice * 1.03; }
-                        #if ($minbidvolume_btc < 0.00777) { $minbidvolume_btc = 0.00777 * 1.03; }
+                        $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 100;
+                        $minbidvolume_btc = $btcfee * 100;
                         $minaskvolume_eth = $erc20fee * 100 / $coinusdprice;
                         $minbidvolume_eth = $erc20fee * 100 / $base_usd_price;
                         $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
@@ -2809,75 +2807,71 @@ if ( $api eq "dex_gecko" ) {
                     if ( ($btcfee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $btcfee * $btcusdprice / $coinusdprice * 25;
-                        #if ($minaskvolume < 0.00777 * $btcusdprice / $coinusdprice) { $minaskvolume = 0.00777 * $btcusdprice / $coinusdprice * 1.03; }
-                        $minbidvolume = $btcfee * 25;
-                        #if ($minbidvolume < 0.00777) { $minbidvolume = 0.00777 * 1.03; }
+                        $minaskvolume = $btcfee * $btcusdprice / $coinusdprice * 100;
+                        $minbidvolume = $btcfee * 100;
                     }
                 } elsif (($coin eq "BTC") || ($coin eq "BTC-segwit")) {
                     if ( ($btcfee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $btcfee * 25;
-                        #if ($minaskvolume < 0.00777) { $minaskvolume = 0.00777 * 1.03; }
-                        $minbidvolume = $btcfee * $btcusdprice / $base_usd_price * 25;
-                        #if ($minbidvolume < 0.00777 * $btcusdprice / $base_usd_price) { $minbidvolume = 0.00777 * $btcusdprice / $base_usd_price * 1.03; }
+                        $minaskvolume = $btcfee * 100;
+                        $minbidvolume = $btcfee * $btcusdprice / $base_usd_price * 100;
                     }
                 } elsif ( ($type eq "bep20") || (index($base, "BEP20") != -1) || ($base eq "BNB") ) {
                     if ( ($bep20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $bep20fee * 40 / $coinusdprice;
-                        $minbidvolume = $bep20fee * 40 / $base_usd_price;
+                        $minaskvolume = $bep20fee * 100 / $coinusdprice;
+                        $minbidvolume = $bep20fee * 100 / $base_usd_price;
                     }
                 } elsif ( ($type eq "avx20") || (index($base, "AVX20") != -1) || ($base eq "AVAX") ) {
                     if ( ($avx20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $avx20fee * 40 / $coinusdprice;
-                        $minbidvolume = $avx20fee * 40 / $base_usd_price;
+                        $minaskvolume = $avx20fee * 100 / $coinusdprice;
+                        $minbidvolume = $avx20fee * 100 / $base_usd_price;
                     }
                 } elsif ( ($type eq "plg20") || (index($base, "PLG20") != -1) || ($base eq "POL") ) {
                     if ( ($plg20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $plg20fee * 40 / $coinusdprice;
-                        $minbidvolume = $plg20fee * 40 / $base_usd_price;
+                        $minaskvolume = $plg20fee * 100 / $coinusdprice;
+                        $minbidvolume = $plg20fee * 100 / $base_usd_price;
                     }
                 } elsif ( ($type eq "hrc20") || (index($base, "HRC20") != -1) || ($base eq "ONE") ) {
                     if ( ($hrc20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $hrc20fee * 40 / $coinusdprice;
-                        $minbidvolume = $hrc20fee * 40 / $base_usd_price;
+                        $minaskvolume = $hrc20fee * 100 / $coinusdprice;
+                        $minbidvolume = $hrc20fee * 100 / $base_usd_price;
                     }
                 } elsif ( ($type eq "krc20") || (index($base, "KRC20") != -1) || ($base eq "KCS") ) {
                     if ( ($krc20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $krc20fee * 40 / $coinusdprice;
-                        $minbidvolume = $krc20fee * 40 / $base_usd_price;
+                        $minaskvolume = $krc20fee * 100 / $coinusdprice;
+                        $minbidvolume = $krc20fee * 100 / $base_usd_price;
                     }
                 } elsif ( ($type eq "glm20") || (index($base, "GLM20") != -1) || ($base eq "GLMR") ) {
                     if ( ($glm20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $glm20fee * 40 / $coinusdprice;
-                        $minbidvolume = $glm20fee * 40 / $base_usd_price;
+                        $minaskvolume = $glm20fee * 100 / $coinusdprice;
+                        $minbidvolume = $glm20fee * 100 / $base_usd_price;
                     }
                 } elsif ( ($type eq "mvr20") || (index($base, "MVR20") != -1) || ($base eq "MOVR") ) {
                     if ( ($mvr20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $mvr20fee * 40 / $coinusdprice;
-                        $minbidvolume = $mvr20fee * 40 / $base_usd_price;
+                        $minaskvolume = $mvr20fee * 100 / $coinusdprice;
+                        $minbidvolume = $mvr20fee * 100 / $base_usd_price;
                     }
                 } elsif ($type eq "ewt") {
                     if ( ($ewtfee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $ewtfee * 40 / $coinusdprice;
-                        $minbidvolume = $ewtfee * 40 / $base_usd_price;
+                        $minaskvolume = $ewtfee * 100 / $coinusdprice;
+                        $minbidvolume = $ewtfee * 100 / $base_usd_price;
                     }
                 } elsif ($type eq "qrc20") {
                     if ( ($qrc20fee eq "1") || ($coinusdprice == 0) ) {
