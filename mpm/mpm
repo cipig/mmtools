@@ -1787,7 +1787,7 @@ sub dex_setprice {
     }
 
     my $rel_balance_usd = $rel_balance * $coinusdprice;
-    if ( $rel_balance_usd > 500 ) {
+    if ( $rel_balance_usd > 1000 ) {
         print colored (" balance_in_usd ".sprintf("%.2f",$rel_balance_usd), 'red'),"\n";
     } else {
         print " balance_in_usd ".sprintf("%.2f",$rel_balance_usd)."\n";
@@ -2789,8 +2789,8 @@ if ( $api eq "dex_gecko" ) {
                     if ( ($erc20fee eq "1") || ($btcfee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 100;
-                        $minbidvolume_btc = $btcfee * 100;
+                        $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 50;
+                        $minbidvolume_btc = $btcfee * 50;
                         $minaskvolume_eth = $erc20fee * 100 / $coinusdprice;
                         $minbidvolume_eth = $erc20fee * 100 / $base_usd_price;
                         $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
@@ -2807,15 +2807,15 @@ if ( $api eq "dex_gecko" ) {
                     if ( ($btcfee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $btcfee * $btcusdprice / $coinusdprice * 100;
-                        $minbidvolume = $btcfee * 100;
+                        $minaskvolume = $btcfee * $btcusdprice / $coinusdprice * 50;
+                        $minbidvolume = $btcfee * 50;
                     }
                 } elsif (($coin eq "BTC") || ($coin eq "BTC-segwit")) {
                     if ( ($btcfee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $btcfee * 100;
-                        $minbidvolume = $btcfee * $btcusdprice / $base_usd_price * 100;
+                        $minaskvolume = $btcfee * 50;
+                        $minbidvolume = $btcfee * $btcusdprice / $base_usd_price * 50;
                     }
                 } elsif ( ($type eq "bep20") || (index($base, "BEP20") != -1) || ($base eq "BNB") ) {
                     if ( ($bep20fee eq "1") || ($coinusdprice == 0) ) {
