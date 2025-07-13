@@ -365,7 +365,7 @@ sub chainlink_latest_price_eth {
 
 
 sub chainlink_latest_price_bep {
-    my $url = "http://bsc3.cipig.net:8655";
+    my $url = "http://bsc2.cipig.net:8655";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -2101,15 +2101,29 @@ if ( $api eq "dex_gecko" ) {
         my $base_btc_price = 0;
         my $base_4h_change = 0;
         if ( $base eq "KMD" ) {
-            my $binance_price_usd = binance_xxhr_price("KMDUSDT");
-            if ( $binance_price_usd ne "1" ) {
-                $base_usd_price = from_json($binance_price_usd)->{"lastPrice"};
-                $base_btc_price = from_json($binance_price_usd)->{"lastPrice"} / $btcusdprice;
-                if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_4h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
+            my $kucoin_price_usd = kucoin_latest_price("KMD-USDT");
+            if ( $kucoin_price_usd ne "1" ) {
+                my $bestbid = $kucoin_price_usd->{"bestBid"};
+                my $bestask = $kucoin_price_usd->{"bestAsk"};
+                if (($bestbid > 0) && ($bestask > 0)) {
+                     $base_usd_price = ( $bestbid + $bestask + $kucoin_price_usd->{"price"} ) / 3;
+                     $base_btc_price = ( $bestbid + $bestask + $kucoin_price_usd->{"price"} ) / 3 / $btcusdprice;
+                } else {
+                     $base_usd_price = 0;
+                     $base_btc_price = 0;
+                }
             } else {
                 $base_usd_price = 0;
                 $base_btc_price = 0;
             }
+#            if ( $gecko_price ne "1" ) {
+#                $base_btc_price = from_json($gecko_price)->{"komodo"}{"btc"};
+#                $base_usd_price = from_json($gecko_price)->{"komodo"}{"usd"};
+#                $base_4h_change = abs(from_json($gecko_price)->{"komodo"}{"usd_24h_change"});
+#            } else {
+#                $base_btc_price = 0;
+#                $base_usd_price = 0;
+#            }
         } elsif ( $base eq "BNB" ) {
             my $binance_price_usd = binance_xxhr_price("BNBUSDT");
             if ( $binance_price_usd ne "1" ) { $base_usd_price = from_json($binance_price_usd)->{"lastPrice"}; } else { $base_usd_price = 0; }
@@ -2821,8 +2835,8 @@ if ( $api eq "dex_gecko" ) {
                     if ( ($bep20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $bep20fee * 100 / $coinusdprice;
-                        $minbidvolume = $bep20fee * 100 / $base_usd_price;
+                        $minaskvolume = $bep20fee * 50 / $coinusdprice;
+                        $minbidvolume = $bep20fee * 50 / $base_usd_price;
                     }
                 } elsif ( ($type eq "avx20") || (index($base, "AVX20") != -1) || ($base eq "AVAX") ) {
                     if ( ($avx20fee eq "1") || ($coinusdprice == 0) ) {
