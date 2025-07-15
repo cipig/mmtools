@@ -325,8 +325,8 @@ sub dextrade_latest_price {
 
 
 sub chainlink_latest_price_eth {
-    my $url = "http://eth3.cipig.net:8555";
-    #my $url = "https://mainnet.gateway.tenderly.co";
+    #my $url = "http://eth3.cipig.net:8555";
+    my $url = "https://mainnet.gateway.tenderly.co";
     #my $url = "https://eth.merkle.io";
     #my $url = "https://rpc.payload.de";
     my $ua = LWP::UserAgent->new;
@@ -2101,21 +2101,30 @@ if ( $api eq "dex_gecko" ) {
         my $base_btc_price = 0;
         my $base_4h_change = 0;
         if ( $base eq "KMD" ) {
-            my $kucoin_price_usd = kucoin_latest_price("KMD-USDT");
-            if ( $kucoin_price_usd ne "1" ) {
-                my $bestbid = $kucoin_price_usd->{"bestBid"};
-                my $bestask = $kucoin_price_usd->{"bestAsk"};
-                if (($bestbid > 0) && ($bestask > 0)) {
-                     $base_usd_price = ( $bestbid + $bestask + $kucoin_price_usd->{"price"} ) / 3;
-                     $base_btc_price = ( $bestbid + $bestask + $kucoin_price_usd->{"price"} ) / 3 / $btcusdprice;
-                } else {
-                     $base_usd_price = 0;
-                     $base_btc_price = 0;
-                }
+            my $coinex_price_usd = coinex_latest_price("KMDUSDT");
+            if ( $coinex_price_usd ne "1" ) {
+                $base_usd_price = from_json($coinex_price_usd)->{"data"}{"ticker"}{"last"};
+                $base_btc_price = from_json($coinex_price_usd)->{"data"}{"ticker"}{"last"} / $btcusdprice;
             } else {
                 $base_usd_price = 0;
                 $base_btc_price = 0;
             }
+#            my $kucoin_price_usd = kucoin_latest_price("KMD-USDT");
+#            if ( $kucoin_price_usd ne "1" ) {
+#                my $bestbid = $kucoin_price_usd->{"bestBid"};
+#                my $bestask = $kucoin_price_usd->{"bestAsk"};
+#                if (($bestbid > 0) && ($bestask > 0)) {
+#                     $base_usd_price = ( $bestbid + $bestask + $kucoin_price_usd->{"price"} ) / 3;
+#                     $base_btc_price = ( $bestbid + $bestask + $kucoin_price_usd->{"price"} ) / 3 / $btcusdprice;
+#                } else {
+#                     $base_usd_price = 0;
+#                     $base_btc_price = 0;
+#                }
+#            } else {
+#                $base_usd_price = 0;
+#                $base_btc_price = 0;
+#            }
+
 #            if ( $gecko_price ne "1" ) {
 #                $base_btc_price = from_json($gecko_price)->{"komodo"}{"btc"};
 #                $base_usd_price = from_json($gecko_price)->{"komodo"}{"usd"};
