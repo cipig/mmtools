@@ -1718,9 +1718,9 @@ sub dex_setprice {
             if ( defined $minbidvolume ) {
                 my $minbidvolume = $minbidvolume * (1 - $bidmargin);
                 if (($minbidvolume < $base_mintradevol) || ($minbidvolume < $rel_mintradevol/$bid)) { $minbidvolume = max($base_mintradevol,$rel_mintradevol/$bid)*1.01; }
-                $command = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"volume":'.$bidvolume1.',"min_volume":'.$minbidvolume.'}';
+                $command = '{"userpass":"'.$userpass.'","method":"setprice","timeout_in_minutes":20,"save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"volume":'.$bidvolume1.',"min_volume":'.$minbidvolume.'}';
             } else {
-                $command = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"volume":'.$bidvolume1.'}';
+                $command = '{"userpass":"'.$userpass.'","method":"setprice","timeout_in_minutes":20,"save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"volume":'.$bidvolume1.'}';
             }
             $req->content($command);
             my $resp1 = $ua->request($req);
@@ -1758,9 +1758,9 @@ sub dex_setprice {
             if ( defined $minaskvolume ) {
                 my $minaskvolume = $minaskvolume * (1 - $askmargin);
                 if (($minaskvolume < $rel_mintradevol) || ($minaskvolume < $base_mintradevol/$ask)) { $minaskvolume = max($rel_mintradevol,$base_mintradevol/$ask)*1.01; }
-                $command = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask.',"volume":'.$askvolume1.',"min_volume":'.$minaskvolume.'}';
+                $command = '{"userpass":"'.$userpass.'","method":"setprice","timeout_in_minutes":20,"save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask.',"volume":'.$askvolume1.',"min_volume":'.$minaskvolume.'}';
             } else {
-                $command = '{"userpass":"'.$userpass.'","method":"setprice","save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask.',"volume":'.$askvolume1.'}';
+                $command = '{"userpass":"'.$userpass.'","method":"setprice","timeout_in_minutes":20,"save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask.',"volume":'.$askvolume1.'}';
             }
             $req->content($command);
             $resp1 = $ua->request($req);
