@@ -167,14 +167,20 @@ sub exbitron_latest_price {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -352,15 +358,6 @@ sub chainlink_latest_price_eth {
         print "HTTP GET error message: ", $resp->message, "\n";
         return 1;
     }
-#    my $resp = $ua->request($req);
-#        if ($resp->is_success) {
-#            return $resp->content;
-#        } else {
-#            print "HTTP GET url: ", $url, "\n";
-#            print "HTTP GET error code: ", $resp->code, "\n";
-#            print "HTTP GET error message: ", $resp->message, "\n";
-#            return 1;
-#        }
 }
 
 
@@ -2757,9 +2754,9 @@ if ( $api eq "dex_gecko" ) {
                 if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "FIRO") && ($coin eq "FIRO-BEP20")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($base eq "FLUX") && ($coin eq "FLUX-BEP20")) ) {
                     $price = 1;
                 } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usd_stablecoin) || (defined $chainlink_usd_bep) || (defined $chainlink_usd_eth) || (defined $usdrate_symbol) || (defined $kucoin_usd_symbol) || (defined $coinex_usd_symbol) ) {
-                    $marginadd = max($change,$base_4h_change)/100/4.5;
+                    $marginadd = max($change,$base_4h_change)/100/5;
                 } else {
-                    $marginadd = max($change,$base_4h_change)/100/3.5;
+                    $marginadd = max($change,$base_4h_change)/100/4;
                 }
                 #print "====== $coin change: $change, $base base_4h_change: $base_4h_change, marginadd: $marginadd\n";
 
