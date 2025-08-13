@@ -50,14 +50,20 @@ sub paprika_latest_price {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -72,14 +78,20 @@ sub paprika_price {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -146,15 +158,20 @@ sub safetrade_latest_price {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        #if ( ($resp->is_success) && (is_valid_json $resp->content) ) {
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -189,27 +206,7 @@ sub ogre_latest_price {
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
-    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
-    my $req = HTTP::Request->new(GET => $url);
-    $req->header('content-type' => 'application/json');
-    my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
-}
-
-
-sub xeggex_latest_price {
-    my $url = "https://api.xeggex.com/api/v2/ticker/".$_[0];
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    $ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
@@ -233,34 +230,20 @@ sub nonkyc_latest_price {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
-}
-
-
-sub xeggex_info {
-    my $url = "https://api.xeggex.com/api/v2/asset/getbyticker/".$_[0];
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
-    my $req = HTTP::Request->new(GET => $url);
-    $req->header('content-type' => 'application/json');
-    my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -319,14 +302,20 @@ sub dextrade_latest_price {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -339,10 +328,8 @@ sub chainlink_latest_price_eth {
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
     $req->content_type('application/json');
-
     $command = '{"jsonrpc":"2.0","method": "eth_call","params":[{"to":"'.$_[0].'","data":"0x50d25bcd000000000000000000000000"},"latest"],"id":777}';
     $req->content($command);
-
     my $resp = $ua->request($req);
     my $json_out = eval { decode_json($resp->content) };
     if ($@) {
@@ -367,7 +354,6 @@ sub chainlink_latest_price_bep {
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
     $req->content_type('application/json');
-
     $command = '{"jsonrpc":"2.0","method": "eth_call","params":[{"to":"'.$_[0].'","data":"0x50d25bcd000000000000000000000000"},"latest"],"id":777}';
     $req->content($command);
     my $resp = $ua->request($req);
@@ -394,7 +380,6 @@ sub chainlink_latest_price_arb {
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
     $req->content_type('application/json');
-
     $command = '{"jsonrpc":"2.0","method": "eth_call","params":[{"to":"'.$_[0].'","data":"0x50d25bcd000000000000000000000000"},"latest"],"id":777}';
     $req->content($command);
     my $resp = $ua->request($req);
@@ -423,24 +408,28 @@ sub komodolive_latest_price {
     my $req = HTTP::Request->new(POST => $url);
     #$req->content_type('application/x-www-form-urlencoded');
     $req->content_type('application/json');
-
     #$command = '{"expire_at":"600","ticker": "'.$coin.'"}';
     $command = '{"ticker": "'.$coin.'"}';
     $req->content($command);
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
 sub vrscbridge_latest_price {
-    #my $url = "https://rpc.vrsc.komodefi.com";
     my $url = "https://api.verus.services";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
@@ -471,7 +460,6 @@ sub vrscbridge_latest_price {
 
 
 sub chipsbridge_latest_price {
-    #my $url = "https://rpc.vrsc.komodefi.com";
     my $url = "https://api.verus.services";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
@@ -502,8 +490,6 @@ sub chipsbridge_latest_price {
 
 
 sub varrrbridge_latest_price {
-    #my $url = "https://rpc.varrr.komodefi.com";
-    #my $url = "https://rpc.vrsc.komodefi.com";
     my $url = "https://api.verus.services";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
@@ -534,8 +520,6 @@ sub varrrbridge_latest_price {
 
 
 sub vdexbridge_latest_price {
-    #my $url = "https://rpc.vdex.komodefi.com";
-    #my $url = "https://rpc.vrsc.komodefi.com";
     my $url = "https://api.verus.services";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
@@ -585,26 +569,6 @@ sub komodolive_usdrates {
 }
 
 
-sub southxchange_latest_price {
-    my $url = "https://www.southxchange.com/api/v4/price/".$_[0];
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
-    my $req = HTTP::Request->new(GET => $url);
-    $req->header('content-type' => 'application/json');
-    my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
-}
-
-
 sub freiexchange_latest_price {
     my $url = "https://api.freiexchange.com/public/ticker";
     my $ua = LWP::UserAgent->new;
@@ -614,14 +578,20 @@ sub freiexchange_latest_price {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -653,14 +623,20 @@ sub binance_latest_price {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 sub binance_info {
@@ -672,14 +648,20 @@ sub binance_info {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 sub binance_book_price {
@@ -692,14 +674,20 @@ sub binance_book_price {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -711,14 +699,20 @@ sub binance_24hr_price {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -730,14 +724,20 @@ sub binance_xxhr_price {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -834,14 +834,20 @@ sub coinex_latest_price {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 sub coinex_info {
@@ -853,14 +859,20 @@ sub coinex_info {
     my $req = HTTP::Request->new(GET => $url);
     $req->header('content-type' => 'application/json');
     my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
 }
 
 
@@ -1718,9 +1730,9 @@ sub dex_setprice {
             if ( defined $minbidvolume ) {
                 my $minbidvolume = $minbidvolume * (1 - $bidmargin);
                 if (($minbidvolume < $base_mintradevol) || ($minbidvolume < $rel_mintradevol/$bid)) { $minbidvolume = max($base_mintradevol,$rel_mintradevol/$bid)*1.01; }
-                $command = '{"userpass":"'.$userpass.'","method":"setprice","timeout_in_minutes":20,"save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"volume":'.$bidvolume1.',"min_volume":'.$minbidvolume.'}';
+                $command = '{"userpass":"'.$userpass.'","method":"setprice","timeout_in_minutes":30,"save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"volume":'.$bidvolume1.',"min_volume":'.$minbidvolume.'}';
             } else {
-                $command = '{"userpass":"'.$userpass.'","method":"setprice","timeout_in_minutes":20,"save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"volume":'.$bidvolume1.'}';
+                $command = '{"userpass":"'.$userpass.'","method":"setprice","timeout_in_minutes":30,"save_in_history":false,"base":"'.$base.'","rel":"'.$rel.'","price":'.$bid.',"volume":'.$bidvolume1.'}';
             }
             $req->content($command);
             my $resp1 = $ua->request($req);
@@ -1758,9 +1770,9 @@ sub dex_setprice {
             if ( defined $minaskvolume ) {
                 my $minaskvolume = $minaskvolume * (1 - $askmargin);
                 if (($minaskvolume < $rel_mintradevol) || ($minaskvolume < $base_mintradevol/$ask)) { $minaskvolume = max($rel_mintradevol,$base_mintradevol/$ask)*1.01; }
-                $command = '{"userpass":"'.$userpass.'","method":"setprice","timeout_in_minutes":20,"save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask.',"volume":'.$askvolume1.',"min_volume":'.$minaskvolume.'}';
+                $command = '{"userpass":"'.$userpass.'","method":"setprice","timeout_in_minutes":30,"save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask.',"volume":'.$askvolume1.',"min_volume":'.$minaskvolume.'}';
             } else {
-                $command = '{"userpass":"'.$userpass.'","method":"setprice","timeout_in_minutes":20,"save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask.',"volume":'.$askvolume1.'}';
+                $command = '{"userpass":"'.$userpass.'","method":"setprice","timeout_in_minutes":30,"save_in_history":false,"base":"'.$rel.'","rel":"'.$base.'","price":'.$ask.',"volume":'.$askvolume1.'}';
             }
             $req->content($command);
             $resp1 = $ua->request($req);
@@ -1786,6 +1798,10 @@ sub dex_setprice {
     my $rel_balance_usd = $rel_balance * $coinusdprice;
     if ( $rel_balance_usd > 1000 ) {
         print colored (" balance_in_usd ".sprintf("%.2f",$rel_balance_usd), 'red'),"\n";
+    } elsif ( $rel_balance_usd > 500 ) {
+        print colored (" balance_in_usd ".sprintf("%.2f",$rel_balance_usd), 'yellow'),"\n";
+    } elsif ( $rel_balance_usd > 200 ) {
+        print colored (" balance_in_usd ".sprintf("%.2f",$rel_balance_usd), 'green'),"\n";
     } else {
         print " balance_in_usd ".sprintf("%.2f",$rel_balance_usd)."\n";
     }
@@ -2014,8 +2030,6 @@ if ( $api eq "dex_gecko" ) {
 
         my $gecko_price = gecko_latest_price($ids);
         my $freiexchange_price = freiexchange_latest_price();
-        #my $usdrate_price = komodolive_usdrates();
-        my $usdrate_price = 1;
 
         my $btcfee = dex_gettradefee("BTC-segwit");
         my $erc20fee = 1;
@@ -2234,21 +2248,6 @@ if ( $api eq "dex_gecko" ) {
             my $binance_price_btc = binance_xxhr_price("ZECBTC");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = from_json($binance_price_btc)->{"lastPrice"}; } else { $base_btc_price = 0; }
             if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_4h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
-#            my $kucoin_price_usd = kucoin_latest_price("ZEC-USDT");
-#            if ( $kucoin_price_usd ne "1" ) {
-#                my $bestbid = $kucoin_price_usd->{"bestBid"};
-#                my $bestask = $kucoin_price_usd->{"bestAsk"};
-#                if (($bestbid > 0) && ($bestask > 0)) {
-#                     $base_usd_price = ( $bestbid + $bestask + $kucoin_price_usd->{"price"} ) / 3;
-#                     $base_btc_price = ( $bestbid + $bestask + $kucoin_price_usd->{"price"} ) / 3 / $btcusdprice;
-#                } else {
-#                     $base_usd_price = 0;
-#                     $base_btc_price = 0;
-#                }
-#            } else {
-#                $base_usd_price = 0;
-#                $base_btc_price = 0;
-#            }
         } elsif ( $base eq "RVN" ) {
             my $binance_price_usd = binance_xxhr_price("RVNUSDT");
             if ( $binance_price_usd ne "1" ) {
@@ -2310,28 +2309,6 @@ if ( $api eq "dex_gecko" ) {
             if ( $chainlink_price ne "1" ) { $base_usd_price = hex(from_json($chainlink_price)->{"result"}) / 100000000; } else { $base_usd_price = 0; }
             my $binance_price_btc = binance_xxhr_price("BTCTRY");
             if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"lastPrice"}; } else { $base_btc_price = 0; }
-        } elsif ( ($base eq "QC-QRC20") || ($base eq "JCNY-PLG20") ) {
-            if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"CNY"}; } else { $base_usd_price = 0; }
-            if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"cny"}; } else { $base_btc_price = 0; }
-        } elsif ( ($base eq "CADC-PLG20") || ($base eq "JCAD-PLG20") ) {
-            if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"CAD"}; } else { $base_usd_price = 0; }
-            if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"cad"}; } else { $base_btc_price = 0; }
-        } elsif ( ($base eq "XSGD-PLG20") || ($base eq "JSGD-PLG20") ) {
-            if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"SGD"}; } else { $base_usd_price = 0; }
-            if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"sgd"}; } else { $base_btc_price = 0; }
-        } elsif ( ($base eq "NZDS-PLG20") || ($base eq "JNZD-PLG20") ) {
-            if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"NZD"}; } else { $base_usd_price = 0; }
-            if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"nzd"}; } else { $base_btc_price = 0; }
-        } elsif ( ($base eq "JPYC-PLG20") || ($base eq "JJPY-PLG20") ) {
-            if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"JPY"}; } else { $base_usd_price = 0; }
-            if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"jpy"}; } else { $base_btc_price = 0; }
-        } elsif ( $base eq "JCHF-PLG20" ) {
-            if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"CHF"}; } else { $base_usd_price = 0; }
-            if ( $gecko_price ne "1" ) { $base_btc_price = 1 / from_json($gecko_price)->{"bitcoin"}{"chf"}; } else { $base_btc_price = 0; }
-        } elsif ( $base eq "JGBP-PLG20" ) {
-            if ( $usdrate_price ne "1" ) { $base_usd_price = 1 / from_json($usdrate_price)->{"rates"}{"GBP"}; } else { $base_usd_price = 0; }
-            my $binance_price_btc = binance_xxhr_price("BTCGBP");
-            if ( $binance_price_btc ne "1" ) { $base_btc_price = 1 / from_json($binance_price_btc)->{"lastPrice"}; } else { $base_btc_price = 0; }
         } elsif ( $base ~~ @stablecoins_usd ) {
             $base_usd_price = 1;
             my $binance_price_btc = binance_xxhr_price("BTCUSDT");
@@ -2368,10 +2345,6 @@ if ( $api eq "dex_gecko" ) {
                 my $hitbtc_btc_symbol = $marginsconf->{$coin}{'hitbtc_btc_symbol'};
                 my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
                 my $exbitron_usd_symbol = $marginsconf->{$coin}{'exbitron_usd_symbol'};
-                my $xeggex_btc_symbol = $marginsconf->{$coin}{'xeggex_btc_symbol'};
-                my $xeggex_doge_symbol = $marginsconf->{$coin}{'xeggex_doge_symbol'};
-                my $xeggex_usd_symbol = $marginsconf->{$coin}{'xeggex_usd_symbol'};
-                my $xeggex_info_symbol = $marginsconf->{$coin}{'xeggex_info_symbol'};
                 my $nonkyc_usd_symbol = $marginsconf->{$coin}{'nonkyc_usd_symbol'};
                 my $nonkyc_info_symbol = $marginsconf->{$coin}{'nonkyc_info_symbol'};
                 my $bittrex_info_symbol = $marginsconf->{$coin}{'bittrex_info_symbol'};
@@ -2382,11 +2355,8 @@ if ( $api eq "dex_gecko" ) {
                 my $varrrbridge_btc_symbol = $marginsconf->{$coin}{'varrrbridge_btc_symbol'};
                 my $paprika_id = $marginsconf->{$coin}{'paprika_id'};
                 my $sane_price = $marginsconf->{$coin}{'sane_price'};
-                my $southxchange_btc_symbol = $marginsconf->{$coin}{'southxchange_btc_symbol'};
-                my $southxchange_doge_symbol = $marginsconf->{$coin}{'southxchange_doge_symbol'};
                 my $komodolive_usd_symbol = $marginsconf->{$coin}{'komodolive_usd_symbol'};
                 my $dextrade_usd_symbol = $marginsconf->{$coin}{'dextrade_usd_symbol'};
-                my $usdrate_symbol = $marginsconf->{$coin}{'usdrate_symbol'};
                 my $usd_stablecoin = $marginsconf->{$coin}{'usd_stablecoin'};
                 my $chainlink_usd_eth = $marginsconf->{$coin}{'chainlink_usd_eth'};
                 my $chainlink_usd_bep = $marginsconf->{$coin}{'chainlink_usd_bep'};
@@ -2413,6 +2383,13 @@ if ( $api eq "dex_gecko" ) {
                         $price = from_json($binance_price)->{"lastPrice"} / $base_usd_price;
                         $coinusdprice = from_json($binance_price)->{"lastPrice"};
                         if ( from_json($binance_price)->{"highPrice"} > 0 ) { $change = (1 - from_json($binance_price)->{"lowPrice"} / from_json($binance_price)->{"highPrice"}) * 100; }
+                        if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                            my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                            my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                            if ($diff > 2) {
+                                print "============== $coin binance_usd ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 2\n";
+                            }
+                        }
                     }
                 } elsif ( defined $binance_usdinv_symbol ) {
                     my $binance_price = binance_xxhr_price($binance_usdinv_symbol);
@@ -2434,6 +2411,13 @@ if ( $api eq "dex_gecko" ) {
                         $price = from_json($dextrade_price)->{"data"}{"last"} / $base_usd_price;
                         $coinusdprice = from_json($dextrade_price)->{"data"}{"last"};
                         if ( from_json($dextrade_price)->{"data"}{"high"} > 0 ) { $change = (1 - from_json($dextrade_price)->{"data"}{"low"} / from_json($dextrade_price)->{"data"}{"high"}) * 100; }
+                        if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                            my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                            my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                            if ($diff > 5) {
+                                print "============== $coin dextrade_usd ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 5\n";
+                            }
+                        }
                     }
                 } elsif ( defined $safetrade_btc_symbol ) {
                     my $safetrade_price = safetrade_latest_price($safetrade_btc_symbol);
@@ -2457,58 +2441,6 @@ if ( $api eq "dex_gecko" ) {
                         $coinusdprice = ( from_json($exbitron_price)->{"data"}{"market"}{"marketDynamics"}{"lastPrice"} + from_json($exbitron_price)->{"data"}{"market"}{"highestBid"} + from_json($exbitron_price)->{"data"}{"market"}{"lowestAsk"} ) / 3;
                         if ( from_json($exbitron_price)->{"data"}{"market"}{"marketDynamics"}{"highPrice"} > 0 ) { $change = (1 - from_json($exbitron_price)->{"data"}{"market"}{"marketDynamics"}{"lowPrice"} / from_json($exbitron_price)->{"data"}{"market"}{"marketDynamics"}{"highPrice"}) * 100; }
                     }
-                } elsif ( defined $southxchange_btc_symbol ) {
-                    my $southxchange_price = southxchange_latest_price($southxchange_btc_symbol);
-                    if ( $southxchange_price ne "1" ) {
-                        my $bidrate = from_json($southxchange_price)->{"Bid"};
-                        my $askrate = from_json($southxchange_price)->{"Ask"};
-                        if (($askrate > 0) && ($bidrate > 0)) {
-                            $price = ( $askrate + $bidrate + from_json($southxchange_price)->{"Last"} ) / 3 / $base_btc_price;
-                            $coinusdprice = ( $askrate + $bidrate + from_json($southxchange_price)->{"Last"} ) / 3 * $btcusdprice;
-                        } else {
-                            print "========= wrong price for $coin  bid $bidrate  ask $askrate\n";
-                        }
-                        $change = abs(from_json($southxchange_price)->{"Variation24Hr"});
-                    }
-                } elsif ( defined $southxchange_doge_symbol ) {
-                    my $southxchange_price = southxchange_latest_price($southxchange_doge_symbol);
-                    if ( $southxchange_price ne "1" ) {
-                        my $bidrate = from_json($southxchange_price)->{"Bid"};
-                        my $askrate = from_json($southxchange_price)->{"Ask"};
-                        if (($askrate > 0) && ($bidrate > 0)) {
-                            $price = ( $askrate + $bidrate + from_json($southxchange_price)->{"Last"} ) / 3 * $dogeusdprice / $base_usd_price;
-                            $coinusdprice = ( $askrate + $bidrate + from_json($southxchange_price)->{"Last"} ) / 3 * $dogeusdprice;
-                        } else {
-                            print "========= wrong price for $coin  bid $bidrate  ask $askrate\n";
-                        }
-                        $change = abs(from_json($southxchange_price)->{"Variation24Hr"});
-                    }
-                } elsif ( defined $xeggex_btc_symbol ) {
-                    my $xeggex_price = xeggex_latest_price($xeggex_btc_symbol);
-                    if ( $xeggex_price ne "1" ) {
-                        my $bidrate = from_json($xeggex_price)->{"bid"};
-                        my $askrate = from_json($xeggex_price)->{"ask"};
-                        if (($askrate > 0) && ($bidrate > 0)) {
-                            $price = ( $askrate + $bidrate + from_json($xeggex_price)->{"last_price"} ) / 3 / $base_btc_price;
-                            $coinusdprice = ( $askrate + $bidrate + from_json($xeggex_price)->{"last_price"} ) / 3 * $btcusdprice;
-                        } else {
-                            print "========= wrong price for $coin  bid $bidrate  ask $askrate\n";
-                        }
-                        if ( from_json($xeggex_price)->{"high"} > 0 ) { $change = (1 - from_json($xeggex_price)->{"low"} / from_json($xeggex_price)->{"high"}) * 100; }
-                    }
-                } elsif ( defined $xeggex_usd_symbol ) {
-                    my $xeggex_price = xeggex_latest_price($xeggex_usd_symbol);
-                    if ( $xeggex_price ne "1" ) {
-                        my $bidrate = from_json($xeggex_price)->{"bid"};
-                        my $askrate = from_json($xeggex_price)->{"ask"};
-                        if (($askrate > 0) && ($bidrate > 0)) {
-                            $price = ( $askrate + $bidrate + from_json($xeggex_price)->{"last_price"} ) / 3 / $base_usd_price;
-                            $coinusdprice = ( $askrate + $bidrate + from_json($xeggex_price)->{"last_price"} ) / 3;
-                        } else {
-                            print "========= wrong price for $coin  bid $bidrate  ask $askrate\n";
-                        }
-                        if ( from_json($xeggex_price)->{"high"} > 0 ) { $change = (1 - from_json($xeggex_price)->{"low"} / from_json($xeggex_price)->{"high"}) * 100; }
-                    }
                 } elsif ( defined $nonkyc_usd_symbol ) {
                     my $nonkyc_price = nonkyc_latest_price($nonkyc_usd_symbol);
                     if ( $nonkyc_price ne "1" ) {
@@ -2517,23 +2449,17 @@ if ( $api eq "dex_gecko" ) {
                         if (($askrate > 0) && ($bidrate > 0)) {
                             $price = ( $askrate + $bidrate + from_json($nonkyc_price)->{"last_price"} ) / 3 / $base_usd_price;
                             $coinusdprice = ( $askrate + $bidrate + from_json($nonkyc_price)->{"last_price"} ) / 3;
+                            if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                                my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                                my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                                if ($diff > 4) {
+                                    print "============== $coin nonkyc_usd ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 4\n";
+                                }
+                            }
                         } else {
                             print "========= wrong price for $coin  bid $bidrate  ask $askrate\n";
                         }
                         if ( from_json($nonkyc_price)->{"high"} > 0 ) { $change = (1 - from_json($nonkyc_price)->{"low"} / from_json($nonkyc_price)->{"high"}) * 100; }
-                    }
-                } elsif ( defined $xeggex_doge_symbol ) {
-                    my $xeggex_price = xeggex_latest_price($xeggex_doge_symbol);
-                    if ( $xeggex_price ne "1" ) {
-                        my $bidrate = from_json($xeggex_price)->{"bid"};
-                        my $askrate = from_json($xeggex_price)->{"ask"};
-                        if (($askrate > 0) && ($bidrate > 0)) {
-                            $price = ( $askrate + $bidrate + from_json($xeggex_price)->{"last_price"} ) / 3 * $dogeusdprice / $base_usd_price;
-                            $coinusdprice = ( $askrate + $bidrate + from_json($xeggex_price)->{"last_price"} ) / 3 * $dogeusdprice;
-                        } else {
-                            print "========= wrong price for $coin  bid $bidrate  ask $askrate\n";
-                        }
-                        if ( from_json($xeggex_price)->{"high"} > 0 ) { $change = (1 - from_json($xeggex_price)->{"low"} / from_json($xeggex_price)->{"high"}) * 100; }
                     }
                 } elsif ( defined $mexc_usd_symbol ) {
                     my $mexc_price = mexc_latest_price($mexc_usd_symbol);
@@ -2543,6 +2469,13 @@ if ( $api eq "dex_gecko" ) {
                         if (($bidprice > 0) && ($askprice > 0)) {
                             $price = ( $bidprice + $askprice + from_json($mexc_price)->{"lastPrice"} ) / 3 / $base_usd_price;
                             $coinusdprice = ( $bidprice + $askprice + from_json($mexc_price)->{"lastPrice"} ) / 3;
+                            if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                                my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                                my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                                if ($diff > 4) {
+                                    print "============== $coin mexc_usd ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 4\n";
+                                }
+                            }
                         } else {
                             print "========= wrong price for $coin  bid $bidprice  ask $askprice\n";
                         }
@@ -2567,56 +2500,123 @@ if ( $api eq "dex_gecko" ) {
                     if ( $chipsbridge_price ne "1" ) {
                         $price = from_json($chipsbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[0]{"reserves"} / from_json($chipsbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} * $vrscusdprice / $base_usd_price;
                         $coinusdprice = from_json($chipsbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[0]{"reserves"} / from_json($chipsbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} * $vrscusdprice;
+                        if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                            my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                            my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                            if ($diff > 5) {
+                                print "============== $coin vrsc_bridge ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 5\n";
+                            }
+                        }
                     }
                 } elsif ( defined $vrscbridge_usd_symbol ) {
                     my $vrscbridge_price = vrscbridge_latest_price();
                     if ( $vrscbridge_price ne "1" ) {
                         $price = from_json($vrscbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} / from_json($vrscbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[0]{"reserves"} / $base_usd_price;
                         $coinusdprice = from_json($vrscbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} / from_json($vrscbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[0]{"reserves"};
+                        if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                            my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                            my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                            if ($diff > 5) {
+                                print "============== $coin vrsc_bridge ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 5\n";
+                            }
+                        }
                     }
                 } elsif ( defined $varrrbridge_btc_symbol ) {
                     my $varrrbridge_price = varrrbridge_latest_price();
                     if ( $varrrbridge_price ne "1" ) {
                         $price = from_json($varrrbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[3]{"reserves"} / from_json($varrrbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} / $base_btc_price;
                         $coinusdprice = from_json($varrrbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[3]{"reserves"} / from_json($varrrbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} * $btcusdprice;
+                        if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                            my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                            my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                            if ($diff > 5) {
+                                print "============== $coin vrsc_bridge ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 5\n";
+                            }
+                        }
                     }
                 } elsif ( defined $vdexbridge_usd_symbol ) {
                     my $vdexbridge_price = vdexbridge_latest_price();
                     if ( $vdexbridge_price ne "1" ) {
                         $price = from_json($vdexbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[3]{"reserves"} / from_json($vdexbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} / $base_usd_price;
                         $coinusdprice = from_json($vdexbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[3]{"reserves"} / from_json($vdexbridge_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"};
+                        if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                            my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                            my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                            if ($diff > 5) {
+                                print "============== $coin vrsc_bridge ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 5\n";
+                            }
+                        }
                     }
                 } elsif ( (defined $freiexchange_btc_symbol) && ($freiexchange_price ne "1") ) {
                     $price = ( from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"last"} ) / 3 / $base_btc_price;
                     $coinusdprice = ( from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"last"} ) / 3 * $btcusdprice;
                     $change = abs(from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"percent_change_24h"});
+                    if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                        my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                        my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                        if ($diff > 16) {
+                            print "============== $coin frei_btc ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 16\n";
+                        }
+                    }
                 } elsif ( (defined $freiexchange_ltc_symbol) && ($freiexchange_price ne "1") ) {
                     $price = ( from_json($freiexchange_price)->{$freiexchange_ltc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_ltc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_ltc_symbol}->[0]{"last"} ) / 3 * $ltcusdprice / $base_usd_price;
                     $coinusdprice = ( from_json($freiexchange_price)->{$freiexchange_ltc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_ltc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_ltc_symbol}->[0]{"last"} ) / 3 * $ltcusdprice;
                     $change = abs(from_json($freiexchange_price)->{$freiexchange_ltc_symbol}->[0]{"percent_change_24h"});
-                } elsif ( (defined $usdrate_symbol) && ($usdrate_price ne "1") ) {
-                    $coinusdprice = 1 / from_json($usdrate_price)->{"rates"}{"$usdrate_symbol"};
-                    $price = $coinusdprice / $base_usd_price;
+                    if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                        my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                        my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                        if ($diff > 16) {
+                            print "============== $coin frei_ltc ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 16\n";
+                        }
+                    }
                 } elsif ( defined $usd_stablecoin ) {
                     $coinusdprice = 1;
                     $price = $coinusdprice / $base_usd_price;
+                    if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                        my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                        my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                        if ($diff > 1) {
+                            print "============== $coin usd_stablecoin ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 1\n";
+                        }
+                    }
                 } elsif ( defined $chainlink_usd_eth ) {
                     my $chainlink_price = chainlink_latest_price_eth($chainlink_usd_eth);
                     if ( $chainlink_price ne "1" ) {
                         $coinusdprice = hex(from_json($chainlink_price)->{"result"}) / 100000000;
                         $price = $coinusdprice / $base_usd_price;
+                        if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                            my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                            my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                            if ($diff > 2) {
+                                print "============== $coin chainlink ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 2\n";
+                            }
+                        }
                     }
                 } elsif ( defined $chainlink_usd_bep ) {
                     my $chainlink_price = chainlink_latest_price_bep($chainlink_usd_bep);
                     if ( $chainlink_price ne "1" ) {
                         $coinusdprice = hex(from_json($chainlink_price)->{"result"}) / 100000000;
                         $price = $coinusdprice / $base_usd_price;
+                        if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                            my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                            my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                            if ($diff > 2) {
+                                print "============== $coin chainlink ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 2\n";
+                            }
+                        }
                     }
                 } elsif ( defined $chainlink_usd_arb ) {
                     my $chainlink_price = chainlink_latest_price_arb($chainlink_usd_arb);
                     if ( $chainlink_price ne "1" ) {
                         $coinusdprice = hex(from_json($chainlink_price)->{"result"}) / 100000000;
                         $price = $coinusdprice / $base_usd_price;
+                        if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                            my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                            my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                            if ($diff > 2) {
+                                print "============== $coin chainlink ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 2\n";
+                            }
+                        }
                     }
                 } elsif ( defined $paprika_id ) {
                     my $paprika_price = paprika_ticker($paprika_id);
@@ -2624,38 +2624,13 @@ if ( $api eq "dex_gecko" ) {
                         $price = from_json($paprika_price)->{"quotes"}{"USD"}{"price"} / $base_usd_price;
                         $coinusdprice = from_json($paprika_price)->{"quotes"}{"USD"}{"price"};
                         $change = abs(from_json($paprika_price)->{"quotes"}{"USD"}{"percent_change_24h"});
-                    }
-                } elsif ( defined $bittrex_btc_symbol ) {
-                    my $bittrex_price = bittrex_latest_price($bittrex_btc_symbol);
-                    if ( $bittrex_price ne "1" ) {
-                        my $askrate = from_json($bittrex_price)->{"askRate"};
-                        my $bidrate = from_json($bittrex_price)->{"bidRate"};
-                        if (($askrate > 0) && ($bidrate > 0)) {
-                            $price = ( $askrate + $bidrate + from_json($bittrex_price)->{"lastTradeRate"} ) / 3 / $base_btc_price;
-                            $coinusdprice = ( $askrate + $bidrate + from_json($bittrex_price)->{"lastTradeRate"} ) / 3 * $btcusdprice;
-                        } else {
-                            print "========= wrong price for $coin  bid $bidrate  ask $askrate\n";
+                        if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                            my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                            my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                            if ($diff > 5) {
+                                print "============== $coin paprika ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 5\n";
+                            }
                         }
-                    }
-                    my $bittrex_sum = bittrex_summary($bittrex_btc_symbol);
-                    if ( $bittrex_sum ne "1" ) {
-                        $change = (1 - from_json($bittrex_sum)->{"low"} / from_json($bittrex_sum)->{"high"}) * 100;
-                    }
-                } elsif ( defined $bittrex_usd_symbol ) {
-                    my $bittrex_price = bittrex_latest_price($bittrex_usd_symbol);
-                    if ( $bittrex_price ne "1" ) {
-                        my $askrate = from_json($bittrex_price)->{"askRate"};
-                        my $bidrate = from_json($bittrex_price)->{"bidRate"};
-                        if (($askrate > 0) && ($bidrate > 0)) {
-                            $price = ( $askrate + $bidrate + from_json($bittrex_price)->{"lastTradeRate"} ) / 3 / $base_usd_price;
-                            $coinusdprice = ( $askrate + $bidrate + from_json($bittrex_price)->{"lastTradeRate"} ) / 3;
-                        } else {
-                            print "========= wrong price for $coin  bid $bidrate  ask $askrate\n";
-                        }
-                    }
-                    my $bittrex_sum = bittrex_summary($bittrex_usd_symbol);
-                    if ( $bittrex_sum ne "1" ) {
-                        $change = (1 - from_json($bittrex_sum)->{"low"} / from_json($bittrex_sum)->{"high"}) * 100;
                     }
                 } elsif ( defined $coinex_usd_symbol ) {
                     my $coinex_price = coinex_latest_price($coinex_usd_symbol);
@@ -2665,6 +2640,13 @@ if ( $api eq "dex_gecko" ) {
                         if (($sell > 0) && ($buy > 0)) {
                             $price = ( $sell + $buy + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3 / $base_usd_price;
                             $coinusdprice = ( $sell + $buy + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3;
+                            if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                                my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                                my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                                if ($diff > 3) {
+                                    print "============== $coin coinex_usd ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 3\n";
+                                }
+                            }
                         } else {
                             print "========= wrong price for $coin  bid $buy  ask $sell\n";
                         }
@@ -2691,6 +2673,13 @@ if ( $api eq "dex_gecko" ) {
                         if (($bestbid > 0) && ($bestask > 0)) {
                             $price = ( $bestbid + $bestask + $kucoin_price->{"price"} ) / 3 / $base_usd_price;
                             $coinusdprice = ( $bestbid + $bestask + $kucoin_price->{"price"} ) / 3;
+                            if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                                my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                                my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                                if ($diff > 3) {
+                                    print "============== $coin kucoin_usd ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 3\n";
+                                }
+                            }
                         } else {
                             print "========= wrong price for $coin  bid $bestbid  ask $bestask\n";
                         }
@@ -2710,6 +2699,13 @@ if ( $api eq "dex_gecko" ) {
                         if (($bestbid > 0) && ($bestask > 0)) {
                             $price = ( $bestbid + $bestask + from_json($ogre_price)->{"price"} ) / 3 * $ltcusdprice / $base_usd_price;
                             $coinusdprice = ( $bestbid + $bestask + from_json($ogre_price)->{"price"} ) / 3 * $ltcusdprice;
+                            if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                                my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                                my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                                if ($diff > 4) {
+                                    print "============== $coin ogre_ltc ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 4\n";
+                                }
+                            }
                         } else {
                             print "========= wrong price for $coin  bid $bestbid  ask $bestask\n";
                         }
@@ -2723,6 +2719,13 @@ if ( $api eq "dex_gecko" ) {
                         if (($bestbid > 0) && ($bestask > 0)) {
                             $price = ( $bestbid + $bestask + from_json($ogre_price)->{"price"} ) / 3 / $base_btc_price;
                             $coinusdprice = ( $bestbid + $bestask + from_json($ogre_price)->{"price"} ) / 3 * $btcusdprice;
+                            if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                                my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                                my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                                if ($diff > 4) {
+                                    print "============== $coin ogre_btc ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 4\n";
+                                }
+                            }
                         } else {
                             print "========= wrong price for $coin  bid $bestbid  ask $bestask\n";
                         }
@@ -2736,6 +2739,13 @@ if ( $api eq "dex_gecko" ) {
                         if (($bestbid > 0) && ($bestask > 0)) {
                             $price = ( $bestbid + $bestask + from_json($ogre_price)->{"price"} ) / 3 / $base_usd_price;
                             $coinusdprice = ( $bestbid + $bestask + from_json($ogre_price)->{"price"} ) / 3;
+                            if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                                my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                                my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                                if ($diff > 4) {
+                                    print "============== $coin ogre_usd ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 4\n";
+                                }
+                            }
                         } else {
                             print "========= wrong price for $coin  bid $bestbid  ask $bestask\n";
                         }
@@ -2753,7 +2763,7 @@ if ( $api eq "dex_gecko" ) {
                 my $marginadd = 0;
                 if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "FIRO") && ($coin eq "FIRO-BEP20")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($base eq "FLUX") && ($coin eq "FLUX-BEP20")) ) {
                     $price = 1;
-                } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usd_stablecoin) || (defined $chainlink_usd_bep) || (defined $chainlink_usd_eth) || (defined $usdrate_symbol) || (defined $kucoin_usd_symbol) || (defined $coinex_usd_symbol) ) {
+                } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usd_stablecoin) || (defined $chainlink_usd_bep) || (defined $chainlink_usd_eth) || (defined $kucoin_usd_symbol) || (defined $coinex_usd_symbol) ) {
                     $marginadd = max($change,$base_4h_change)/100/5;
                 } else {
                     $marginadd = max($change,$base_4h_change)/100/4;
@@ -2794,7 +2804,7 @@ if ( $api eq "dex_gecko" ) {
                 my $minbidvolume = undef;
                 my $maxaskvolume = undef;
                 my $minaskvolume = undef;
-                if ($coinusdprice > 0) {
+               if ($coinusdprice > 0) {
                 my $maxbidvolume_usd = $marginsconf->{$coin}{'maxbidvolume'};
                 if ( defined $maxbidvolume_usd ) { $maxbidvolume = $maxbidvolume_usd / $base_usd_price; }
                 my $minbidvolume_usd = $marginsconf->{$coin}{'minbidvolume'};
@@ -2905,20 +2915,20 @@ if ( $api eq "dex_gecko" ) {
                         $minaskvolume = $qtumfee * 10 / $coinusdprice;
                         $minbidvolume = $qtumfee * 10 / $base_usd_price;
                     }
-                } elsif ($coin eq "DOGE") {
-                    $minaskvolume = 3;
-                    $minbidvolume = $dogeusdprice / $base_usd_price * 3;
-                } elsif ($base eq "DOGE") {
-                    $minaskvolume = $dogeusdprice / $coinusdprice * 3;
-                    $minbidvolume = 3;
-                } elsif ($coin eq "DGB-segwit") {
-                    $minaskvolume = 20;
-                    $minbidvolume = $dgbusdprice / $base_usd_price * 20;
-                } elsif ($base eq "DGB-segwit") {
-                    $minaskvolume = $dgbusdprice / $coinusdprice * 20;
-                    $minbidvolume = 20;
+#                } elsif ($coin eq "DOGE") {
+#                    $minaskvolume = 3;
+#                    $minbidvolume = $dogeusdprice / $base_usd_price * 3;
+#                } elsif ($base eq "DOGE") {
+#                    $minaskvolume = $dogeusdprice / $coinusdprice * 3;
+#                    $minbidvolume = 3;
+#                } elsif ($coin eq "DGB-segwit") {
+#                    $minaskvolume = 20;
+#                    $minbidvolume = $dgbusdprice / $base_usd_price * 20;
+#                } elsif ($base eq "DGB-segwit") {
+#                    $minaskvolume = $dgbusdprice / $coinusdprice * 20;
+#                    $minbidvolume = 20;
                 }
-                }
+               }
 
                 if (defined $sane_price) {
                     my $saneaskmargin = 0;
@@ -2929,30 +2939,8 @@ if ( $api eq "dex_gecko" ) {
                     if (($coinusdprice < $sane_price - $sane_price * $sanemargin) || ($coinusdprice > $sane_price + $sane_price * $sanemargin)) {
                         my $bsprice = sprintf("%.8f", $coinusdprice);
                         $sane_price = sprintf("%.8f", $sane_price);
-                        print "================= bullshit_price $bsprice for $coin  sane_price $sane_price\n";
+                        print colored ("================= bullshit_price $bsprice for $coin  sane_price $sane_price", 'yellow'),"\n";
                         $price = 0;
-                    }
-                }
-
-                # https://api.xeggex.com/api/v2/asset/getbyticker/SPACECOIN
-                if (defined $xeggex_info_symbol) {
-                    my $xeggex_info = xeggex_info($xeggex_info_symbol);
-                    if ( $xeggex_info ne "1" ) {
-                        my $deposit_active = from_json($xeggex_info)->{"depositActive"};
-                        my $withdraw_active = from_json($xeggex_info)->{"withdrawalActive"};
-                        my $delist_check = from_json($xeggex_info)->{"isDelistCheck"};
-                        my $delesting = from_json($xeggex_info)->{"isDelisting"};
-                        if (!$deposit_active) {
-                            $bid = undef;
-                            print "========= deposits for $coin on xeggex disabled\n";
-                        }
-                        if (!$withdraw_active) {
-                            $ask = undef;
-                            print "========= withdraws for $coin on xeggex disabled\n";
-                        }
-                        if (($delist_check) || ($delesting)) {
-                            print "========= $coin may be delisted from xeggex\n";
-                        }
                     }
                 }
 
