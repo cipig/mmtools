@@ -2279,14 +2279,16 @@ if ( $api eq "dex_gecko" ) {
                 $base_btc_price = 0;
             }
         } elsif ( ($base eq "FIRO") || ($base eq "FIRO-BEP20") ) {
-            my $binance_price_usd = binance_xxhr_price("FIROUSDT");
-            if ( $binance_price_usd ne "1" ) {
-                $base_usd_price = from_json($binance_price_usd)->{"lastPrice"};
-                $base_btc_price = from_json($binance_price_usd)->{"lastPrice"} / $btcusdprice;
-                if ( from_json($binance_price_usd)->{"highPrice"} > 0 ) { $base_4h_change = (1 - from_json($binance_price_usd)->{"lowPrice"} / from_json($binance_price_usd)->{"highPrice"}) * 100; }
+            my $coinex_price_usd = coinex_latest_price("FIROUSDT");
+            if ( $coinex_price_usd ne "1" ) {
+                $base_usd_price = from_json($coinex_price_usd)->{"data"}{"ticker"}{"last"};
+                $base_btc_price = from_json($coinex_price_usd)->{"data"}{"ticker"}{"last"} / $btcusdprice;
             } else {
                 $base_usd_price = 0;
                 $base_btc_price = 0;
+            }
+            if ( $gecko_price ne "1" ) {
+                $base_4h_change = abs(from_json($gecko_price)->{"zcoin"}{"usd_24h_change"});
             }
         } elsif ( ($base eq "ETH") || ($base eq "ETH-BEP20") || ($base eq "ETH-PLG20") ) {
             my $binance_price_usd = binance_xxhr_price("ETHUSDT");
