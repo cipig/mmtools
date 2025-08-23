@@ -201,6 +201,33 @@ sub exbitron_latest_price {
 }
 
 
+sub nestex_latest_price {
+    #https://trade.nestex.one/api/cg/tickers/BKC_USDT
+    my $url = "https://trade.nestex.one/api/cg/tickers/".$_[0];
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
+}
+
+
 sub ogre_latest_price {
     my $url = "https://tradeogre.com/api/v1/ticker/".$_[0];
     my $ua = LWP::UserAgent->new;
@@ -2347,6 +2374,7 @@ if ( $api eq "dex_gecko" ) {
                 my $hitbtc_btc_symbol = $marginsconf->{$coin}{'hitbtc_btc_symbol'};
                 my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
                 my $exbitron_usd_symbol = $marginsconf->{$coin}{'exbitron_usd_symbol'};
+                my $nestex_usd_symbol = $marginsconf->{$coin}{'nestex_usd_symbol'};
                 my $nonkyc_usd_symbol = $marginsconf->{$coin}{'nonkyc_usd_symbol'};
                 my $nonkyc_info_symbol = $marginsconf->{$coin}{'nonkyc_info_symbol'};
                 my $bittrex_info_symbol = $marginsconf->{$coin}{'bittrex_info_symbol'};
@@ -2442,6 +2470,13 @@ if ( $api eq "dex_gecko" ) {
                         $price = ( from_json($exbitron_price)->{"data"}{"market"}{"marketDynamics"}{"lastPrice"} + from_json($exbitron_price)->{"data"}{"market"}{"highestBid"} + from_json($exbitron_price)->{"data"}{"market"}{"lowestAsk"} ) / 3 / $base_usd_price;
                         $coinusdprice = ( from_json($exbitron_price)->{"data"}{"market"}{"marketDynamics"}{"lastPrice"} + from_json($exbitron_price)->{"data"}{"market"}{"highestBid"} + from_json($exbitron_price)->{"data"}{"market"}{"lowestAsk"} ) / 3;
                         if ( from_json($exbitron_price)->{"data"}{"market"}{"marketDynamics"}{"highPrice"} > 0 ) { $change = (1 - from_json($exbitron_price)->{"data"}{"market"}{"marketDynamics"}{"lowPrice"} / from_json($exbitron_price)->{"data"}{"market"}{"marketDynamics"}{"highPrice"}) * 100; }
+                    }
+                } elsif ( defined $nestex_usd_symbol ) {
+                    my $nestex_price = nestex_latest_price($nestex_usd_symbol);
+                    if ( $nestex_price ne "1" ) {
+                        $price = ( from_json($nestex_price)->{"last_price"} + from_json($nestex_price)->{"bid"} + from_json($nestex_price)->{"ask"} ) / 3 / $base_usd_price;
+                        $coinusdprice = ( from_json($nestex_price)->{"last_price"} + from_json($nestex_price)->{"bid"} + from_json($nestex_price)->{"ask"} ) / 3;
+                        if ( from_json($nestex_price)->{"high"} > 0 ) { $change = (1 - from_json($nestex_price)->{"low"} / from_json($nestex_price)->{"high"}) * 100; }
                     }
                 } elsif ( defined $nonkyc_usd_symbol ) {
                     my $nonkyc_price = nonkyc_latest_price($nonkyc_usd_symbol);
