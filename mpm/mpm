@@ -2060,6 +2060,7 @@ if ( $api eq "dex_gecko" ) {
 
         my $btcfee = dex_gettradefee("BTC-segwit");
         my $erc20fee = 1;
+        my $arb20fee = 1;
         my $qtumfee = 1;
         my $ewtfee = 1;
         my $qrc20fee = 1;
@@ -2072,6 +2073,7 @@ if ( $api eq "dex_gecko" ) {
         my $mvr20fee = 1;
         if ( $gecko_price ne "1" ) {
             $erc20fee = dex_gettradefee("ETH") * from_json($gecko_price)->{"ethereum"}{"usd"};
+            $arb20fee = dex_gettradefee("ETH-ARB20") * from_json($gecko_price)->{"ethereum"}{"usd"};
             $ewtfee = dex_gettradefee("EWT") * from_json($gecko_price)->{"energy-web-token"}{"usd"};
             $qtumfee = dex_gettradefee("QTUM") * from_json($gecko_price)->{"qtum"}{"usd"};
             $qrc20fee = dex_gettradefee("QC-QRC20") * from_json($gecko_price)->{"qtum"}{"usd"};
@@ -2085,6 +2087,7 @@ if ( $api eq "dex_gecko" ) {
         } else {
             my $eth_usd_price = komodolive_latest_price("ETH");
             $erc20fee = dex_gettradefee("ETH") * from_json($eth_usd_price)->{"last_price"};
+            $arb20fee = dex_gettradefee("ETH-ARB20") * from_json($eth_usd_price)->{"last_price"};
             my $ewt_usd_price = komodolive_latest_price("EWT");
             $ewtfee = dex_gettradefee("EWT") * from_json($ewt_usd_price)->{"last_price"};
             my $qtum_usd_price = komodolive_latest_price("QTUM");
@@ -2895,6 +2898,13 @@ if ( $api eq "dex_gecko" ) {
                     } else {
                         $minaskvolume = $avx20fee * 100 / $coinusdprice;
                         $minbidvolume = $avx20fee * 100 / $base_usd_price;
+                    }
+                } elsif ( ($type eq "arb20") || (index($base, "ARB20") != -1) || ($base eq "ETH-ARB20") ) {
+                    if ( ($arb20fee eq "1") || ($coinusdprice == 0) ) {
+                        $price = 0;
+                    } else {
+                        $minaskvolume = $arb20fee * 100 / $coinusdprice;
+                        $minbidvolume = $arb20fee * 100 / $base_usd_price;
                     }
                 } elsif ( ($type eq "plg20") || (index($base, "PLG20") != -1) || ($base eq "POL") ) {
                     if ( ($plg20fee eq "1") || ($coinusdprice == 0) ) {
