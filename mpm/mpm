@@ -1742,6 +1742,8 @@ sub dex_setprice {
     my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
     $req->content_type('application/x-www-form-urlencoded');
 
+    Time::HiRes::sleep(0.3);
+
     print "$rel/$base  ";
 
     if ( defined $bid ) {
@@ -1782,7 +1784,7 @@ sub dex_setprice {
         }
     }
 
-    Time::HiRes::sleep(0.5);
+    Time::HiRes::sleep(0.3);
 
     if ( defined $ask ) {
         my $command = undef;
@@ -2045,7 +2047,7 @@ if ( $api eq "dex_gecko" ) {
     my @stablecoins_eur = ("EURS-PLG20","AGEUR-PLG20","JEUR-PLG20","EURE-PLG20","EUROE-PLG20");
     my @stablecoins_try = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","JTRY-PLG20");
     #my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","JTRY-PLG20","BIDR-BEP20","JPYC-PLG20","JJPY-PLG20","BRZ-BEP20","QC-QRC20","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JGBP-PLG20","NZDS-PLG20","JCAD-PLG20","JSGD-PLG20","JCNY-PLG20","JAUD-PLG20","JBRL-PLG20","JBRL-BEP20","JKRW-PLG20","JMXN-PLG20","JSEK-PLG20");
-    my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,polygon-ecosystem-token,fantom,harmony,kucoin-shares,huobi-token,moonbeam,moonriver,zelcash,syscoin,pirate-chain,energy-web-token,digibyte";
+    my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,polygon-ecosystem-token,fantom,harmony,kucoin-shares,huobi-token,moonbeam,moonriver,zelcash,syscoin,pirate-chain,energy-web-token,digibyte,iris-network";
     foreach my $coin ( keys %{$marginsconf} ) {
         if ( defined $marginsconf->{$coin}{'geckoid'} ) {
             $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
@@ -2061,8 +2063,10 @@ if ( $api eq "dex_gecko" ) {
         my $btcfee = dex_gettradefee("BTC-segwit");
         my $erc20fee = 1;
         my $arb20fee = 1;
+        my $basefee = 1;
         my $qtumfee = 1;
         my $ewtfee = 1;
+        my $irisfee = 1;
         my $qrc20fee = 1;
         my $avx20fee = 1;
         my $bep20fee = 1;
@@ -2074,7 +2078,9 @@ if ( $api eq "dex_gecko" ) {
         if ( $gecko_price ne "1" ) {
             $erc20fee = dex_gettradefee("ETH") * from_json($gecko_price)->{"ethereum"}{"usd"};
             $arb20fee = dex_gettradefee("ETH-ARB20") * from_json($gecko_price)->{"ethereum"}{"usd"};
+            $basefee = dex_gettradefee("ETH-BASE") * from_json($gecko_price)->{"ethereum"}{"usd"};
             $ewtfee = dex_gettradefee("EWT") * from_json($gecko_price)->{"energy-web-token"}{"usd"};
+            $irisfee = dex_gettradefee("IRIS") * from_json($gecko_price)->{"iris-network"}{"usd"};
             $qtumfee = dex_gettradefee("QTUM") * from_json($gecko_price)->{"qtum"}{"usd"};
             $qrc20fee = dex_gettradefee("QC-QRC20") * from_json($gecko_price)->{"qtum"}{"usd"};
             $avx20fee = dex_gettradefee("AVAX") * from_json($gecko_price)->{"avalanche-2"}{"usd"};
@@ -2088,8 +2094,11 @@ if ( $api eq "dex_gecko" ) {
             my $eth_usd_price = komodolive_latest_price("ETH");
             $erc20fee = dex_gettradefee("ETH") * from_json($eth_usd_price)->{"last_price"};
             $arb20fee = dex_gettradefee("ETH-ARB20") * from_json($eth_usd_price)->{"last_price"};
+            $basefee = dex_gettradefee("ETH-BASE") * from_json($eth_usd_price)->{"last_price"};
             my $ewt_usd_price = komodolive_latest_price("EWT");
             $ewtfee = dex_gettradefee("EWT") * from_json($ewt_usd_price)->{"last_price"};
+            my $iris_usd_price = komodolive_latest_price("IRIS");
+            $irisfee = dex_gettradefee("IRIS") * from_json($iris_usd_price)->{"last_price"};
             my $qtum_usd_price = komodolive_latest_price("QTUM");
             $qtumfee = dex_gettradefee("QTUM") * from_json($qtum_usd_price)->{"last_price"};
             $qrc20fee = dex_gettradefee("QC-QRC20") * from_json($qtum_usd_price)->{"last_price"};
@@ -2906,6 +2915,13 @@ if ( $api eq "dex_gecko" ) {
                         $minaskvolume = $arb20fee * 100 / $coinusdprice;
                         $minbidvolume = $arb20fee * 100 / $base_usd_price;
                     }
+                } elsif ( ($type eq "base") || (index($base, "BASE") != -1) || ($base eq "ETH-BASE") ) {
+                    if ( ($basefee eq "1") || ($coinusdprice == 0) ) {
+                        $price = 0;
+                    } else {
+                        $minaskvolume = $basefee * 100 / $coinusdprice;
+                        $minbidvolume = $basefee * 100 / $base_usd_price;
+                    }
                 } elsif ( ($type eq "plg20") || (index($base, "PLG20") != -1) || ($base eq "POL") ) {
                     if ( ($plg20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
@@ -2947,6 +2963,13 @@ if ( $api eq "dex_gecko" ) {
                     } else {
                         $minaskvolume = $ewtfee * 100 / $coinusdprice;
                         $minbidvolume = $ewtfee * 100 / $base_usd_price;
+                    }
+                } elsif ($type eq "iris") {
+                    if ( ($irisfee eq "1") || ($coinusdprice == 0) ) {
+                        $price = 0;
+                    } else {
+                        $minaskvolume = $irisfee * 100 / $coinusdprice;
+                        $minbidvolume = $irisfee * 100 / $base_usd_price;
                     }
                 } elsif ($type eq "qrc20") {
                     if ( ($qrc20fee eq "1") || ($coinusdprice == 0) ) {
