@@ -228,6 +228,33 @@ sub nestex_latest_price {
 }
 
 
+sub bitgoget_latest_price {
+    #https://bitgoget.com/api/v2/spot/public/markets/mydogeusdt/tickers
+    my $url = "https://bitgoget.com/api/v2/spot/public/markets/".$_[0]."/tickers";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
+}
+
+
 sub ogre_latest_price {
     my $url = "https://tradeogre.com/api/v1/ticker/".$_[0];
     my $ua = LWP::UserAgent->new;
@@ -2043,9 +2070,9 @@ if ( $api eq "dex_gecko" ) {
     $userpass =  $ENV{'userpass'};
     my $json = read_file("$cwd/mpm.conf.dex");
     $marginsconf = decode_json($json);
-    my @stablecoins_usd = ("USDT-BEP20","USDT-PLG20","USDT-AVX20","USDT-KRC20","FDUSD-BEP20","DAI-BEP20","DAI-AVX20","DAI-ERC20","DAI-PLG20","TUSD-BEP20","TUSD-PLG20","USDC-BEP20","USDC-PLG20","USDC-AVX20","USDC-KRC20");
-    my @stablecoins_eur = ("EURS-PLG20","AGEUR-PLG20","JEUR-PLG20","EURE-PLG20","EUROE-PLG20");
-    my @stablecoins_try = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","JTRY-PLG20");
+    my @stablecoins_usd = ("USDT-BEP20","USDT-PLG20","USDT-AVX20","USDT-KRC20","FDUSD-BEP20","DAI-BEP20","DAI-AVX20","DAI-ERC20","DAI-PLG20","USDC-ARB20","USDC-BASE","USDC-BEP20","USDC-PLG20","USDC-AVX20","USDC-KRC20");
+    my @stablecoins_eur = ("EURS-PLG20","AGEUR-PLG20","EURC-AVX20","EURC-BASE","EURE-ARB20","EURE-PLG20");
+    my @stablecoins_try = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","TRYB-BASE");
     #my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","JTRY-PLG20","BIDR-BEP20","JPYC-PLG20","JJPY-PLG20","BRZ-BEP20","QC-QRC20","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JGBP-PLG20","NZDS-PLG20","JCAD-PLG20","JSGD-PLG20","JCNY-PLG20","JAUD-PLG20","JBRL-PLG20","JBRL-BEP20","JKRW-PLG20","JMXN-PLG20","JSEK-PLG20");
     my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,polygon-ecosystem-token,fantom,harmony,kucoin-shares,huobi-token,moonbeam,moonriver,zelcash,syscoin,pirate-chain,energy-web-token,digibyte,iris-network";
     foreach my $coin ( keys %{$marginsconf} ) {
@@ -2404,6 +2431,7 @@ if ( $api eq "dex_gecko" ) {
                 my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
                 my $exbitron_usd_symbol = $marginsconf->{$coin}{'exbitron_usd_symbol'};
                 my $nestex_usd_symbol = $marginsconf->{$coin}{'nestex_usd_symbol'};
+                my $bitgoget_usd_symbol = $marginsconf->{$coin}{'bitgoget_usd_symbol'};
                 my $nonkyc_usd_symbol = $marginsconf->{$coin}{'nonkyc_usd_symbol'};
                 my $nonkyc_info_symbol = $marginsconf->{$coin}{'nonkyc_info_symbol'};
                 my $bittrex_info_symbol = $marginsconf->{$coin}{'bittrex_info_symbol'};
@@ -2506,6 +2534,13 @@ if ( $api eq "dex_gecko" ) {
                         $price = ( from_json($nestex_price)->{"last_price"} + from_json($nestex_price)->{"bid"} + from_json($nestex_price)->{"ask"} ) / 3 / $base_usd_price;
                         $coinusdprice = ( from_json($nestex_price)->{"last_price"} + from_json($nestex_price)->{"bid"} + from_json($nestex_price)->{"ask"} ) / 3;
                         if ( from_json($nestex_price)->{"high"} > 0 ) { $change = (1 - from_json($nestex_price)->{"low"} / from_json($nestex_price)->{"high"}) * 100; }
+                    }
+                } elsif ( defined $bitgoget_usd_symbol ) {
+                    my $bitgoget_price = bitgoget_latest_price($bitgoget_usd_symbol);
+                    if ( $bitgoget_price ne "1" ) {
+                        $price = from_json($bitgoget_price)->{"ticker"}{"last"} / $base_usd_price;
+                        $coinusdprice = from_json($bitgoget_price)->{"ticker"}{"last"};
+                        if ( from_json($bitgoget_price)->{"ticker"}{"high"} > 0 ) { $change = (1 - from_json($bitgoget_price)->{"ticker"}{"low"} / from_json($bitgoget_price)->{"ticker"}{"high"}) * 100; }
                     }
                 } elsif ( defined $nonkyc_usd_symbol ) {
                     my $nonkyc_price = nonkyc_latest_price($nonkyc_usd_symbol);
@@ -2844,14 +2879,14 @@ if ( $api eq "dex_gecko" ) {
                 my $low = 0;
                 if ( defined $marginsconf->{$coin}{'askmargin'} ) {
                     $askmargin = $marginsconf->{$coin}{'askmargin'} + $marginadd;
-                    if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $askmargin = $askmargin * 0.95; }
+                    #if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $askmargin = $askmargin * 0.95; }
                     $high = $price + $price * $askmargin;
                     $high = sprintf("%.10f", $high);
                     $ask = sprintf("%.10f", $price + $price * $askmargin);
                 }
                 if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
                     $bidmargin = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
-                    if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $bidmargin = $bidmargin * 0.95; }
+                    #if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $bidmargin = $bidmargin * 0.95; }
                     if ( $bidmargin > 0.99 ) { $bidmargin = 0.99; }
                     $low = $price - $price * $bidmargin;
                     $low = sprintf("%.10f", $low);
