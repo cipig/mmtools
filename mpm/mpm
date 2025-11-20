@@ -2899,6 +2899,7 @@ if ( $api eq "dex_gecko" ) {
                         $minbidvolume_btc = $btcfee * 77;
                         $minaskvolume_eth = $erc20fee * 100 / $coinusdprice;
                         $minbidvolume_eth = $erc20fee * 100 / $base_usd_price;
+                        #print "$coin/$base === base_btc and type_erc20 === minaskvolume_btc $minaskvolume_btc minaskvolume_eth $minaskvolume_eth  minbidvolume_btc $minbidvolume_btc minbidvolume_eth $minbidvolume_eth\n";
                         $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
                         $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
                     }
@@ -2908,8 +2909,9 @@ if ( $api eq "dex_gecko" ) {
                     } else {
                         $minaskvolume_btc = $btcfee * 77;
                         $minbidvolume_btc = $btcfee * $btcusdprice / $base_usd_price * 77;
-                        $minaskvolume_eth = $erc20fee * $ethusdprice / $coinusdprice * 100;
-                        $minbidvolume_eth = $erc20fee * 100;
+                        $minaskvolume_eth = $erc20fee * 100 / $coinusdprice;
+                        $minbidvolume_eth = $erc20fee * 100 / $base_usd_price;
+                        #print "$coin/$base === base_erc20 and coin_btc === minaskvolume_btc $minaskvolume_btc minaskvolume_eth $minaskvolume_eth  minbidvolume_btc $minbidvolume_btc minbidvolume_eth $minbidvolume_eth\n";
                         $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
                         $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
                     }
