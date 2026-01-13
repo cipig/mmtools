@@ -150,7 +150,7 @@ sub gecko_latest_price {
 
 
 sub safetrade_latest_price {
-    my $url = "https://safe.trade/api/v2/peatio/public/markets/".$_[0]."/tickers";
+    my $url = "https://safetrade.com/api/v2/peatio/public/markets/".$_[0]."/tickers";
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -403,7 +403,8 @@ sub chainlink_latest_price_eth {
 
 
 sub chainlink_latest_price_bep {
-    my $url = "http://bsc2.cipig.net:8655";
+    #my $url = "http://bsc1.cipig.net:8655";
+    my $url = "https://bsc-dataseed4.ninicoin.io";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -625,6 +626,32 @@ sub komodolive_usdrates {
 
 sub freiexchange_latest_price {
     my $url = "https://api.freiexchange.com/public/ticker";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
+}
+
+
+sub flexex_latest_price {
+    my $url = "https://api.flexex.io/v1/markets";
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -2074,7 +2101,7 @@ if ( $api eq "dex_gecko" ) {
     my @stablecoins_eur = ("EURS-PLG20","AGEUR-PLG20","EURC-AVX20","EURC-BASE","EURE-ARB20","EURE-PLG20");
     my @stablecoins_try = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","TRYB-BASE");
     #my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","JTRY-PLG20","BIDR-BEP20","JPYC-PLG20","JJPY-PLG20","BRZ-BEP20","QC-QRC20","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JGBP-PLG20","NZDS-PLG20","JCAD-PLG20","JSGD-PLG20","JCNY-PLG20","JAUD-PLG20","JBRL-PLG20","JBRL-BEP20","JKRW-PLG20","JMXN-PLG20","JSEK-PLG20");
-    my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,polygon-ecosystem-token,fantom,harmony,kucoin-shares,huobi-token,moonbeam,moonriver,zelcash,syscoin,pirate-chain,energy-web-token,digibyte,iris-network";
+    my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,polygon-ecosystem-token,fantom,harmony,kucoin-shares,moonbeam,moonriver,zelcash,syscoin,pirate-chain,digibyte,iris-network";
     foreach my $coin ( keys %{$marginsconf} ) {
         if ( defined $marginsconf->{$coin}{'geckoid'} ) {
             $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
@@ -2086,13 +2113,13 @@ if ( $api eq "dex_gecko" ) {
 
         my $gecko_price = gecko_latest_price($ids);
         my $freiexchange_price = freiexchange_latest_price();
+        my $flexex_price = flexex_latest_price();
 
         my $btcfee = dex_gettradefee("BTC-segwit");
         my $erc20fee = 1;
         my $arb20fee = 1;
         my $basefee = 1;
         my $qtumfee = 1;
-        my $ewtfee = 1;
         my $irisfee = 1;
         my $qrc20fee = 1;
         my $avx20fee = 1;
@@ -2106,7 +2133,6 @@ if ( $api eq "dex_gecko" ) {
             $erc20fee = dex_gettradefee("ETH") * from_json($gecko_price)->{"ethereum"}{"usd"};
             $arb20fee = dex_gettradefee("ETH-ARB20") * from_json($gecko_price)->{"ethereum"}{"usd"};
             $basefee = dex_gettradefee("ETH-BASE") * from_json($gecko_price)->{"ethereum"}{"usd"};
-            $ewtfee = dex_gettradefee("EWT") * from_json($gecko_price)->{"energy-web-token"}{"usd"};
             $irisfee = dex_gettradefee("IRIS") * from_json($gecko_price)->{"iris-network"}{"usd"};
             $qtumfee = dex_gettradefee("QTUM") * from_json($gecko_price)->{"qtum"}{"usd"};
             $qrc20fee = dex_gettradefee("QC-QRC20") * from_json($gecko_price)->{"qtum"}{"usd"};
@@ -2122,8 +2148,6 @@ if ( $api eq "dex_gecko" ) {
             $erc20fee = dex_gettradefee("ETH") * from_json($eth_usd_price)->{"last_price"};
             $arb20fee = dex_gettradefee("ETH-ARB20") * from_json($eth_usd_price)->{"last_price"};
             $basefee = dex_gettradefee("ETH-BASE") * from_json($eth_usd_price)->{"last_price"};
-            my $ewt_usd_price = komodolive_latest_price("EWT");
-            $ewtfee = dex_gettradefee("EWT") * from_json($ewt_usd_price)->{"last_price"};
             my $iris_usd_price = komodolive_latest_price("IRIS");
             $irisfee = dex_gettradefee("IRIS") * from_json($iris_usd_price)->{"last_price"};
             my $qtum_usd_price = komodolive_latest_price("QTUM");
@@ -2393,8 +2417,10 @@ if ( $api eq "dex_gecko" ) {
                 my $binance_btc_symbol = $marginsconf->{$coin}{'binance_btc_symbol'};
                 my $binance_info_symbol = $marginsconf->{$coin}{'binance_info_symbol'};
                 my $safetrade_btc_symbol = $marginsconf->{$coin}{'safetrade_btc_symbol'};
+                my $safetrade_usd_symbol = $marginsconf->{$coin}{'safetrade_usd_symbol'};
                 my $freiexchange_btc_symbol = $marginsconf->{$coin}{'freiexchange_btc_symbol'};
                 my $freiexchange_ltc_symbol = $marginsconf->{$coin}{'freiexchange_ltc_symbol'};
+                my $flexex_usd_symbol = $marginsconf->{$coin}{'flexex_usd_symbol'};
                 my $bittrex_btc_symbol = $marginsconf->{$coin}{'bittrex_btc_symbol'};
                 my $bittrex_usd_symbol = $marginsconf->{$coin}{'bittrex_usd_symbol'};
                 my $coinex_usd_symbol = $marginsconf->{$coin}{'coinex_usd_symbol'};
@@ -2494,6 +2520,21 @@ if ( $api eq "dex_gecko" ) {
                         } else {
                             $price = from_json($safetrade_price)->{"ticker"}{"last"} / $base_btc_price;
                             $coinusdprice = from_json($safetrade_price)->{"ticker"}{"last"} * $btcusdprice;
+                            print "========= wrong price for $coin  bid $buy  ask $sell\n";
+                        }
+                        if ( from_json($safetrade_price)->{"ticker"}{"high"} > 0 ) { $change = (1 - from_json($safetrade_price)->{"ticker"}{"low"} / from_json($safetrade_price)->{"ticker"}{"high"}) * 100; }
+                    }
+                } elsif ( defined $safetrade_usd_symbol ) {
+                    my $safetrade_price = safetrade_latest_price($safetrade_usd_symbol);
+                    if ( $safetrade_price ne "1" ) {
+                        my $buy = from_json($safetrade_price)->{"ticker"}{"buy"};
+                        my $sell = from_json($safetrade_price)->{"ticker"}{"sell"};
+                        if (($sell > 0) && ($buy > 0)) {
+                            $price = ( $buy + $sell + from_json($safetrade_price)->{"ticker"}{"last"} ) / 3 / $base_usd_price;
+                            $coinusdprice = ( $buy + $sell + from_json($safetrade_price)->{"ticker"}{"last"} ) / 3;
+                        } else {
+                            $price = from_json($safetrade_price)->{"ticker"}{"last"} / $base_usd_price;
+                            $coinusdprice = from_json($safetrade_price)->{"ticker"}{"last"};
                             print "========= wrong price for $coin  bid $buy  ask $sell\n";
                         }
                         if ( from_json($safetrade_price)->{"ticker"}{"high"} > 0 ) { $change = (1 - from_json($safetrade_price)->{"ticker"}{"low"} / from_json($safetrade_price)->{"ticker"}{"high"}) * 100; }
@@ -2623,6 +2664,25 @@ if ( $api eq "dex_gecko" ) {
                             if ($diff > 5) {
                                 print "============== $coin vrsc_bridge ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 5\n";
                             }
+                        }
+                    }
+                } elsif ( (defined $flexex_usd_symbol) && ($flexex_price ne "1") ) {
+                    my $needle_location;
+                    my $data = decode_json(join '', $flexex_price);
+                    while( my( $idx, $elem ) = each( @{$data->{'result'}} ) ) {
+                        if( $elem->{'ticker'} eq $flexex_usd_symbol ) {
+                            $needle_location = $idx;
+                            last;
+                        }
+                    }
+                    $price = ( from_json($flexex_price)->{'result'}->[$needle_location]{"highest_buy_price"} + from_json($flexex_price)->{'result'}->[$needle_location]{"lowest_sell_price"} + from_json($flexex_price)->{'result'}->[$needle_location]{"last_price"} ) / 3 / $base_usd_price;
+                    $coinusdprice = ( from_json($flexex_price)->{'result'}->[$needle_location]{"highest_buy_price"} + from_json($flexex_price)->{'result'}->[$needle_location]{"lowest_sell_price"} + from_json($flexex_price)->{'result'}->[$needle_location]{"last_price"} ) / 3;
+                    $change = abs(from_json($flexex_price)->{'result'}->[$needle_location]{"change24h"});
+                    if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                        my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                        my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                        if ($diff > 16) {
+                            print "============== $coin flexex_usd ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 16\n";
                         }
                     }
                 } elsif ( (defined $freiexchange_btc_symbol) && ($freiexchange_price ne "1") ) {
@@ -2839,14 +2899,29 @@ if ( $api eq "dex_gecko" ) {
                 }
 
                 my $marginadd = 0;
-                if ( (($base eq "KMD") && ($coin eq "KMD-BEP20")) || (($base eq "FIRO") && ($coin eq "FIRO-BEP20")) || (($base eq "DOGE") && ($coin eq "DOGE-BEP20")) || (($base eq "FLUX") && ($coin eq "FLUX-BEP20")) ) {
-                    $price = 1;
-                } elsif ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usd_stablecoin) || (defined $chainlink_usd_bep) || (defined $chainlink_usd_eth) || (defined $kucoin_usd_symbol) || (defined $coinex_usd_symbol) ) {
+                if ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usd_stablecoin) || (defined $chainlink_usd_bep) || (defined $chainlink_usd_eth) || (defined $kucoin_usd_symbol) || (defined $coinex_usd_symbol) ) {
                     $marginadd = max($change,$base_4h_change)/100/5;
                 } else {
                     $marginadd = max($change,$base_4h_change)/100/4;
                 }
                 #print "====== $coin change: $change, $base base_4h_change: $base_4h_change, marginadd: $marginadd\n";
+
+                my $minaskvolume_btc = undef;
+                my $minbidvolume_btc = undef;
+                my $minaskvolume_eth = undef;
+                my $minbidvolume_eth = undef;
+                my $maxbidvolume = undef;
+                my $minbidvolume = undef;
+                my $maxaskvolume = undef;
+                my $minaskvolume = undef;
+                my $maxbidvolume_usd = 0;
+                my $minbidvolume_usd = 0;
+                my $maxaskvolume_usd = 0;
+                my $minaskvolume_usd = 0;
+                $maxbidvolume_usd = $marginsconf->{$coin}{'maxbidvolume'};
+                $minbidvolume_usd = $marginsconf->{$coin}{'minbidvolume'};
+                $maxaskvolume_usd = $marginsconf->{$coin}{'maxaskvolume'};
+                $minaskvolume_usd = $marginsconf->{$coin}{'minaskvolume'};
 
                 my $bid = undef;
                 my $ask = undef;
@@ -2856,14 +2931,14 @@ if ( $api eq "dex_gecko" ) {
                 my $low = 0;
                 if ( defined $marginsconf->{$coin}{'askmargin'} ) {
                     $askmargin = $marginsconf->{$coin}{'askmargin'} + $marginadd;
-                    #if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $askmargin = $askmargin * 0.95; }
+                    if ( (($base eq "KMD") || ($base eq "FIRO")) && ($maxaskvolume_usd > 200) ) { $askmargin = $askmargin * 2.5; }
                     $high = $price + $price * $askmargin;
                     $high = sprintf("%.10f", $high);
                     $ask = sprintf("%.10f", $price + $price * $askmargin);
                 }
                 if ( defined $marginsconf->{$coin}{'bidmargin'} ) {
                     $bidmargin = $marginsconf->{$coin}{'bidmargin'} + $marginadd;
-                    #if ( ($base eq "KMD") || ($coin eq "KMD") || ($coin eq "KMD-BEP20") ) { $bidmargin = $bidmargin * 0.95; }
+                    if ( (($base eq "KMD") || ($base eq "KMD")) && ($maxbidvolume_usd > 200) ) { $bidmargin = $bidmargin * 2.5; }
                     if ( $bidmargin > 0.99 ) { $bidmargin = 0.99; }
                     $low = $price - $price * $bidmargin;
                     $low = sprintf("%.10f", $low);
@@ -2874,31 +2949,29 @@ if ( $api eq "dex_gecko" ) {
                     $price = 0;
                 }
 
-                my $minaskvolume_btc = undef;
-                my $minbidvolume_btc = undef;
-                my $minaskvolume_eth = undef;
-                my $minbidvolume_eth = undef;
-                my $maxbidvolume = undef;
-                my $minbidvolume = undef;
-                my $maxaskvolume = undef;
-                my $minaskvolume = undef;
                if ($coinusdprice > 0) {
-                my $maxbidvolume_usd = $marginsconf->{$coin}{'maxbidvolume'};
-                if ( defined $maxbidvolume_usd ) { $maxbidvolume = $maxbidvolume_usd / $base_usd_price; }
-                my $minbidvolume_usd = $marginsconf->{$coin}{'minbidvolume'};
-                if ( defined $minbidvolume_usd ) { $minbidvolume = $minbidvolume_usd / $base_usd_price; }
-                my $maxaskvolume_usd = $marginsconf->{$coin}{'maxaskvolume'};
-                if ( defined $maxaskvolume_usd && $coinusdprice > 0 ) { $maxaskvolume = $maxaskvolume_usd / $coinusdprice; }
-                my $minaskvolume_usd = $marginsconf->{$coin}{'minaskvolume'};
-                if ( defined $minaskvolume_usd && $coinusdprice > 0 ) { $minaskvolume = $minaskvolume_usd / $coinusdprice; }
+                if ( defined $maxbidvolume_usd ) {
+                    $maxbidvolume = $maxbidvolume_usd / $base_usd_price;
+                    if ( (($base eq "KMD") || ($base eq "FIRO")) && ($maxbidvolume_usd > 200) ) { $maxbidvolume = $maxbidvolume * 0.4; }
+                }
+                if ( defined $minbidvolume_usd ) {
+                     $minbidvolume = $minbidvolume_usd / $base_usd_price;
+                }
+                if ( defined $maxaskvolume_usd && $coinusdprice > 0 ) {
+                    $maxaskvolume = $maxaskvolume_usd / $coinusdprice;
+                    if ( (($base eq "KMD") || ($base eq "FIRO")) && ($maxaskvolume_usd > 200)) { $maxaskvolume = $maxaskvolume * 0.4; }
+                }
+                if ( defined $minaskvolume_usd && $coinusdprice > 0 ) {
+                    $minaskvolume = $minaskvolume_usd / $coinusdprice;
+                }
                 if ( (($base eq "BTC") || ($base eq "BTC-segwit")) && ($type eq "erc20") ) {
                     if ( ($erc20fee eq "1") || ($btcfee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
                         $minaskvolume_btc = $btcfee * $btcusdprice / $coinusdprice * 77;
                         $minbidvolume_btc = $btcfee * 77;
-                        $minaskvolume_eth = $erc20fee * 100 / $coinusdprice;
-                        $minbidvolume_eth = $erc20fee * 100 / $base_usd_price;
+                        $minaskvolume_eth = $erc20fee * 77 / $coinusdprice;
+                        $minbidvolume_eth = $erc20fee * 77 / $base_usd_price;
                         #print "$coin/$base === base_btc and type_erc20 === minaskvolume_btc $minaskvolume_btc minaskvolume_eth $minaskvolume_eth  minbidvolume_btc $minbidvolume_btc minbidvolume_eth $minbidvolume_eth\n";
                         $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
                         $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
@@ -2909,8 +2982,8 @@ if ( $api eq "dex_gecko" ) {
                     } else {
                         $minaskvolume_btc = $btcfee * 77;
                         $minbidvolume_btc = $btcfee * $btcusdprice / $base_usd_price * 77;
-                        $minaskvolume_eth = $erc20fee * 100 / $coinusdprice;
-                        $minbidvolume_eth = $erc20fee * 100 / $base_usd_price;
+                        $minaskvolume_eth = $erc20fee * 77 / $coinusdprice;
+                        $minbidvolume_eth = $erc20fee * 77 / $base_usd_price;
                         #print "$coin/$base === base_erc20 and coin_btc === minaskvolume_btc $minaskvolume_btc minaskvolume_eth $minaskvolume_eth  minbidvolume_btc $minbidvolume_btc minbidvolume_eth $minbidvolume_eth\n";
                         $minaskvolume = max($minaskvolume_btc,$minaskvolume_eth);
                         $minbidvolume = max($minbidvolume_btc,$minbidvolume_eth);
@@ -2919,8 +2992,8 @@ if ( $api eq "dex_gecko" ) {
                     if ( ($erc20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $erc20fee * 100 / $coinusdprice;
-                        $minbidvolume = $erc20fee * 100 / $base_usd_price;
+                        $minaskvolume = $erc20fee * 77 / $coinusdprice;
+                        $minbidvolume = $erc20fee * 77 / $base_usd_price;
                     }
                 } elsif (($base eq "BTC") || ($base eq "BTC-segwit")) {
                     if ( ($btcfee eq "1") || ($coinusdprice == 0) ) {
@@ -2940,78 +3013,71 @@ if ( $api eq "dex_gecko" ) {
                     if ( ($arb20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $arb20fee * 100 / $coinusdprice;
-                        $minbidvolume = $arb20fee * 100 / $base_usd_price;
+                        $minaskvolume = $arb20fee * 77 / $coinusdprice;
+                        $minbidvolume = $arb20fee * 77 / $base_usd_price;
                     }
                 } elsif ( ($type eq "base") || (index($base, "BASE") != -1) || ($base eq "ETH-BASE") ) {
                     if ( ($basefee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $basefee * 100 / $coinusdprice;
-                        $minbidvolume = $basefee * 100 / $base_usd_price;
+                        $minaskvolume = $basefee * 77 / $coinusdprice;
+                        $minbidvolume = $basefee * 77 / $base_usd_price;
                     }
                 } elsif ( ($type eq "bep20") || (index($base, "BEP20") != -1) || ($base eq "BNB") ) {
                     if ( ($bep20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $bep20fee * 50 / $coinusdprice;
-                        $minbidvolume = $bep20fee * 50 / $base_usd_price;
+                        $minaskvolume = $bep20fee * 77 / $coinusdprice;
+                        $minbidvolume = $bep20fee * 77 / $base_usd_price;
                     }
                 } elsif ( ($type eq "avx20") || (index($base, "AVX20") != -1) || ($base eq "AVAX") ) {
                     if ( ($avx20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $avx20fee * 100 / $coinusdprice;
-                        $minbidvolume = $avx20fee * 100 / $base_usd_price;
+                        $minaskvolume = $avx20fee * 77 / $coinusdprice;
+                        $minbidvolume = $avx20fee * 77 / $base_usd_price;
                     }
                 } elsif ( ($type eq "plg20") || (index($base, "PLG20") != -1) || ($base eq "POL") ) {
                     if ( ($plg20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $plg20fee * 100 / $coinusdprice;
-                        $minbidvolume = $plg20fee * 100 / $base_usd_price;
+                        $minaskvolume = $plg20fee * 77 / $coinusdprice;
+                        $minbidvolume = $plg20fee * 77 / $base_usd_price;
                     }
                 } elsif ( ($type eq "hrc20") || (index($base, "HRC20") != -1) || ($base eq "ONE") ) {
                     if ( ($hrc20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $hrc20fee * 100 / $coinusdprice;
-                        $minbidvolume = $hrc20fee * 100 / $base_usd_price;
+                        $minaskvolume = $hrc20fee * 77 / $coinusdprice;
+                        $minbidvolume = $hrc20fee * 77 / $base_usd_price;
                     }
                 } elsif ( ($type eq "krc20") || (index($base, "KRC20") != -1) || ($base eq "KCS") ) {
                     if ( ($krc20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $krc20fee * 100 / $coinusdprice;
-                        $minbidvolume = $krc20fee * 100 / $base_usd_price;
+                        $minaskvolume = $krc20fee * 77 / $coinusdprice;
+                        $minbidvolume = $krc20fee * 77 / $base_usd_price;
                     }
                 } elsif ( ($type eq "glm20") || (index($base, "GLM20") != -1) || ($base eq "GLMR") ) {
                     if ( ($glm20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $glm20fee * 100 / $coinusdprice;
-                        $minbidvolume = $glm20fee * 100 / $base_usd_price;
+                        $minaskvolume = $glm20fee * 77 / $coinusdprice;
+                        $minbidvolume = $glm20fee * 77 / $base_usd_price;
                     }
                 } elsif ( ($type eq "mvr20") || (index($base, "MVR20") != -1) || ($base eq "MOVR") ) {
                     if ( ($mvr20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $mvr20fee * 100 / $coinusdprice;
-                        $minbidvolume = $mvr20fee * 100 / $base_usd_price;
-                    }
-                } elsif ($type eq "ewt") {
-                    if ( ($ewtfee eq "1") || ($coinusdprice == 0) ) {
-                        $price = 0;
-                    } else {
-                        $minaskvolume = $ewtfee * 100 / $coinusdprice;
-                        $minbidvolume = $ewtfee * 100 / $base_usd_price;
+                        $minaskvolume = $mvr20fee * 77 / $coinusdprice;
+                        $minbidvolume = $mvr20fee * 77 / $base_usd_price;
                     }
                 } elsif ($type eq "iris") {
                     if ( ($irisfee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
-                        $minaskvolume = $irisfee * 100 / $coinusdprice;
-                        $minbidvolume = $irisfee * 100 / $base_usd_price;
+                        $minaskvolume = $irisfee * 77 / $coinusdprice;
+                        $minbidvolume = $irisfee * 77 / $base_usd_price;
                     }
                 } elsif ($type eq "qrc20") {
                     if ( ($qrc20fee eq "1") || ($coinusdprice == 0) ) {
