@@ -798,7 +798,7 @@ sub binance_24hr_price {
 
 
 sub binance_xxhr_price {
-    my $url = "https://api.binance.com/api/v3/ticker?symbol=".$_[0]."&windowSize=4h";
+    my $url = "https://api.binance.com/api/v3/ticker?symbol=".$_[0]."&windowSize=6h";
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -1802,7 +1802,7 @@ sub dex_setprice {
     my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
     $req->content_type('application/x-www-form-urlencoded');
 
-    Time::HiRes::sleep(0.3);
+    Time::HiRes::sleep(0.2);
 
     print "$rel/$base  ";
 
@@ -1844,7 +1844,7 @@ sub dex_setprice {
         }
     }
 
-    Time::HiRes::sleep(0.3);
+    Time::HiRes::sleep(0.2);
 
     if ( defined $ask ) {
         my $command = undef;
@@ -2103,11 +2103,11 @@ if ( $api eq "dex_gecko" ) {
     $userpass =  $ENV{'userpass'};
     my $json = read_file("$cwd/mpm.conf.dex");
     $marginsconf = decode_json($json);
-    my @stablecoins_usd = ("USDT-BEP20","USDT-PLG20","USDT-AVX20","USDT-KRC20","FDUSD-BEP20","DAI-BEP20","DAI-AVX20","DAI-ERC20","DAI-PLG20","USDC-ARB20","USDC-BASE","USDC-BEP20","USDC-PLG20","USDC-AVX20","USDC-KRC20");
+    my @stablecoins_usd = ("USDT-ERC20","USDT-BEP20","USDT-PLG20","USDT-AVX20","USDT-KRC20","FDUSD-BEP20","USDC-ARB20","USDC-BASE","USDC-ERC20","USDC-BEP20","USDC-PLG20","USDC-AVX20","USDC-KRC20");
     my @stablecoins_eur = ("EURS-PLG20","AGEUR-PLG20","EURC-AVX20","EURC-BASE","EURE-ARB20","EURE-PLG20");
     my @stablecoins_try = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","TRYB-BASE");
     #my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","JTRY-PLG20","BIDR-BEP20","JPYC-PLG20","JJPY-PLG20","BRZ-BEP20","QC-QRC20","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JGBP-PLG20","NZDS-PLG20","JCAD-PLG20","JSGD-PLG20","JCNY-PLG20","JAUD-PLG20","JBRL-PLG20","JBRL-BEP20","JKRW-PLG20","JMXN-PLG20","JSEK-PLG20");
-    my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,polygon-ecosystem-token,fantom,harmony,kucoin-shares,moonbeam,moonriver,zelcash,syscoin,pirate-chain,digibyte,iris-network";
+    my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,polygon-ecosystem-token,harmony,kucoin-shares,moonbeam,moonriver,zelcash,syscoin,pirate-chain,digibyte";
     foreach my $coin ( keys %{$marginsconf} ) {
         if ( defined $marginsconf->{$coin}{'geckoid'} ) {
             $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
@@ -2126,7 +2126,6 @@ if ( $api eq "dex_gecko" ) {
         my $arb20fee = 1;
         my $basefee = 1;
         my $qtumfee = 1;
-        #my $irisfee = 1;
         my $qrc20fee = 1;
         my $avx20fee = 1;
         my $bep20fee = 1;
@@ -2139,7 +2138,6 @@ if ( $api eq "dex_gecko" ) {
             $erc20fee = dex_gettradefee("ETH") * from_json($gecko_price)->{"ethereum"}{"usd"};
             $arb20fee = dex_gettradefee("ETH-ARB20") * from_json($gecko_price)->{"ethereum"}{"usd"};
             $basefee = dex_gettradefee("ETH-BASE") * from_json($gecko_price)->{"ethereum"}{"usd"};
-            #$irisfee = dex_gettradefee("IRIS") * from_json($gecko_price)->{"iris-network"}{"usd"};
             $qtumfee = dex_gettradefee("QTUM") * from_json($gecko_price)->{"qtum"}{"usd"};
             $qrc20fee = dex_gettradefee("QC-QRC20") * from_json($gecko_price)->{"qtum"}{"usd"};
             $avx20fee = dex_gettradefee("AVAX") * from_json($gecko_price)->{"avalanche-2"}{"usd"};
@@ -2154,8 +2152,6 @@ if ( $api eq "dex_gecko" ) {
             $erc20fee = dex_gettradefee("ETH") * from_json($eth_usd_price)->{"last_price"};
             $arb20fee = dex_gettradefee("ETH-ARB20") * from_json($eth_usd_price)->{"last_price"};
             $basefee = dex_gettradefee("ETH-BASE") * from_json($eth_usd_price)->{"last_price"};
-            #my $iris_usd_price = komodolive_latest_price("IRIS");
-            #$irisfee = dex_gettradefee("IRIS") * from_json($iris_usd_price)->{"last_price"};
             my $qtum_usd_price = komodolive_latest_price("QTUM");
             $qtumfee = dex_gettradefee("QTUM") * from_json($qtum_usd_price)->{"last_price"};
             $qrc20fee = dex_gettradefee("QC-QRC20") * from_json($qtum_usd_price)->{"last_price"};
