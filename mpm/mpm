@@ -38,8 +38,6 @@ my $bitvavo_seckey = "";
 my $kucoin_apikey = "";
 my $kucoin_seckey = "";
 my $kucoin_passphrase = "";
-my $bittrex_apikey = "";
-my $bittrex_seckey = "";
 
 
 sub paprika_latest_price {
@@ -228,6 +226,33 @@ sub nestex_latest_price {
 }
 
 
+sub zercex_latest_price {
+    #https://zercex.xyz/api/v1/ticker?market=HRC_USDT
+    my $url = "https://zercex.xyz/api/v1/ticker?market=".$_[0];
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1; 
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
+}
+
+
 sub bitgoget_latest_price {
     #https://bitgoget.com/api/v2/spot/public/markets/mydogeusdt/tickers
     my $url = "https://bitgoget.com/api/v2/spot/public/markets/".$_[0]."/tickers";
@@ -375,9 +400,11 @@ sub dextrade_latest_price {
 
 sub chainlink_latest_price_eth {
     #my $url = "http://eth3.cipig.net:8555";
-    my $url = "https://mainnet.gateway.tenderly.co";
-    #my $url = "https://eth.merkle.io";
-    #my $url = "https://rpc.payload.de";
+    #my $url = "https://mainnet.gateway.tenderly.co";
+    #my $url = "https://rpc.eth.gateway.fm";
+    #my $url = "https://eth.api.pocket.network";
+    #my $url = "https://eth.api.onfinality.io/public";
+    my $url = "https://eth.rpc.blxrbdn.com";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -652,6 +679,32 @@ sub freiexchange_latest_price {
 
 sub flexex_latest_price {
     my $url = "https://api.flexex.io/v1/markets";
+    my $ua = LWP::UserAgent->new;
+    $ua->agent($useragent);
+    $ua->timeout($timeout);
+    #$ua->proxy([qw(http https)] => 'socks://127.0.0.1:9050');
+    my $req = HTTP::Request->new(GET => $url);
+    $req->header('content-type' => 'application/json');
+    my $resp = $ua->request($req);
+    my $json_out = eval { decode_json($resp->content) };
+    if ($@) {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    } elsif ($resp->is_success) {
+        return $resp->content;
+    } else {
+        print "HTTP GET url: ", $url, "\n";
+        print "HTTP GET error code: ", $resp->code, "\n";
+        print "HTTP GET error message: ", $resp->message, "\n";
+        return 1;
+    }
+}
+
+
+sub klingex_latest_price {
+    my $url = "https://api.klingex.io/api/tickers";
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -1061,164 +1114,6 @@ sub bitvavo_depth {
             print "HTTP GET error message: ", $resp->message, "\n";
             return 1;
         }
-}
-
-
-sub bittrex_depth {
-    my $url = "https://api.bittrex.com/v3/markets/".$_[0]."/orderbook";
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    my $req = HTTP::Request->new(GET => $url);
-    $req->header('content-type' => 'application/json');
-    my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
-}
-
-sub bittrex_latest_price {
-    my $url = "https://api.bittrex.com/v3/markets/".$_[0]."/ticker";
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    my $req = HTTP::Request->new(GET => $url);
-    $req->header('content-type' => 'application/json');
-    my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
-}
-
-sub bittrex_summary {
-    my $url = "https://api.bittrex.com/v3/markets/".$_[0]."/summary";
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    my $req = HTTP::Request->new(GET => $url);
-    $req->header('content-type' => 'application/json');
-    my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
-}
-
-sub bittrex_info {
-    my $url = "https://api.bittrex.com/v3/currencies/".$_[0];
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    my $req = HTTP::Request->new(GET => $url);
-    $req->header('content-type' => 'application/json');
-    my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return $resp->content;
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
-}
-
-
-sub bittrex_cancelorders {
-    my $timestamp = time()*1000;
-    my $url = "https://api.bittrex.com/v3/orders/open?marketSymbol=$_[0]-$_[1]";
-    my $body = "";
-    my $content_hash = sha512_hex($body);
-    my $signature = hmac_sha512_hex($timestamp.$url."DELETE".$content_hash, $bittrex_seckey);
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    $req = HTTP::Request->new(DELETE => $url);
-    $req->header('Api-Key' => $bittrex_apikey);
-    $req->header('Api-Timestamp' => $timestamp);
-    $req->header('Api-Content-Hash' => $content_hash);
-    $req->header('Api-Signature' => $signature);
-    $req->header('content-type' => 'application/json');
-    $req->content($body);
-    $resp = $ua->request($req);
-}
-
-
-sub bittrex_setprice {
-    my $base = $_[0];
-    my $coin = $_[1];
-    my $bid = undef;
-    my $ask = undef;
-    if (($coin eq "EUR") || ($coin eq "USDT")) {
-        $bid = sprintf("%.3f",$_[2]);
-        $ask = sprintf("%.3f",$_[3]);
-    } else {
-        $bid = sprintf("%.8f",$_[2]);
-        $ask = sprintf("%.8f",$_[3]);
-    }
-    my $quantity = sprintf("%.3f",$_[4]);
-
-    if ( $base eq "BTC" ) {
-        print "$base/$coin ".sprintf("%.3f",$quantity);
-    } else {
-        print "$base/$coin ".sprintf("%04d",$quantity);
-    }
-
-    my $timestamp = time()*1000;
-    my $url = "https://api.bittrex.com/v3/orders";
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    my $req = HTTP::Request->new(POST => $url);
-
-    if ( defined $bid ) {
-        my $body = '{"marketSymbol":"'.$base.'-'.$coin.'","direction":"BUY","limit":"'.$bid.'","quantity":"'.$quantity.'","type":"LIMIT","timeInForce":"POST_ONLY_GOOD_TIL_CANCELLED","useAwards":false}';
-        my $content_hash = sha512_hex($body);
-        my $signature = hmac_sha512_hex($timestamp.$url."POST".$content_hash, $bittrex_seckey);
-        $req->header('Api-Key' => $bittrex_apikey);
-        $req->header('Api-Timestamp' => $timestamp);
-        $req->header('Api-Content-Hash' => $content_hash);
-        $req->header('Api-Signature' => $signature);
-        $req->header('content-type' => 'application/json');
-        $req->content($body);
-        my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            print " bid ".$bid;
-        } else {
-            print " bid ".$resp->content;
-        }
-    }
-
-    if ( defined $ask ) {
-        my $body = '{"marketSymbol":"'.$base.'-'.$coin.'","direction":"SELL","limit":"'.$ask.'","quantity":"'.$quantity.'","type":"LIMIT","timeInForce":"POST_ONLY_GOOD_TIL_CANCELLED","useAwards":false}';
-        my $content_hash = sha512_hex($body);
-        my $signature = hmac_sha512_hex($timestamp.$url."POST".$content_hash, $bittrex_seckey);
-        $req->header('Api-Key' => $bittrex_apikey);
-        $req->header('Api-Timestamp' => $timestamp);
-        $req->header('Api-Content-Hash' => $content_hash);
-        $req->header('Api-Signature' => $signature);
-        $req->header('content-type' => 'application/json');
-        $req->content($body);
-        my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            print " ask ".$ask."\n";
-        } else {
-            print " ask ".$resp->content."\n";
-        }
-    }
 }
 
 
@@ -2062,23 +1957,6 @@ sub calc_bestprice_sum {
 }
 
 
-sub calc_bestprice_sum_bittrex {
-    my $sum = 0;
-    my $maxsum = $_[1];
-    my $coin = $_[2];
-    foreach (@{$_[0]}) {
-        my @array = $_;
-        my $price = $array[0]{"rate"};
-        my $volume = $array[0]{"quantity"};
-        $sum += $volume;
-        if ( $sum >= $maxsum ) {
-            return $price;
-            last;
-        }
-    }
-}
-
-
 sub binance_volat {
     my $marginadd = 0.01;
     my $marginadd_1 = 0.01;
@@ -2103,11 +1981,10 @@ if ( $api eq "dex_gecko" ) {
     $userpass =  $ENV{'userpass'};
     my $json = read_file("$cwd/mpm.conf.dex");
     $marginsconf = decode_json($json);
-    my @stablecoins_usd = ("USDT-ERC20","USDT-BEP20","USDT-PLG20","USDT-AVX20","USDT-KRC20","FDUSD-BEP20","USDC-ARB20","USDC-BASE","USDC-ERC20","USDC-BEP20","USDC-PLG20","USDC-AVX20","USDC-KRC20");
-    my @stablecoins_eur = ("EURS-PLG20","AGEUR-PLG20","EURC-AVX20","EURC-BASE","EURE-ARB20","EURE-PLG20");
+    my @stablecoins_usd = ("USDT-ERC20","USDT-BEP20","USDT-PLG20","USDT-AVX20","USDT-ARB20","USDC-ARB20","USDC-BASE","USDC-GNO","USDC-ERC20","USDC-BEP20","USDC-PLG20","USDC-AVX20","XDAI");
+    my @stablecoins_eur = ("EURC-AVX20","EURC-BASE","EURE-ARB20","EURE-PLG20","EURE-GNO");
     my @stablecoins_try = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","TRYB-BASE");
-    #my @stablecoins_other = ("TRYB-BEP20","TRYB-AVX20","TRYB-PLG20","JTRY-PLG20","BIDR-BEP20","JPYC-PLG20","JJPY-PLG20","BRZ-BEP20","QC-QRC20","CADC-PLG20","XSGD-PLG20","JCHF-PLG20","JGBP-PLG20","NZDS-PLG20","JCAD-PLG20","JSGD-PLG20","JCNY-PLG20","JAUD-PLG20","JBRL-PLG20","JBRL-BEP20","JKRW-PLG20","JMXN-PLG20","JSEK-PLG20");
-    my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,polygon-ecosystem-token,harmony,kucoin-shares,moonbeam,moonriver,zelcash,syscoin,pirate-chain,digibyte";
+    my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,komodo,dogecoin,dash,avalanche-2,binancecoin,polygon-ecosystem-token,harmony,kucoin-shares,moonbeam,moonriver,zelcash,syscoin,pirate-chain,digibyte,xdai";
     foreach my $coin ( keys %{$marginsconf} ) {
         if ( defined $marginsconf->{$coin}{'geckoid'} ) {
             $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
@@ -2119,32 +1996,36 @@ if ( $api eq "dex_gecko" ) {
 
         my $gecko_price = gecko_latest_price($ids);
         my $freiexchange_price = freiexchange_latest_price();
-        my $flexex_price = flexex_latest_price();
+        #my $flexex_price = flexex_latest_price();
+        #my $klingex_price = klingex_latest_price();
 
         my $btcfee = dex_gettradefee("BTC-segwit");
         my $erc20fee = 1;
+        my $grc20fee = 1;
         my $arb20fee = 1;
         my $basefee = 1;
+        my $gnofee = 1;
         my $qtumfee = 1;
         my $qrc20fee = 1;
         my $avx20fee = 1;
         my $bep20fee = 1;
         my $plg20fee = 1;
         my $hrc20fee = 1;
-        my $krc20fee = 1;
         my $glm20fee = 1;
         my $mvr20fee = 1;
+        my $gleec_usd_price = komodolive_latest_price("GLEEC");
         if ( $gecko_price ne "1" ) {
             $erc20fee = dex_gettradefee("ETH") * from_json($gecko_price)->{"ethereum"}{"usd"};
+            $grc20fee = dex_gettradefee("GLEEC") * from_json($gleec_usd_price)->{"last_price"};
             $arb20fee = dex_gettradefee("ETH-ARB20") * from_json($gecko_price)->{"ethereum"}{"usd"};
             $basefee = dex_gettradefee("ETH-BASE") * from_json($gecko_price)->{"ethereum"}{"usd"};
+            $gnofee = dex_gettradefee("XDAI");
             $qtumfee = dex_gettradefee("QTUM") * from_json($gecko_price)->{"qtum"}{"usd"};
             $qrc20fee = dex_gettradefee("QC-QRC20") * from_json($gecko_price)->{"qtum"}{"usd"};
             $avx20fee = dex_gettradefee("AVAX") * from_json($gecko_price)->{"avalanche-2"}{"usd"};
             $bep20fee = dex_gettradefee("BNB") * from_json($gecko_price)->{"binancecoin"}{"usd"};
             $plg20fee = dex_gettradefee("POL") * from_json($gecko_price)->{"polygon-ecosystem-token"}{"usd"};
             $hrc20fee = dex_gettradefee("ONE") * from_json($gecko_price)->{"harmony"}{"usd"};
-            $krc20fee = dex_gettradefee("KCS") * from_json($gecko_price)->{"kucoin-shares"}{"usd"};
             $glm20fee = dex_gettradefee("GLMR") * from_json($gecko_price)->{"moonbeam"}{"usd"};
             $mvr20fee = dex_gettradefee("MOVR") * from_json($gecko_price)->{"moonriver"}{"usd"};
         } else {
@@ -2152,6 +2033,8 @@ if ( $api eq "dex_gecko" ) {
             $erc20fee = dex_gettradefee("ETH") * from_json($eth_usd_price)->{"last_price"};
             $arb20fee = dex_gettradefee("ETH-ARB20") * from_json($eth_usd_price)->{"last_price"};
             $basefee = dex_gettradefee("ETH-BASE") * from_json($eth_usd_price)->{"last_price"};
+            $gnofee = dex_gettradefee("XDAI");
+            $grc20fee = dex_gettradefee("GLEEC") * from_json($gleec_usd_price)->{"last_price"};
             my $qtum_usd_price = komodolive_latest_price("QTUM");
             $qtumfee = dex_gettradefee("QTUM") * from_json($qtum_usd_price)->{"last_price"};
             $qrc20fee = dex_gettradefee("QC-QRC20") * from_json($qtum_usd_price)->{"last_price"};
@@ -2163,8 +2046,6 @@ if ( $api eq "dex_gecko" ) {
             $plg20fee = dex_gettradefee("POL") * from_json($pol_usd_price)->{"last_price"};
             my $one_usd_price = komodolive_latest_price("ONE");
             $hrc20fee = dex_gettradefee("ONE") * from_json($one_usd_price)->{"last_price"};
-            my $kcs_usd_price = komodolive_latest_price("KCS");
-            $krc20fee = dex_gettradefee("KCS") * from_json($kcs_usd_price)->{"last_price"};
             my $glmr_usd_price = komodolive_latest_price("GLMR");
             $glm20fee = dex_gettradefee("GLMR") * from_json($glmr_usd_price)->{"last_price"};
             my $movr_usd_price = komodolive_latest_price("MOVR");
@@ -2405,8 +2286,8 @@ if ( $api eq "dex_gecko" ) {
 
         if ( ($base_usd_price > 0) && ($base_btc_price > 0) ) {
 
-             my $base_mintradevol = dex_getmintradevol($base);
-             my $base_balance = dex_getbalance($base);
+            my $base_mintradevol = dex_getmintradevol($base);
+            my $base_balance = dex_getbalance($base);
 
             foreach my $coin ( sort (keys %{$marginsconf}) ) {
                 if ($base eq $coin) { next; }
@@ -2423,8 +2304,7 @@ if ( $api eq "dex_gecko" ) {
                 my $freiexchange_btc_symbol = $marginsconf->{$coin}{'freiexchange_btc_symbol'};
                 my $freiexchange_ltc_symbol = $marginsconf->{$coin}{'freiexchange_ltc_symbol'};
                 my $flexex_usd_symbol = $marginsconf->{$coin}{'flexex_usd_symbol'};
-                my $bittrex_btc_symbol = $marginsconf->{$coin}{'bittrex_btc_symbol'};
-                my $bittrex_usd_symbol = $marginsconf->{$coin}{'bittrex_usd_symbol'};
+                my $klingex_usd_symbol = $marginsconf->{$coin}{'klingex_usd_symbol'};
                 my $coinex_usd_symbol = $marginsconf->{$coin}{'coinex_usd_symbol'};
                 my $coinex_btc_symbol = $marginsconf->{$coin}{'coinex_btc_symbol'};
                 my $coinex_info_symbol = $marginsconf->{$coin}{'coinex_info_symbol'};
@@ -2437,10 +2317,10 @@ if ( $api eq "dex_gecko" ) {
                 my $bithumb_usd_symbol = $marginsconf->{$coin}{'bithumb_usd_symbol'};
                 my $exbitron_usd_symbol = $marginsconf->{$coin}{'exbitron_usd_symbol'};
                 my $nestex_usd_symbol = $marginsconf->{$coin}{'nestex_usd_symbol'};
+                my $zercex_usd_symbol = $marginsconf->{$coin}{'zercex_usd_symbol'};
                 my $bitgoget_usd_symbol = $marginsconf->{$coin}{'bitgoget_usd_symbol'};
                 my $nonkyc_usd_symbol = $marginsconf->{$coin}{'nonkyc_usd_symbol'};
                 my $nonkyc_info_symbol = $marginsconf->{$coin}{'nonkyc_info_symbol'};
-                my $bittrex_info_symbol = $marginsconf->{$coin}{'bittrex_info_symbol'};
                 my $mexc_usd_symbol = $marginsconf->{$coin}{'mexc_usd_symbol'};
                 my $chipsbridge_vrsc_symbol = $marginsconf->{$coin}{'chipsbridge_vrsc_symbol'};
                 my $vrscbridge_usd_symbol = $marginsconf->{$coin}{'vrscbridge_usd_symbol'};
@@ -2467,7 +2347,6 @@ if ( $api eq "dex_gecko" ) {
                     }
                     $coinusdprice = from_json($gecko_price)->{$geckoid}{"usd"};
                     if ( defined from_json($gecko_price)->{$geckoid}{"usd_24h_change"} ) { $change = abs(from_json($gecko_price)->{$geckoid}{"usd_24h_change"}); }
-                    #if ( (($coin ~~ @stablecoins_usd) || ($coin ~~ @stablecoins_eur) || ($coin ~~ @stablecoins_other)) && (defined from_json($gecko_price)->{$geckoid}{"btc_24h_change"}) ) { $change = abs(from_json($gecko_price)->{$geckoid}{"btc_24h_change"}); }
                 }
 
                 if ( defined $binance_usd_symbol ) {
@@ -2551,10 +2430,19 @@ if ( $api eq "dex_gecko" ) {
                     }
                 } elsif ( defined $nestex_usd_symbol ) {
                     my $nestex_price = nestex_latest_price($nestex_usd_symbol);
-                    if ( $nestex_price ne "1" ) {
-                        $price = ( from_json($nestex_price)->{"last_price"} + from_json($nestex_price)->{"bid"} + from_json($nestex_price)->{"ask"} ) / 3 / $base_usd_price;
-                        $coinusdprice = ( from_json($nestex_price)->{"last_price"} + from_json($nestex_price)->{"bid"} + from_json($nestex_price)->{"ask"} ) / 3;
-                        if ( from_json($nestex_price)->{"high"} > 0 ) { $change = (1 - from_json($nestex_price)->{"low"} / from_json($nestex_price)->{"high"}) * 100; }
+                    if (( $nestex_price ne "1" ) && ( (ref(from_json($nestex_price)) ne 'ARRAY') )) {
+                        if ( from_json($nestex_price)->{"ticker_id"} eq $nestex_usd_symbol ) {
+                            $price = ( from_json($nestex_price)->{"last_price"} + from_json($nestex_price)->{"bid"} + from_json($nestex_price)->{"ask"} ) / 3 / $base_usd_price;
+                            $coinusdprice = ( from_json($nestex_price)->{"last_price"} + from_json($nestex_price)->{"bid"} + from_json($nestex_price)->{"ask"} ) / 3;
+                            if ( from_json($nestex_price)->{"high"} > 0 ) { $change = (1 - from_json($nestex_price)->{"low"} / from_json($nestex_price)->{"high"}) * 100; }
+                        }
+                    }
+                } elsif ( defined $zercex_usd_symbol ) {
+                    my $zercex_price = zercex_latest_price($zercex_usd_symbol);
+                    if ( $zercex_price ne "1" ) {
+                        $price = from_json($zercex_price)->[0]{"last_price"} / $base_usd_price;
+                        $coinusdprice = from_json($zercex_price)->[0]{"last_price"};
+                        if ( from_json($zercex_price)->[0]{"high"} > 0 ) { $change = (1 - from_json($zercex_price)->[0]{"low"} / from_json($zercex_price)->[0]{"high"}) * 100; }
                     }
                 } elsif ( defined $bitgoget_usd_symbol ) {
                     my $bitgoget_price = bitgoget_latest_price($bitgoget_usd_symbol);
@@ -2686,6 +2574,26 @@ if ( $api eq "dex_gecko" ) {
                         my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
                         if ($diff > 16) {
                             print "============== $coin flexex_usd ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 16\n";
+                        }
+                    }
+                } elsif ( (defined $klingex_usd_symbol) && ($klingex_price ne "1") ) {
+                    my $needle_location;
+                    my $data = decode_json(join '', $klingex_price);
+                    while( my( $idx, $elem ) = each( @{$data} ) ) {
+                        if( $elem->{'ticker_id'} eq $klingex_usd_symbol ) {
+                            $needle_location = $idx;
+                            last;
+                        }
+                    }
+                    #print Dumper(from_json($klingex_price)->[$needle_location]);
+                    $price = ( from_json($klingex_price)->[$needle_location]{"bid"} + from_json($klingex_price)->[$needle_location]{"ask"} + from_json($klingex_price)->[$needle_location]{"last_price"} ) / 3 / $base_usd_price;
+                    $coinusdprice = ( from_json($klingex_price)->[$needle_location]{"bid"} + from_json($klingex_price)->[$needle_location]{"ask"} + from_json($klingex_price)->[$needle_location]{"last_price"} ) / 3;
+                    if ( from_json($klingex_price)->[$needle_location]{"high"} > 0 ) {$change = (1 - from_json($klingex_price)->[$needle_location]{"low"} / from_json($klingex_price)->[$needle_location]{"high"}) * 100;}
+                    if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                        my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                        my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                        if ($diff > 16) { 
+                            print "============== $coin klingex_usd ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 16\n";
                         }
                     }
                 } elsif ( (defined $freiexchange_btc_symbol) && ($freiexchange_price ne "1") ) {
@@ -2913,10 +2821,10 @@ if ( $api eq "dex_gecko" ) {
                 }
 
                 my $marginadd = 0;
-                if ( (defined $binance_usd_symbol) || (defined $binance_btc_symbol) || (defined $usd_stablecoin) || (defined $chainlink_usd_bep) || (defined $chainlink_usd_eth) || (defined $kucoin_usd_symbol) || (defined $coinex_usd_symbol) ) {
-                    $marginadd = max($change,$base_4h_change)/100/4;
-                } else {
+                if ( (defined $binance_usd_symbol) || (defined $usd_stablecoin) || (defined $chainlink_usd_bep) || (defined $chainlink_usd_eth) || (defined $kucoin_usd_symbol) || (defined $coinex_usd_symbol) || (defined $nonkyc_usd_symbol) || (defined $mexc_usd_symbol) ) {
                     $marginadd = max($change,$base_4h_change)/100/3;
+                } else {
+                    $marginadd = max($change,$base_4h_change)/100/2;
                 }
                 #print "====== $coin change: $change, $base base_4h_change: $base_4h_change, marginadd: $marginadd\n";
 
@@ -3058,19 +2966,26 @@ if ( $api eq "dex_gecko" ) {
                         $minaskvolume = $plg20fee * 77 / $coinusdprice;
                         $minbidvolume = $plg20fee * 77 / $base_usd_price;
                     }
+                } elsif ( ($type eq "gno") || (index($base, "GNO") != -1) || ($base eq "XDAI") ) {
+                    if ( ($gnofee eq "1") || ($coinusdprice == 0) ) {
+                        $price = 0;
+                    } else {
+                        $minaskvolume = $gnofee * 77 / $coinusdprice;
+                        $minbidvolume = $gnofee * 77 / $base_usd_price;
+                    }
+                } elsif ( ($type eq "grc20") || (index($base, "GRC20") != -1) || ($base eq "GLEEC") ) {
+                    if ( ($grc20fee eq "1") || ($coinusdprice == 0) ) {
+                        $price = 0;
+                    } else {
+                        $minaskvolume = $grc20fee * 77 / $coinusdprice;
+                        $minbidvolume = $grc20fee * 77 / $base_usd_price;
+                    }
                 } elsif ( ($type eq "hrc20") || (index($base, "HRC20") != -1) || ($base eq "ONE") ) {
                     if ( ($hrc20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
                     } else {
                         $minaskvolume = $hrc20fee * 77 / $coinusdprice;
                         $minbidvolume = $hrc20fee * 77 / $base_usd_price;
-                    }
-                } elsif ( ($type eq "krc20") || (index($base, "KRC20") != -1) || ($base eq "KCS") ) {
-                    if ( ($krc20fee eq "1") || ($coinusdprice == 0) ) {
-                        $price = 0;
-                    } else {
-                        $minaskvolume = $krc20fee * 77 / $coinusdprice;
-                        $minbidvolume = $krc20fee * 77 / $base_usd_price;
                     }
                 } elsif ( ($type eq "glm20") || (index($base, "GLM20") != -1) || ($base eq "GLMR") ) {
                     if ( ($glm20fee eq "1") || ($coinusdprice == 0) ) {
@@ -3086,13 +3001,6 @@ if ( $api eq "dex_gecko" ) {
                         $minaskvolume = $mvr20fee * 77 / $coinusdprice;
                         $minbidvolume = $mvr20fee * 77 / $base_usd_price;
                     }
-                #} elsif ($type eq "iris") {
-                #    if ( ($irisfee eq "1") || ($coinusdprice == 0) ) {
-                #        $price = 0;
-                #    } else {
-                #        $minaskvolume = $irisfee * 77 / $coinusdprice;
-                #        $minbidvolume = $irisfee * 77 / $base_usd_price;
-                #    }
                 } elsif ($type eq "qrc20") {
                     if ( ($qrc20fee eq "1") || ($coinusdprice == 0) ) {
                         $price = 0;
@@ -3154,20 +3062,6 @@ if ( $api eq "dex_gecko" ) {
                         }
                         if (($delist_check) || ($delesting)) {
                             print "========= $coin may be delisted from nonkyc\n";
-                        }
-                    }
-                }
-
-                # https://api.bittrex.com/v3/currencies/XMY
-                if (defined $bittrex_info_symbol) {
-                    my $bittrex_info = bittrex_info($bittrex_info_symbol);
-                    if ( $bittrex_info ne "1" ) {
-                        my $online = from_json($bittrex_info)->{"status"};
-                        if ($online eq "OFFLINE") {
-                            $bid = undef;
-                            $ask = undef;
-                            my $reason = from_json($bittrex_info)->{"notice"};
-                            print "========= $coin is offline on bittrex, reason: $reason\n";
                         }
                     }
                 }
@@ -3583,82 +3477,6 @@ if ( $api eq "dex_gecko" ) {
             bitvavo_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
             bitvavo_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
             bitvavo_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity_3);
-        }
-    }
-
-
-} elsif ( $api eq "bittrex" ) {
-    my $json = read_file("$cwd/mpm.conf.bittrex.$base");
-    my $marginsconf = decode_json($json);
-    #my $marginadd = binance_volat();
-    my $marginadd = 0;
-    my $cex_price = 0;
-
-    foreach my $coin ( keys %{$marginsconf} ) {
-        my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/50);
-        my $bidmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_2'} + $marginadd/25);
-        my $bidmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_3'} + $marginadd/10);
-        my $askmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_1'} + $marginadd/50);
-        my $askmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_2'} + $marginadd/25);
-        my $askmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_3'} + $marginadd/10);
-        my $quantity_1 = $marginsconf->{$coin}{'quantity_1'};
-        my $quantity_2 = $marginsconf->{$coin}{'quantity_2'};
-        my $quantity_3 = $marginsconf->{$coin}{'quantity_3'};
-        my $maxsum_1 = $marginsconf->{$coin}{'maxsum_1'};
-        my $maxsum_2 = $marginsconf->{$coin}{'maxsum_2'};
-        my $maxsum_3 = $marginsconf->{$coin}{'maxsum_3'};
-
-        bittrex_cancelorders($base,$coin);
-
-        my $bittrex_price = bittrex_latest_price($base."-".$coin);
-        my $askrate = from_json($bittrex_price)->{"askRate"};
-        my $bidrate = from_json($bittrex_price)->{"bidRate"};
-        if (($askrate > 0) && ($bidrate > 0)) {
-            $cex_price = sprintf("%.9f", ($askrate + $bidrate + from_json($bittrex_price)->{"lastTradeRate"}) / 3);
-        }
-
-        my $bittrex_depth = decode_json(bittrex_depth($base."-".$coin));
-
-        if ( ($bittrex_depth ne "1") && ($cex_price > 0) ) {
-            my $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_1));
-            my $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_1));
-            if ($coin eq "BTC") {
-                $cex_bid_price_1 = sprintf("%.8f", (calc_bestprice_sum_bittrex($bittrex_depth->{'bid'},$maxsum_1,$coin) + 0.00000001));
-                $cex_ask_price_1 = sprintf("%.8f", (calc_bestprice_sum_bittrex($bittrex_depth->{'ask'},$maxsum_1,$coin) - 0.00000001));
-            } else {
-                $cex_bid_price_1 = sprintf("%.3f", (calc_bestprice_sum_bittrex($bittrex_depth->{'bid'},$maxsum_1,$coin) + 0.001));
-                $cex_ask_price_1 = sprintf("%.3f", (calc_bestprice_sum_bittrex($bittrex_depth->{'ask'},$maxsum_1,$coin) - 0.001));
-            }
-            if ( ( $cex_bid_price_1 eq "0.00000001" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = $maxbidprice; }
-            if ( ( $cex_ask_price_1 eq "0.00000001" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = $minaskprice; }
-
-            $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_2));
-            $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_2));
-            if ($coin eq "BTC") {
-                $cex_bid_price_2 = sprintf("%.8f", (calc_bestprice_sum_bittrex($bittrex_depth->{'bid'},$maxsum_2,$coin) + 0.00000001));
-                $cex_ask_price_2 = sprintf("%.8f", (calc_bestprice_sum_bittrex($bittrex_depth->{'ask'},$maxsum_2,$coin) - 0.00000001));
-            } else {
-                $cex_bid_price_2 = sprintf("%.3f", (calc_bestprice_sum_bittrex($bittrex_depth->{'bid'},$maxsum_2,$coin) + 0.001));
-                $cex_ask_price_2 = sprintf("%.3f", (calc_bestprice_sum_bittrex($bittrex_depth->{'ask'},$maxsum_2,$coin) - 0.001));
-            }
-            if ( ( $cex_bid_price_2 eq "0.00000001" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
-            if ( ( $cex_ask_price_2 eq "0.00000001" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = $minaskprice; }
-
-            $maxbidprice = sprintf("%.8f", ($cex_price - $cex_price * $bidmargin_3));
-            $minaskprice = sprintf("%.8f", ($cex_price + $cex_price * $askmargin_3));
-            if ($coin eq "BTC") {
-                $cex_bid_price_3 = sprintf("%.8f", (calc_bestprice_sum_bittrex($bittrex_depth->{'bid'},$maxsum_3,$coin) + 0.00000001));
-                $cex_ask_price_3 = sprintf("%.8f", (calc_bestprice_sum_bittrex($bittrex_depth->{'ask'},$maxsum_3,$coin) - 0.00000001));
-            } else {
-                $cex_bid_price_3 = sprintf("%.3f", (calc_bestprice_sum_bittrex($bittrex_depth->{'bid'},$maxsum_3,$coin) + 0.001));
-                $cex_ask_price_3 = sprintf("%.3f", (calc_bestprice_sum_bittrex($bittrex_depth->{'ask'},$maxsum_3,$coin) - 0.001));
-            }
-            if ( ( $cex_bid_price_3 eq "0.00000001" ) || ( $cex_bid_price_3 > $maxbidprice ) ) { $cex_bid_price_3 = $maxbidprice; }
-            if ( ( $cex_ask_price_3 eq "0.00000001" ) || ( $cex_ask_price_3 < $minaskprice ) ) { $cex_ask_price_3 = $minaskprice; }
-
-            bittrex_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
-            bittrex_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
-            bittrex_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity_3);
         }
     }
 
