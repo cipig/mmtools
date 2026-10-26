@@ -256,7 +256,7 @@ sub zercex_latest_price {
 
 sub swapscope_latest_price {
     #https://swapscope.net/api/v1/prices/LCC
-    my $url = "https://swapscope.net/api/v1/prices/".$_[0];
+    my $url = "https://swapscope.net/api/v1/prices/".$_[0].$_[1];
     my $ua = LWP::UserAgent->new;
     $ua->agent($useragent);
     $ua->timeout($timeout);
@@ -487,8 +487,8 @@ sub chainlink_latest_price_arb {
 
 
 sub chainlink_latest_price_plg {
-    my $url = "https://pol3.cipig.net:18755";
-    #my $url = "https://polygon.gateway.tenderly.co";
+    #my $url = "https://pol3.cipig.net:18755";
+    my $url = "https://polygon.gateway.tenderly.co";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -2274,7 +2274,9 @@ if ( $api eq "dex_gecko" ) {
                 my $exbitron_usd_symbol = $marginsconf->{$coin}{'exbitron_usd_symbol'};
                 my $nestex_usd_symbol = $marginsconf->{$coin}{'nestex_usd_symbol'};
                 my $zercex_usd_symbol = $marginsconf->{$coin}{'zercex_usd_symbol'};
-                my $swapscope_usd_symbol = $marginsconf->{$coin}{'swapscope_usd_symbol'};
+                my $swapscope_usd_symbol_8762 = $marginsconf->{$coin}{'swapscope_usd_symbol_8762'};
+                my $swapscope_usd_symbol_6133 = $marginsconf->{$coin}{'swapscope_usd_symbol_6133'};
+                my $swapscope_usd_symbol_all = $marginsconf->{$coin}{'swapscope_usd_symbol_all'};
                 my $bitgoget_usd_symbol = $marginsconf->{$coin}{'bitgoget_usd_symbol'};
                 my $nonkyc_usd_symbol = $marginsconf->{$coin}{'nonkyc_usd_symbol'};
                 my $nonkyc_info_symbol = $marginsconf->{$coin}{'nonkyc_info_symbol'};
@@ -2407,12 +2409,42 @@ if ( $api eq "dex_gecko" ) {
                         $coinusdprice = from_json($zercex_price)->[0]{"last_price"};
                         if ( from_json($zercex_price)->[0]{"high"} > 0 ) { $change = (1 - from_json($zercex_price)->[0]{"low"} / from_json($zercex_price)->[0]{"high"}) * 100; }
                     }
-                } elsif ( defined $swapscope_usd_symbol ) {
-                    my $swapscope_price = swapscope_latest_price($swapscope_usd_symbol);
-                    if ( $swapscope_price ne "1" ) {
+                } elsif ( defined $swapscope_usd_symbol_6133 ) {
+                    my $swapscope_price = swapscope_latest_price($swapscope_usd_symbol_6133,"");
+                    if ( ($swapscope_price ne "1") && (defined from_json($swapscope_price)->{"data"}{"price"}{"usd"}) ) {
                         $price = from_json($swapscope_price)->{"data"}{"price"}{"usd"} / $base_usd_price;
                         $coinusdprice = from_json($swapscope_price)->{"data"}{"price"}{"usd"};
-                        $change = from_json($swapscope_price)->{"data"}{"price"}{"change24hPct"};
+                        $change = abs(from_json($swapscope_price)->{"data"}{"price"}{"change24hPct"});
+                    }
+                } elsif ( defined $swapscope_usd_symbol_8762 ) {
+                    my $swapscope_price = swapscope_latest_price($swapscope_usd_symbol_8762,"?netid=8762");
+                    if ( ($swapscope_price ne "1") && (defined from_json($swapscope_price)->{"data"}{"price"}{"usd"}) ) {
+                        $price = from_json($swapscope_price)->{"data"}{"price"}{"usd"} / $base_usd_price;
+                        $coinusdprice = from_json($swapscope_price)->{"data"}{"price"}{"usd"};
+                        $change = abs(from_json($swapscope_price)->{"data"}{"price"}{"change24hPct"});
+                    }
+                } elsif ( defined $swapscope_usd_symbol_all ) {
+                    my $swapscope_price_6133 = swapscope_latest_price($swapscope_usd_symbol_all,"");
+                    my $swapscope_price_8762 = swapscope_latest_price($swapscope_usd_symbol_all,"?netid=8762");
+                    if ( ($swapscope_price_6133 ne "1") && ($swapscope_price_8762 ne "1") ) {
+                        my $swapscope_price = 0;
+                        my $swapscope_change = 0;
+                        my $sources = 0;
+                        if ( defined from_json($swapscope_price_6133)->{"data"}{"price"}{"usd"} ) {
+                            $swapscope_price += from_json($swapscope_price_6133)->{"data"}{"price"}{"usd"};
+                            $swapscope_change += abs(from_json($swapscope_price_6133)->{"data"}{"price"}{"change24hPct"});
+                            $sources += 1;
+                        }
+                        if ( defined from_json($swapscope_price_8762)->{"data"}{"price"}{"usd"} ) {
+                            $swapscope_price += from_json($swapscope_price_8762)->{"data"}{"price"}{"usd"};
+                            $swapscope_change += abs(from_json($swapscope_price_8762)->{"data"}{"price"}{"change24hPct"});
+                            $sources += 1;
+                        }
+                        if ($swapscope_price > 0) {
+                            $price = $swapscope_price / $sources / $base_usd_price;
+                            $coinusdprice = $swapscope_price / $sources;
+                            $change = $swapscope_change / $sources;
+                        }
                     }
                 } elsif ( defined $bitgoget_usd_symbol ) {
                     my $bitgoget_price = bitgoget_latest_price($bitgoget_usd_symbol);
@@ -2546,7 +2578,7 @@ if ( $api eq "dex_gecko" ) {
                             print "============== $coin flexex_usd ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 16\n";
                         }
                     }
-                } elsif ( (defined $freiexchange_btc_symbol) && ($freiexchange_price ne "1") ) {
+                } elsif ( (defined $freiexchange_btc_symbol) && ($freiexchange_price ne "1") && (defined from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"last"}) ) {
                     $price = ( from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"last"} ) / 3 / $base_btc_price;
                     #$price = from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"last"} / $base_btc_price;
                     $coinusdprice = ( from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_btc_symbol}->[0]{"last"} ) / 3 * $btc_price;
@@ -2559,7 +2591,7 @@ if ( $api eq "dex_gecko" ) {
                             print "============== $coin frei_btc ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 16\n";
                         }
                     }
-                } elsif ( (defined $freiexchange_ltc_symbol) && ($freiexchange_price ne "1") ) {
+                } elsif ( (defined $freiexchange_ltc_symbol) && ($freiexchange_price ne "1") && (defined from_json($freiexchange_price)->{$freiexchange_ltc_symbol}->[0]{"last"}) ) {
                     $price = ( from_json($freiexchange_price)->{$freiexchange_ltc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_ltc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_ltc_symbol}->[0]{"last"} ) / 3 * $ltc_price / $base_usd_price;
                     #$price = from_json($freiexchange_price)->{$freiexchange_ltc_symbol}->[0]{"last"} * $ltc_price / $base_usd_price;
                     $coinusdprice = ( from_json($freiexchange_price)->{$freiexchange_ltc_symbol}->[0]{"highestBuy"} + from_json($freiexchange_price)->{$freiexchange_ltc_symbol}->[0]{"lowestSell"} + from_json($freiexchange_price)->{$freiexchange_ltc_symbol}->[0]{"last"} ) / 3 * $ltc_price;
