@@ -8,6 +8,7 @@ use JSON;
 use File::Slurp qw(read_file);
 use File::Basename;
 use List::Util qw[min max];
+use Math::BigFloat;
 use Digest::SHA qw(hmac_sha256_hex hmac_sha256_base64 sha512_hex hmac_sha512_hex);
 use Digest::MD5 qw(md5_hex);
 use Time::HiRes;
@@ -18,11 +19,6 @@ use Term::ANSIColor;
 
 my $api = $ARGV[0];
 my $base = $ARGV[1];
-my $basepapid = $ARGV[2];
-my $basegeckoid = $ARGV[2];
-my $pubkey = $ARGV[3];
-my $recvaddr = $ARGV[4];
-my $recvZaddr = $ARGV[5];
 my $cwd = dirname($0);
 #my $useragent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36";
 my $useragent = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0";
@@ -32,8 +28,6 @@ my $binance_apikey = "";
 my $binance_seckey = "";
 my $mandala_apikey = "";
 my $mandala_seckey = "";
-my $coinex_accessid = "";
-my $coinex_seckey = "";
 my $bitvavo_apikey = "";
 my $bitvavo_seckey = "";
 my $kucoin_apikey = "";
@@ -487,8 +481,8 @@ sub chainlink_latest_price_arb {
 
 
 sub chainlink_latest_price_plg {
-    #my $url = "https://pol3.cipig.net:18755";
-    my $url = "https://polygon.gateway.tenderly.co";
+    #my $url = "https://public.blazingnode.com";
+    my $url = "https://rpc-mainnet.matic.quiknode.pro";
     my $ua = LWP::UserAgent->new;
     $ua->timeout($timeout);
     my $req = HTTP::Request->new(POST => $url);
@@ -964,57 +958,6 @@ sub binance_kline {
 }
 
 
-sub coinex_latest_price {
-    my $url = "https://api.coinex.com/v1/market/ticker?market=".$_[0];
-    #my $url = "https://api.coinex.com/v2/spot/ticker?market=".$_[0];
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    my $req = HTTP::Request->new(GET => $url);
-    $req->header('content-type' => 'application/json');
-    my $resp = $ua->request($req);
-    my $json_out = eval { decode_json($resp->content) };
-    if ($@) {
-        print "HTTP GET url: ", $url, "\n";
-        print "HTTP GET error code: ", $resp->code, "\n";
-        print "HTTP GET error message: ", $resp->message, "\n";
-        return 1;
-    } elsif ($resp->is_success) {
-        return $resp->content;
-    } else {
-        print "HTTP GET url: ", $url, "\n";
-        print "HTTP GET error code: ", $resp->code, "\n";
-        print "HTTP GET error message: ", $resp->message, "\n";
-        return 1;
-    }
-}
-
-sub coinex_info {
-    #my $url = "https://api.coinex.com/v1/common/asset/config?coin_type=".$_[0];
-    my $url = "https://api.coinex.com/v2/assets/deposit-withdraw-config?ccy=".$_[0];
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    my $req = HTTP::Request->new(GET => $url);
-    $req->header('content-type' => 'application/json');
-    my $resp = $ua->request($req);
-    my $json_out = eval { decode_json($resp->content) };
-    if ($@) {
-        print "HTTP GET url: ", $url, "\n";
-        print "HTTP GET error code: ", $resp->code, "\n";
-        print "HTTP GET error message: ", $resp->message, "\n";
-        return 1;
-    } elsif ($resp->is_success) {
-        return $resp->content;
-    } else {
-        print "HTTP GET url: ", $url, "\n";
-        print "HTTP GET error code: ", $resp->code, "\n";
-        print "HTTP GET error message: ", $resp->message, "\n";
-        return 1;
-    }
-}
-
-
 sub hitbtc_latest_price {
     my $url = "https://api.hitbtc.com/api/2/public/ticker/".$_[0];
     my $ua = LWP::UserAgent->new;
@@ -1116,27 +1059,6 @@ sub bitvavo_depth {
         } else {
             print "HTTP GET url: ", $url, "\n";
             print "HTTP GET error code: ", $resp->code, "\n";
-            print "HTTP GET error message: ", $resp->message, "\n";
-            return 1;
-        }
-}
-
-
-sub coinex_depth {
-    my $base = $_[0];
-    my $coin = $_[1];
-    my $url = "https://api.coinex.com/v1/market/depth?market=".$base.$coin."&limit=10&merge=0";
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    my $req = HTTP::Request->new(GET => $url);
-    $req->header('content-type' => 'application/json');
-    my $resp = $ua->request($req);
-        if ($resp->is_success) {
-            return decode_json($resp->content)->{'data'};
-        } else {
-            print "HTTP GET url: ", $url, "\n";
-            #print "HTTP GET error code: ", $resp->code, "\n";
             print "HTTP GET error message: ", $resp->message, "\n";
             return 1;
         }
@@ -1299,26 +1221,6 @@ sub bitvavo_cancelorders {
     $req->content();
     $resp = $ua->request($req);
     #print $resp->content."\n";
-}
-
-
-sub coinex_cancelorders {
-    my $base = $_[0];
-    my $coin = $_[1];
-    my $tonce = time()*1000;
-    my $url = "https://api.coinex.com/v1/order/pending?";
-    my $params = "access_id=".$coinex_accessid."&account_id=0&market=".$base.$coin."&tonce=".$tonce;
-    my $authorization = uc(md5_hex($params."&secret_key=".$coinex_seckey));
-
-    my $ua = LWP::UserAgent->new;
-    $ua->agent($useragent);
-    $ua->timeout($timeout);
-    $req = HTTP::Request->new(DELETE => $url.$params);
-    $req->header('authorization' => $authorization);
-    $req->header('content-type' => 'application/json');
-    $req->content();
-    $resp = $ua->request($req);
-    #print $resp->content;
 }
 
 
@@ -1612,74 +1514,6 @@ sub bitvavo_setprice {
 }
 
 
-sub coinex_setprice {
-    my $base = $_[0];
-    my $coin = $_[1];
-    my $bid = undef;
-    my $ask = undef;
-    if ( ($base eq "ARRR") && ($coin eq "USDT") ) {
-        $bid = sprintf("%.4f",$_[2]);
-        $ask = sprintf("%.4f",$_[3]);
-    } elsif ( $coin eq "USDT" ) {
-        $bid = sprintf("%.6f",$_[2]);
-        $ask = sprintf("%.6f",$_[3]);
-    } else {
-        $bid = sprintf("%.10f",$_[2]);
-        $ask = sprintf("%.10f",$_[3]);
-    }
-    my $quantity = sprintf("%u",$_[4]);
-    my $url = "https://api.coinex.com/v1/order/limit";
-
-    print "$base/$coin ".sprintf("%03d",$quantity);
-
-    if ( defined $bid ) {
-        my $tonce = time()*1000;
-        my $body = '{ "access_id":"'.$coinex_accessid.'","amount":"'.$quantity.'","price":"'.$bid.'","type":"buy","market":"'.$base.$coin.'","tonce":'.$tonce.' }';
-        my $signtext = "access_id=".$coinex_accessid."&amount=".$quantity."&market=".$base.$coin."&price=".$bid."&tonce=".$tonce."&type=buy&secret_key=".$coinex_seckey;
-        my $authorization = uc(md5_hex($signtext));
-
-        my $ua = LWP::UserAgent->new;
-        $ua->agent($useragent);
-        $ua->timeout($timeout);
-        $req = HTTP::Request->new(POST => $url);
-        $req->header('authorization' => $authorization);
-        $req->header('content-type' => 'application/json');
-        $req->content($body);
-        $resp = $ua->request($req);
-        my $code = decode_json($resp->content)->{'code'};
-        if ($code eq "0") {
-            print " bid ".$bid;
-        } else {
-            print " bid 0.00000000";
-            print " ".$resp->content;
-        }
-    }
-
-    if ( defined $ask ) {
-        my $tonce = time()*1000;
-        my $body = '{ "access_id":"'.$coinex_accessid.'","amount":"'.$quantity.'","price":"'.$ask.'","type":"sell","market":"'.$base.$coin.'","tonce":'.$tonce.' }';
-        my $signtext = "access_id=".$coinex_accessid."&amount=".$quantity."&market=".$base.$coin."&price=".$ask."&tonce=".$tonce."&type=sell&secret_key=".$coinex_seckey;
-        my $authorization = uc(md5_hex($signtext));
-
-        my $ua = LWP::UserAgent->new;
-        $ua->agent($useragent);
-        $ua->timeout($timeout);
-        $req = HTTP::Request->new(POST => $url);
-        $req->header('authorization' => $authorization);
-        $req->header('content-type' => 'application/json');
-        $req->content($body);
-        $resp = $ua->request($req);
-        my $code = decode_json($resp->content)->{'code'};
-        if ($code eq "0") {
-            print " ask ".$ask."\n";
-        } else {
-            print " ask 0.00000000\n";
-            print " ".$resp->content."\n";
-        }
-    }
-}
-
-
 sub dex_setprice {
     my $base = $_[0];
     my $rel = $_[1];
@@ -1702,7 +1536,7 @@ sub dex_setprice {
     my $req = HTTP::Request->new(POST => 'http://127.0.0.1:7783');
     $req->content_type('application/x-www-form-urlencoded');
 
-    Time::HiRes::sleep(0.2);
+    Time::HiRes::sleep(0.25);
 
     print "$rel/$base  ";
 
@@ -1744,7 +1578,7 @@ sub dex_setprice {
         }
     }
 
-    Time::HiRes::sleep(0.2);
+    Time::HiRes::sleep(0.25);
 
     if ( defined $ask ) {
         my $command = undef;
@@ -1989,6 +1823,7 @@ if ( $api eq "dex_gecko" ) {
     my @stablecoins_usd = ("USDT-ERC20","USDT-BEP20","USDT-PLG20","USDT-AVX20","USDT-ARB20","USDC-ARB20","USDC-BASE","USDC-GNO","USDC-ERC20","USDC-BEP20","USDC-PLG20","USDC-AVX20","XDAI");
     my @stablecoins_eur = ("EURC-ERC20","EURC-AVX20","EURC-BASE","EURE-ARB20","EURE-PLG20","EURE-GNO");
     my $ids = "bitcoin,ethereum,qtum,litecoin,bitcoin-cash,dogecoin,dash,avalanche-2,binancecoin,polygon-ecosystem-token,syscoin,pirate-chain,digibyte,xdai,tron,zcash,bittensor";
+
     foreach my $coin ( keys %{$marginsconf} ) {
         if ( defined $marginsconf->{$coin}{'geckoid'} ) {
             $ids = $ids.",".$marginsconf->{$coin}{'geckoid'};
@@ -2003,32 +1838,68 @@ if ( $api eq "dex_gecko" ) {
         #my $flexex_price = flexex_latest_price();
 
         my $eur_price = 0;
-        my $link_eur_price = chainlink_latest_price_plg("0x73366Fe0AA0Ded304479862808e02506FE556a98");
-        if ( $link_eur_price ne "1" ) { $eur_price = hex(from_json($link_eur_price)->{"result"}) / 100000000; }
+        my $eur_div = 10**8; my $link_eur_price = chainlink_latest_price_eth("0xB34864138863eD5fB6fC8324e92d10fDa58b9902");
+        if ( $link_eur_price ne "1" ) { $eur_price = hex(from_json($link_eur_price)->{"result"}) / $eur_div; }
+
         my $sgd_price = 0;
-        my $link_sgd_price = chainlink_latest_price_plg("0x8CE3cAc0E6635ce04783709ca3CC4F5fc5304299");
-        if ( $link_sgd_price ne "1" ) { $sgd_price = hex(from_json($link_sgd_price)->{"result"}) / 100000000; }
+        my $sgd_div = 10**8; my $link_sgd_price = chainlink_latest_price_plg("0x8CE3cAc0E6635ce04783709ca3CC4F5fc5304299");
+        if ( $link_sgd_price ne "1" ) { $sgd_price = hex(from_json($link_sgd_price)->{"result"}) / $sgd_div; }
+
         my $chf_price = 0;
-        my $link_chf_price = chainlink_latest_price_plg("0xc76f762CedF0F78a439727861628E0fdfE1e70c2");
-        if ( $link_chf_price ne "1" ) { $chf_price = hex(from_json($link_chf_price)->{"result"}) / 100000000; }
+        my $chf_div = 10**8; my $link_chf_price = chainlink_latest_price_plg("0xc76f762CedF0F78a439727861628E0fdfE1e70c2");
+        if ( $link_chf_price ne "1" ) { $chf_price = hex(from_json($link_chf_price)->{"result"}) / $chf_div; }
+
+        my $brl_price = 0;
+        my $brl_div = 10**8; my $link_brl_price = chainlink_latest_price_bep("0x5cb1Cb3eA5FB46de1CE1D0F3BaDB3212e8d8eF48");
+        if ( $link_brl_price ne "1" ) { $brl_price = hex(from_json($link_brl_price)->{"result"}) / $brl_div; }
+
         my $btc_price = 0;
-        my $link_btc_price = chainlink_latest_price_plg("0xc907E116054Ad103354f2D350FD2514433D57F6f");
-        if ( $link_btc_price ne "1" ) { $btc_price = hex(from_json($link_btc_price)->{"result"}) / 100000000; }
+        my $btc_div = Math::BigFloat->new('1000000000000000000');
+        my $link_btc_price = chainlink_latest_price_bep("0x8ECF7dE377F788A813F5215668E282556b35f300");
+        if ( $link_btc_price ne "1" ) {
+            my $btc_raw_price = Math::BigFloat->from_hex( from_json($link_btc_price)->{"result"} );
+            $btc_price = ($btc_raw_price / $btc_div)->numify();
+        }
+
         my $eth_price = 0;
-        my $link_eth_price = chainlink_latest_price_plg("0xF9680D99D6C9589e2a93a78A04A279e509205945");
-        if ( $link_eth_price ne "1" ) { $eth_price = hex(from_json($link_eth_price)->{"result"}) / 100000000; }
+        my $eth_div = Math::BigFloat->new('1000000000000000000');
+        my $link_eth_price = chainlink_latest_price_bep("0xe48a5Fd74d4A5524D76960ef3B52204C0e11fCD1");
+        if ( $link_eth_price ne "1" ) {
+            my $eth_raw_price = Math::BigFloat->from_hex( from_json($link_eth_price)->{"result"} );
+            $eth_price = ($eth_raw_price / $eth_div)->numify();
+        }
+
+        my $aave_price = 0;
+        my $aave_div = Math::BigFloat->new('1000000000000000000');
+        my $link_aave_price = chainlink_latest_price_bep("0x1Fa0D75D5b90d230da2A610F2B1B2Eaf9a44Dd5f");
+        if ( $link_aave_price ne "1" ) {
+            my $aave_raw_price = Math::BigFloat->from_hex( from_json($link_aave_price)->{"result"} );
+            $aave_price = ($aave_raw_price / $aave_div)->numify();
+        }
+
+        my $link_price = 0;
+        my $link_div = Math::BigFloat->new('1000000000000000000');
+        my $link_link_price = chainlink_latest_price_bep("0x933458F222023B7E9f0AB2194e30d7ACcfE3603D");
+        if ( $link_link_price ne "1" ) {
+            my $link_raw_price = Math::BigFloat->from_hex( from_json($link_link_price)->{"result"} );
+            $link_price = ($link_raw_price / $link_div)->numify();
+        }
+
         my $ltc_price = 0;
-        my $link_ltc_price = chainlink_latest_price_bep("0x74E72F37A8c415c8f1a98Ed42E78Ff997435791D");
-        if ( $link_ltc_price ne "1" ) { $ltc_price = hex(from_json($link_ltc_price)->{"result"}) / 100000000; }
+        my $ltc_div = 10**8; my $link_ltc_price = chainlink_latest_price_bep("0x74E72F37A8c415c8f1a98Ed42E78Ff997435791D");
+        if ( $link_ltc_price ne "1" ) { $ltc_price = hex(from_json($link_ltc_price)->{"result"}) / $ltc_div; }
+
         #my $xau_price = 0;
-        #my $link_xau_price = chainlink_latest_price_plg("0x0C466540B2ee1a31b441671eac0ca886e051E410");
-        #if ( $link_xau_price ne "1" ) { $xau_price = hex(from_json($link_xau_price)->{"result"}) / 100000000; }
+        #my $xau_div = 10**8; my $link_xau_price = chainlink_latest_price_plg("0x0C466540B2ee1a31b441671eac0ca886e051E410");
+        #if ( $link_xau_price ne "1" ) { $xau_price = hex(from_json($link_xau_price)->{"result"}) / $xau_div; }
 
         my $vrsc_price = 0;
         my $bridge_vrsc_price = vrscbridge_latest_price();
         if ( $bridge_vrsc_price ne "1" ) {
             $vrsc_price = from_json($bridge_vrsc_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[1]{"reserves"} / from_json($bridge_vrsc_price)->{"result"}[0]{"currencystate"}{"reservecurrencies"}[0]{"reserves"};
         }
+
+        print "BTC $btc_price, ETH $eth_price, AAVE $aave_price, LINK $link_price, LTC $ltc_price, EUR $eur_price, CHF $chf_price, SGD $sgd_price, BRL $brl_price\n";
 
         #my $gleec_price = komodolive_latest_price("GLEEC");
         my $gleec_price = 0.05;
@@ -2047,16 +1918,16 @@ if ( $api eq "dex_gecko" ) {
         my $trc20fee = 1;
         my $taofee = 1;
         if ( $gecko_price ne "1" ) {
-            $erc20fee = dex_gettradefee("ETH") * from_json($gecko_price)->{"ethereum"}{"usd"};
-            $arb20fee = dex_gettradefee("ETH-ARB20") * from_json($gecko_price)->{"ethereum"}{"usd"};
-            $basefee = dex_gettradefee("ETH-BASE") * from_json($gecko_price)->{"ethereum"}{"usd"};
+            $erc20fee = dex_gettradefee("ETH") * $eth_price;
+            $arb20fee = dex_gettradefee("ETH-ARB20") * $eth_price;
+            $basefee = dex_gettradefee("ETH-BASE") * $eth_price;
             $gnofee = dex_gettradefee("XDAI");
             $qtumfee = dex_gettradefee("QTUM") * from_json($gecko_price)->{"qtum"}{"usd"};
             $qrc20fee = dex_gettradefee("QC-QRC20") * from_json($gecko_price)->{"qtum"}{"usd"};
             $avx20fee = dex_gettradefee("AVAX") * from_json($gecko_price)->{"avalanche-2"}{"usd"};
             $bep20fee = dex_gettradefee("BNB") * from_json($gecko_price)->{"binancecoin"}{"usd"};
             $plg20fee = dex_gettradefee("POL") * from_json($gecko_price)->{"polygon-ecosystem-token"}{"usd"};
-            $trc20fee = dex_gettradefee("TRX") * from_json($gecko_price)->{"tron"}{"usd"};
+            #$trc20fee = dex_gettradefee("TRX") * from_json($gecko_price)->{"tron"}{"usd"};
             $taofee = dex_gettradefee("TAO") * from_json($gecko_price)->{"bittensor"}{"usd"};
         } else {
             $erc20fee = dex_gettradefee("ETH") * $eth_price;
@@ -2072,8 +1943,8 @@ if ( $api eq "dex_gecko" ) {
             $bep20fee = dex_gettradefee("BNB") * from_json($bnb_usd_price)->{"last_price"};
             my $pol_usd_price = komodolive_latest_price("POL");
             $plg20fee = dex_gettradefee("POL") * from_json($pol_usd_price)->{"last_price"};
-            my $trx_usd_price = komodolive_latest_price("TRX");
-            $trc20fee = dex_gettradefee("TRX") * from_json($trx_usd_price)->{"last_price"};
+            #my $trx_usd_price = komodolive_latest_price("TRX");
+            #$trc20fee = dex_gettradefee("TRX") * from_json($trx_usd_price)->{"last_price"};
             my $tao_usd_price = komodolive_latest_price("TAO");
             $taofee = dex_gettradefee("TAO") * from_json($tao_usd_price)->{"last_price"};
         }
@@ -2208,16 +2079,6 @@ if ( $api eq "dex_gecko" ) {
                 $base_usd_price = 0;
                 $base_btc_price = 0;
             }
-        } elsif ( $base eq "FIRO" ) {
-            my $coinex_price_usd = coinex_latest_price("FIROUSDT");
-            if ( $coinex_price_usd ne "1" ) {
-                $base_usd_price = from_json($coinex_price_usd)->{"data"}{"ticker"}{"last"};
-                $base_btc_price = from_json($coinex_price_usd)->{"data"}{"ticker"}{"last"} / $btc_price;
-                if ( from_json($coinex_price_usd)->{"data"}{"ticker"}{"high"} > 0 ) { $base_4h_change = (1 - from_json($coinex_price_usd)->{"data"}{"ticker"}{"low"} / from_json($coinex_price_usd)->{"data"}{"ticker"}{"high"}) * 100; }
-            } else {
-                $base_usd_price = 0;
-                $base_btc_price = 0;
-            }
         } elsif ( ($base eq "ETH") || ($base eq "ETH-BEP20") || ($base eq "ETH-PLG20") || ($base eq "ETH-ARB20") || ($base eq "ETH-BASE") ) {
             my $binance_price_usd = binance_xxhr_price("ETHUSDT");
             if ( $binance_price_usd ne "1" ) {
@@ -2264,9 +2125,6 @@ if ( $api eq "dex_gecko" ) {
                 my $freiexchange_btc_symbol = $marginsconf->{$coin}{'freiexchange_btc_symbol'};
                 my $freiexchange_ltc_symbol = $marginsconf->{$coin}{'freiexchange_ltc_symbol'};
                 my $flexex_usd_symbol = $marginsconf->{$coin}{'flexex_usd_symbol'};
-                my $coinex_usd_symbol = $marginsconf->{$coin}{'coinex_usd_symbol'};
-                my $coinex_btc_symbol = $marginsconf->{$coin}{'coinex_btc_symbol'};
-                my $coinex_info_symbol = $marginsconf->{$coin}{'coinex_info_symbol'};
                 my $kucoin_usd_symbol = $marginsconf->{$coin}{'kucoin_usd_symbol'};
                 my $hitbtc_btc_symbol = $marginsconf->{$coin}{'hitbtc_btc_symbol'};
                 my $hitbtc_usd_symbol = $marginsconf->{$coin}{'hitbtc_usd_symbol'};
@@ -2293,8 +2151,11 @@ if ( $api eq "dex_gecko" ) {
                 my $eur_stablecoin = $marginsconf->{$coin}{'eur_stablecoin'};
                 my $sgd_stablecoin = $marginsconf->{$coin}{'sgd_stablecoin'};
                 my $chf_stablecoin = $marginsconf->{$coin}{'chf_stablecoin'};
+                my $brl_stablecoin = $marginsconf->{$coin}{'brl_stablecoin'};
                 my $btc_stablecoin = $marginsconf->{$coin}{'btc_stablecoin'};
                 my $eth_stablecoin = $marginsconf->{$coin}{'eth_stablecoin'};
+                my $aave_stablecoin = $marginsconf->{$coin}{'aave_stablecoin'};
+                my $link_stablecoin = $marginsconf->{$coin}{'link_stablecoin'};
                 my $chainlink_usd_eth = $marginsconf->{$coin}{'chainlink_usd_eth'};
                 my $chainlink_usd_bep = $marginsconf->{$coin}{'chainlink_usd_bep'};
                 my $chainlink_usd_arb = $marginsconf->{$coin}{'chainlink_usd_arb'};
@@ -2644,6 +2505,16 @@ if ( $api eq "dex_gecko" ) {
                             print "============== $coin chf_stablecoin ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 1\n";
                         }
                     }
+                } elsif ( defined $brl_stablecoin ) {
+                    $coinusdprice = $brl_price;
+                    $price = $coinusdprice / $base_usd_price;
+                    if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                        my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                        my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                        if ($diff > 1) {
+                            print "============== $coin brl_stablecoin ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 1\n";
+                        }
+                    }
                 } elsif ( defined $btc_stablecoin ) {
                     $coinusdprice = $btc_price;
                     $price = $coinusdprice / $base_usd_price;
@@ -2662,6 +2533,26 @@ if ( $api eq "dex_gecko" ) {
                         my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
                         if ($diff > 1) {
                             print "============== $coin eth_stablecoin ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 1\n";
+                        }
+                    }
+                } elsif ( defined $aave_stablecoin ) {
+                    $coinusdprice = $aave_price;
+                    $price = $coinusdprice / $base_usd_price;
+                    if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                        my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                        my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                        if ($diff > 1) {
+                            print "============== $coin aave_stablecoin ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 1\n";
+                        }
+                    }
+                } elsif ( defined $link_stablecoin ) {
+                    $coinusdprice = $link_price;
+                    $price = $coinusdprice / $base_usd_price;
+                    if ( (defined $geckoid) && ($gecko_price ne "1") ) {
+                        my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
+                        my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
+                        if ($diff > 1) {
+                            print "============== $coin link_stablecoin ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 1\n";
                         }
                     }
                 } elsif ( defined $chainlink_usd_eth ) {
@@ -2730,39 +2621,6 @@ if ( $api eq "dex_gecko" ) {
                             }
                         }
                     }
-                } elsif ( defined $coinex_usd_symbol ) {
-                    my $coinex_price = coinex_latest_price($coinex_usd_symbol);
-                    if ( $coinex_price ne "1" ) {
-                        my $sell = from_json($coinex_price)->{"data"}{"ticker"}{"sell"};
-                        my $buy = from_json($coinex_price)->{"data"}{"ticker"}{"buy"};
-                        if (($sell > 0) && ($buy > 0)) {
-                            $price = ( $sell + $buy + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3 / $base_usd_price;
-                            $coinusdprice = ( $sell + $buy + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3;
-                            if ( (defined $geckoid) && ($gecko_price ne "1") ) {
-                                my $geckousdprice = from_json($gecko_price)->{$geckoid}{"usd"};
-                                my $diff = sprintf("%.1f",abs((($coinusdprice - $geckousdprice) / $geckousdprice) * 100));
-                                if ($diff > 4) {
-                                    print "============== $coin coinex_usd ".sprintf("%.8f",$coinusdprice).", gecko ".sprintf("%.8f",$geckousdprice).", diff $diff > 4\n";
-                                }
-                            }
-                        } else {
-                            print "========= wrong price for $coin  bid $buy  ask $sell\n";
-                        }
-                        if ( from_json($coinex_price)->{"data"}{"ticker"}{"high"} > 0 ) { $change = (1 - from_json($coinex_price)->{"data"}{"ticker"}{"low"} / from_json($coinex_price)->{"data"}{"ticker"}{"high"}) * 100;}
-                    }
-                } elsif ( defined $coinex_btc_symbol ) {
-                    my $coinex_price = coinex_latest_price($coinex_btc_symbol);
-                    if ( $coinex_price ne "1" ) {
-                        my $sell = from_json($coinex_price)->{"data"}{"ticker"}{"sell"};
-                        my $buy = from_json($coinex_price)->{"data"}{"ticker"}{"buy"};
-                        if (($sell > 0) && ($buy > 0)) {
-                            $price = ( $sell + $buy + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3 / $base_btc_price;
-                            $coinusdprice = ( $sell + $buy + from_json($coinex_price)->{"data"}{"ticker"}{"last"} ) / 3 * $btc_price;
-                        } else {
-                            print "========= wrong price for $coin  bid $buy  ask $sell\n";
-                        }
-                        if ( from_json($coinex_price)->{"data"}{"ticker"}{"high"} > 0 ) { $change = (1 - from_json($coinex_price)->{"data"}{"ticker"}{"low"} / from_json($coinex_price)->{"data"}{"ticker"}{"high"}) * 100;}
-                    }
                 } elsif ( defined $kucoin_usd_symbol ) {
                     my $kucoin_price = kucoin_latest_price($kucoin_usd_symbol);
                     if ( $kucoin_price ne "1" ) {
@@ -2806,7 +2664,7 @@ if ( $api eq "dex_gecko" ) {
                 }
 
                 my $marginadd = 0;
-                if ( (defined $binance_usd_symbol) || (defined $usd_stablecoin) || (defined $eur_stablecoin) || (defined $sgd_stablecoin) || (defined $chf_stablecoin) || (defined $btc_stablecoin) || (defined $eth_stablecoin) || (defined $chainlink_usd_bep) || (defined $chainlink_usd_plg) || (defined $chainlink_usd_eth) || (defined $coinex_usd_symbol) || (defined $mexc_usd_symbol) ) {
+                if ( (defined $binance_usd_symbol) || (defined $usd_stablecoin) || (defined $eur_stablecoin) || (defined $sgd_stablecoin) || (defined $chf_stablecoin) || (defined $btc_stablecoin) || (defined $eth_stablecoin) ) {
                     $marginadd = max($change,$base_4h_change)/100/3;
                 } else {
                     $marginadd = max($change,$base_4h_change)/100/2;
@@ -3041,23 +2899,6 @@ if ( $api eq "dex_gecko" ) {
                             $bid = undef;
                             $ask = undef;
                             print "========= $coin is not trading on binance, reason: $status\n";
-                        }
-                    }
-                }
-
-                # https://api.coinex.com/v2/assets/deposit-withdraw-config?ccy=FIRO
-                if (defined $coinex_info_symbol) {
-                    my $coinex_info = coinex_info($coinex_info_symbol);
-                    if ( $coinex_info ne "1" ) {
-                        my $deposit_active = from_json($coinex_info)->{"data"}{"chains"}[0]{"deposit_enabled"};
-                        my $withdraw_active = from_json($coinex_info)->{"data"}{"chains"}[0]{"withdraw_enabled"};
-                        if (!$deposit_active) {
-                            $bid = undef;
-                            print "========= deposits for $coin on coinex disabled\n";
-                        }
-                        if (!$withdraw_active) {
-                            $ask = undef;
-                            print "========= withdraws for $coin on coinex disabled\n";
                         }
                     }
                 }
@@ -3447,91 +3288,6 @@ if ( $api eq "dex_gecko" ) {
     }
 
 
-} elsif ( $api eq "coinex" ) {
-    my $json = read_file("$cwd/mpm.conf.coinex.$base");
-    my $marginsconf = decode_json($json);
-    #my $marginadd = binance_volat();
-    my $marginadd = 0;
-    my $cex_price = 0;
-
-    foreach my $coin ( keys %{$marginsconf} ) {
-        my $bidmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_1'} + $marginadd/15);
-        my $bidmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_2'} + $marginadd/30);
-        my $bidmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'bidmargin_3'} + $marginadd/50);
-        my $askmargin_1 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_1'} + $marginadd/15);
-        my $askmargin_2 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_2'} + $marginadd/30);
-        my $askmargin_3 = sprintf("%.4f", $marginsconf->{$coin}{'askmargin_3'} + $marginadd/50);
-        my $quantity_1 = $marginsconf->{$coin}{'quantity_1'};
-        my $quantity_2 = $marginsconf->{$coin}{'quantity_2'};
-        my $quantity_3 = $marginsconf->{$coin}{'quantity_3'};
-        my $maxsum_1 = $marginsconf->{$coin}{'maxsum_1'};
-        my $maxsum_2 = $marginsconf->{$coin}{'maxsum_2'};
-        my $maxsum_3 = $marginsconf->{$coin}{'maxsum_3'};
-
-        coinex_cancelorders($base,$coin);
-
-        my $coinex_price = coinex_latest_price($base.$coin);
-        my $sell = from_json($coinex_price)->{"data"}{"ticker"}{"sell"};
-        my $buy = from_json($coinex_price)->{"data"}{"ticker"}{"buy"};
-        if (($sell > 0) && ($buy > 0)) {
-            $cex_price = sprintf("%.10f", ($sell + $buy + from_json($coinex_price)->{"data"}{"ticker"}{"last"})/3);
-        }
-
-        my $coinex_depth = coinex_depth($base,$coin);
-
-        if ( ($coinex_depth ne "1") && ($cex_price > 0) ) {
-            my $maxbidprice = sprintf("%.10f", ($cex_price - $cex_price * $bidmargin_1));
-            my $minaskprice = sprintf("%.10f", ($cex_price + $cex_price * $askmargin_1));
-            if ( ($base eq "ARRR") && ($coin eq "USDT") ) {
-                $cex_bid_price_1 = sprintf("%.4f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_1,$coin) + 0.0001));
-                $cex_ask_price_1 = sprintf("%.4f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_1,$coin) - 0.0001));
-            } elsif ( $coin eq "USDT" ) {
-                $cex_bid_price_1 = sprintf("%.6f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_1,$coin) + 0.000001));
-                $cex_ask_price_1 = sprintf("%.6f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_1,$coin) - 0.000001));
-            } else {
-                $cex_bid_price_1 = sprintf("%.10f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_1,$coin) + 0.0000000001));
-                $cex_ask_price_1 = sprintf("%.10f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_1,$coin) - 0.0000000001));
-            }
-            if ( ( $cex_bid_price_1 eq "0.0000000001" ) || ( $cex_bid_price_1 > $maxbidprice ) ) { $cex_bid_price_1 = $maxbidprice; }
-            if ( ( $cex_ask_price_1 eq "0.0000000001" ) || ( $cex_ask_price_1 < $minaskprice ) ) { $cex_ask_price_1 = $minaskprice; }
-
-            $maxbidprice = sprintf("%.10f", ($cex_price - $cex_price * $bidmargin_2));
-            $minaskprice = sprintf("%.10f", ($cex_price + $cex_price * $askmargin_2));
-            if ( ($base eq "ARRR") && ($coin eq "USDT") ) {
-                $cex_bid_price_2 = sprintf("%.4f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_2,$coin) + 0.0001));
-                $cex_ask_price_2 = sprintf("%.4f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_2,$coin) - 0.0001));
-            } elsif ( $coin eq "USDT" ) {
-                $cex_bid_price_2 = sprintf("%.6f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_2,$coin) + 0.000001));
-                $cex_ask_price_2 = sprintf("%.6f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_2,$coin) - 0.000001));
-            } else {
-                $cex_bid_price_2 = sprintf("%.10f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_2,$coin) + 0.0000000001));
-                $cex_ask_price_2 = sprintf("%.10f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_2,$coin) - 0.0000000001));
-            }
-            if ( ( $cex_bid_price_2 eq "0.0000000001" ) || ( $cex_bid_price_2 > $maxbidprice ) ) { $cex_bid_price_2 = $maxbidprice; }
-            if ( ( $cex_ask_price_2 eq "0.0000000001" ) || ( $cex_ask_price_2 < $minaskprice ) ) { $cex_ask_price_2 = $minaskprice; }
-
-            $maxbidprice = sprintf("%.10f", ($cex_price - $cex_price * $bidmargin_3));
-            $minaskprice = sprintf("%.10f", ($cex_price + $cex_price * $askmargin_3));
-            if ( ($base eq "ARRR") && ($coin eq "USDT") ) {
-                $cex_bid_price_3 = sprintf("%.4f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_3,$coin) + 0.0001));
-                $cex_ask_price_3 = sprintf("%.4f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_3,$coin) - 0.0001));
-            } elsif ( $coin eq "USDT" ) {
-                $cex_bid_price_3 = sprintf("%.6f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_3,$coin) + 0.000001));
-                $cex_ask_price_3 = sprintf("%.6f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_3,$coin) - 0.000001));
-            } else {
-                $cex_bid_price_3 = sprintf("%.10f", (calc_bestprice_sum($coinex_depth->{'bids'},$maxsum_3,$coin) + 0.0000000001));
-                $cex_ask_price_3 = sprintf("%.10f", (calc_bestprice_sum($coinex_depth->{'asks'},$maxsum_3,$coin) - 0.0000000001));
-            }
-            if ( ( $cex_bid_price_3 eq "0.0000000001" ) || ( $cex_bid_price_3 > $maxbidprice ) ) { $cex_bid_price_3 = $maxbidprice; }
-            if ( ( $cex_ask_price_3 eq "0.0000000001" ) || ( $cex_ask_price_3 < $minaskprice ) ) { $cex_ask_price_3 = $minaskprice; }
-
-            coinex_setprice($base,$coin,$cex_bid_price_1,$cex_ask_price_1,$quantity_1);
-            coinex_setprice($base,$coin,$cex_bid_price_2,$cex_ask_price_2,$quantity_2);
-            coinex_setprice($base,$coin,$cex_bid_price_3,$cex_ask_price_3,$quantity_3);
-        }
-    }
-
 } else {
     print "API not found\n";
 }
-
